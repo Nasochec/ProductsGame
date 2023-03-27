@@ -9,8 +9,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{7CFCB0B4-E42E-4CB0-9BD5-682044C7266C}"
 	ProjectSection(SolutionItems) = preProject
-		resources\Безымянный.png = resources\Безымянный.png
+		resources\task.png = resources\task.png
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9E92B2E2-2E12-4440-8A2D-AA3E7F81B837}"
+	ProjectSection(SolutionItems) = preProject
+		resources\task.png = resources\task.png
+		tasks.txt = tasks.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionsGameCore", "ProductionsGameCore\ProductionsGameCore.csproj", "{19963D8C-0F2C-469F-B8A7-514D28C574D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +34,10 @@ Global
 		{FCE71D88-9A0D-4A61-AA37-4AA0C251E8DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCE71D88-9A0D-4A61-AA37-4AA0C251E8DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCE71D88-9A0D-4A61-AA37-4AA0C251E8DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19963D8C-0F2C-469F-B8A7-514D28C574D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19963D8C-0F2C-469F-B8A7-514D28C574D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19963D8C-0F2C-469F-B8A7-514D28C574D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19963D8C-0F2C-469F-B8A7-514D28C574D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

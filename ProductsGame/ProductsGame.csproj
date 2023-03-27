@@ -64,14 +64,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GameSettings.cs" />
+    <Compile Include="ExeSerializationPlayerAdapter.cs" />
+    <Compile Include="GameCompiler.cs" />
+    <Compile Include="IWords.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Production.cs" />
+    <Compile Include="PlayerAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +98,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
+      <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
+      <Name>ProductionsGameCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

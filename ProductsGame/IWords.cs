@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game
+namespace ProductsGame
 {
-    public class Class1
+    public interface IWords//TODO RENAME?
     {
+        IEnumerable<string> getWords();
     }
 }
