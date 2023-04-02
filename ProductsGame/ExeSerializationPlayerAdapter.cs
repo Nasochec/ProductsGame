@@ -1,10 +1,12 @@
-﻿using System;
+﻿using ProductionsGameCore;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace ProductsGame
 {
@@ -13,24 +15,18 @@ namespace ProductsGame
         String filename;
         private Process player;
         public ExeSerializationPlayerAdapter(int number,
-            GameSettings settings,
-            Bank bank,
-            IEnumerable<IWords> playersWords,
+            GameCompiler gameCompiler,
             String filename)
-            : base(number, settings, bank, playersWords)
+            : base(number,gameCompiler)
         {
             this.filename = filename;
-            //player = new Process();
-            //player.StartInfo.FileName = filename;
-            //player.StandardInput
-            // player.StandardOutput
-            // player.StartInfo.UseShellExecute = true;
-            //player.Start();
-            //player.WaitForExit();
         }
 
-        override protected Move CalculateMove(int productionGroupNumber, IEnumerable<KeyValuePair<ProductionGroup, int>> bank)
+        override protected Move CalculateMove(int productionGroupNumber)
         {
+            //Получим список всех слов всех пользователей для передачи в программы стратегий.
+            List<List<string>> playersWords = GameCompiler.getPlayersWords();
+
             player = new Process();
             player.StartInfo.FileName = filename;
             player.StartInfo.CreateNoWindow = true;
@@ -39,14 +35,13 @@ namespace ProductsGame
             player.StartInfo.UseShellExecute = false;
             //player.StartInfo.WorkingDirectory = filename;
             player.Start();
-            
+           
+            //Направляем программе на вход данные.
             BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(player.StandardInput.BaseStream,Settings);
-            
-            
-            player.StandardInput.Write();//Write current config 
-
-
+            formatter.Serialize(player.StandardInput.BaseStream, Settings);
+            formatter.Serialize(player.StandardInput.BaseStream, Bank);
+            formatter.Serialize(player.StandardInput.BaseStream, MyNumber);
+            formatter.Serialize(player.StandardInput.BaseStream, playersWords);
 
             player.StandardInput.Flush();
             player.StandardInput.Close();

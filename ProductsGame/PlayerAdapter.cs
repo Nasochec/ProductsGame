@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
+using ProductionsGameCore;
 
 namespace ProductsGame
 {
-    public abstract class PlayerAdapter: IWords
+    public abstract class PlayerAdapter : IWords
     {
         public int MoveNumber
         {
@@ -17,21 +18,28 @@ namespace ProductsGame
         }
         private List<string> words;
         protected int MyNumber { get; private set; }
+        protected GameCompiler GameCompiler { get; private set; }
         protected GameSettings Settings { get; private set; }
         protected Bank Bank { get; private set; }
-        protected List<IWords> PlayersWords { get; private set; }
 
-        //protected GameCompiler GameCompiler { get; private set; }
-
-        public PlayerAdapter(int number, GameSettings settings, Bank bank, IEnumerable<IWords> playersWords)
+        public PlayerAdapter(int number, GameCompiler gameCompiler)
         {
             MoveNumber = 0;
             MyNumber = number;
             this.words = new List<string>();
-            Settings = settings;
-            Bank = bank;
-            PlayersWords = playersWords.ToList();
+            Settings = GameCompiler.GetGameSettings();
+            Bank = GameCompiler.getBank();
         }
+
+        //public PlayerAdapter(int number, GameSettings settings, Bank bank, IEnumerable<IWords> playersWords)
+        //{
+        //    MoveNumber = 0;
+        //    MyNumber = number;
+        //    this.words = new List<string>();
+        //    Settings = settings;
+        //    Bank = bank;
+        //    PlayersWords = playersWords.ToList();
+        //}
 
         /// <summary>
         /// Метод применяющий выбранную продукцию из выбранной группы к выбранному слову.*/
@@ -59,7 +67,7 @@ namespace ProductsGame
                 }
                 else
                 {//Проверка что указаная продукция есть в банке
-                    if (Bank.getProductionCount(production) == 0)
+                    if (Bank.getProductionCount(productionGroupNumber) == 0)
                         throw new Exception(String.Format("Wrong move. Bank doesn't contain production group {0}.", productionGroupNumber));
                 }
                 if (wordNumber >= 0 && wordNumber < words.Count)
@@ -86,16 +94,13 @@ namespace ProductsGame
                     }
                 }
                 if (!isfirst)  //удаляем продукцию из банка
-                    Bank.removeProduction(production);
+                    Bank.removeProduction(productionGroupNumber);
                 isfirst = false;
             }
-            if (isfirst)//осталось истиной -> ни одна продукция не была применена, добавить её в банк
-            {
-                ProductionGroup production = Settings.getProductionGroup(firstMoveProductionGroupNumber);
-                Bank.addProduction(production);
-            }
+            if (isfirst)//осталось истиной -> ни одна продукция не была применена, добавить её в 
+                Bank.addProduction(firstMoveProductionGroupNumber);
 
-            {// проверить что применены все мозможные продукции
+            {// проверить что применены все возможные продукции
                 int productionNumber = 0;
                 foreach (var production in Settings.GetProductions())
                 {
@@ -110,9 +115,9 @@ namespace ProductsGame
             }
         }
 
-        public void MakeMove(int productionGroupNumber, Bank bank)
+        public void MakeMove(int productionGroupNumber)
         {
-            Move move = this.CalculateMove(productionGroupNumber, bank.getProductions());
+            Move move = this.CalculateMove(productionGroupNumber);
             //TODO add Logging
             applyMove(move, productionGroupNumber);
             //TODO catch exception and write it to logs
@@ -124,11 +129,12 @@ namespace ProductsGame
         /// <param name="productionGroupNumber"></param>
         /// <param name="bank"></param>
         /// <returns></returns>
-        protected abstract Move CalculateMove(int productionGroupNumber, IEnumerable<KeyValuePair<ProductionGroup, int>> bank);
+        protected abstract Move CalculateMove(int productionGroupNumber);
 
-        public IEnumerable<string> getWords() {
+        public IEnumerable<string> getWords()
+        {
             return words.AsEnumerable();
         }
-    
+
     }
 }

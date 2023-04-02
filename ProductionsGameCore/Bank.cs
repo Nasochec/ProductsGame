@@ -5,50 +5,43 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductsGame
+namespace ProductionsGameCore
 {
     [Serializable]
     public class Bank:ISerializable
     {
-        //List<>
-        private Dictionary<ProductionGroup,int> productionsBank;
+        List<int> productionsBank;
 
-        public Bank(List<ProductionGroup> productions) {
-            productionsBank = new Dictionary<ProductionGroup,int>();
-            for(int i=0;i< productions.Count; i++) 
-                productionsBank.Add(productions[i],0);
-        }
-
-        public Bank(IEnumerable<ProductionGroup> productions)
+        public Bank(int productionsNumber)
         {
-            productionsBank = new Dictionary<ProductionGroup, int>();
-            foreach (var production in productions)
-                productionsBank.Add(production, 0);
+            productionsBank = new List<int>(productionsNumber);
         }
 
-        public void addProduction(ProductionGroup production) {
-            productionsBank[production]++;
-        }
-
-        public void removeProduction(ProductionGroup production)
+        public Bank(SerializationInfo info, StreamingContext context)
         {
-            productionsBank[production]--;
+            productionsBank = (List<int>)info.GetValue("productionsBank", typeof(List<int>));
         }
 
-        public IEnumerable<KeyValuePair<ProductionGroup, int>> getProductions() { 
+        public void addProduction(int productionIndex) {
+            productionsBank[productionIndex]++;
+        }
+
+        public void removeProduction(int productionIndex)
+        {
+            productionsBank[productionIndex]--;
+        }
+
+        public IEnumerable<int> getProductions() { 
             return productionsBank.AsEnumerable();
         }
 
-        public int getProductionCount(ProductionGroup production) { 
-            return productionsBank[production];
+        public int getProductionCount(int productionIndex) { 
+            return productionsBank[productionIndex];
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("size",productionsBank.Count,typeof(int));
-            for (int i = 0; i < productionsBank.Count; ++i)
-                info.AddValue("production" + i, productions[i], typeof(ProductionGroup));
-           
+            info.AddValue("productionsBank", productionsBank, typeof(List<int>)); 
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ProductsGame
+namespace ProductionsGameCore
 {
     [Serializable]
     public class ProductionGroup : ISerializable
