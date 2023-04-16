@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
@@ -23,6 +24,7 @@ namespace ProductsGame
         protected GameSettings Settings { get; private set; }
         protected Bank Bank { get; private set; }
         private string logFilename;
+        public int Score { get; private set; }
 
         public PlayerAdapter(int number, GameCompiler gameCompiler, string logFilename)
         {
@@ -109,22 +111,24 @@ namespace ProductsGame
                     }
                 }
             }
+            MoveNumber++;
         }
 
         public void MakeMove(int productionGroupNumber)
         {
-            StreamWriter log = new StreamWriter(logFilename,true);
+            StreamWriter log = new StreamWriter(logFilename, true);
             log.AutoFlush = false;
             Move move = this.CalculateMove(productionGroupNumber);
-            //TODO add Logging
             applyMove(move, productionGroupNumber);
-            log.WriteLine("Move: {0}, Player: {1}",MoveNumber,MyNumber);
+            log.WriteLine("Move: {0}, Player: {1}", MoveNumber, MyNumber);
             log.WriteLine("Move: {0}", move.ToString());
             log.WriteLine("Bank: {0}", Bank.ToString());
             List<List<string>> words = GameCompiler.getPlayersWords();
-            for (int playerNumber= 0;playerNumber<words.Count;++playerNumber ) {
-                log.Write("Player {0} words:",playerNumber);
-                foreach (var word in words[playerNumber]) {
+            for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
+            {
+                log.Write("Player {0} words:", playerNumber);
+                foreach (var word in words[playerNumber])
+                {
                     log.Write(" " + word);
                 }
                 log.WriteLine();
@@ -132,6 +136,8 @@ namespace ProductsGame
             log.Flush();
             log.Close();
             //TODO catch exception and write it to logs
+            if (MoveNumber == Settings.NumberOfMoves)//в конце игры - подсчитываем очки
+                calculateScore();
         }
 
         /// <summary>
@@ -145,6 +151,20 @@ namespace ProductsGame
         public IEnumerable<string> getWords()
         {
             return words.AsEnumerable();
+        }
+
+        private void calculateScore()
+        {//TODO возможно можно переделать сделав отдельное хранилище сентенциальных форм
+            Score = 0;
+            foreach (var word in words)
+            {
+                if (!Regex.IsMatch(word, "[A-Z]"))//проверка что слово - сентенция
+                {
+                    Score += word.Length;
+                    Score += 3;
+                }
+            }
+
         }
 
     }
