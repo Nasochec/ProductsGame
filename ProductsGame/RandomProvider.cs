@@ -24,10 +24,11 @@ namespace ProductsGame
             int r = random.Next(RandomSettings.getTotalPossibility());
             for (int i = 0; i < RandomSettings.productionsCount(); ++i)
             {
-                r -= random.Next(RandomSettings.getProductionPossibility(i));
+                r -= RandomSettings.getProductionPossibility(i);
                 if(r<0)return i;
             }
             return RandomSettings.productionsCount()-1;
         }
     }
 }
+ 

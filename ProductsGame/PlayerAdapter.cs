@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using ProductionsGameCore;
 
 namespace ProductsGame
 {
-    public abstract class PlayerAdapter : IWords
+    public abstract class PlayerAdapter
     {
         public int MoveNumber
         {
@@ -21,25 +22,18 @@ namespace ProductsGame
         protected GameCompiler GameCompiler { get; private set; }
         protected GameSettings Settings { get; private set; }
         protected Bank Bank { get; private set; }
+        private string logFilename;
 
-        public PlayerAdapter(int number, GameCompiler gameCompiler)
+        public PlayerAdapter(int number, GameCompiler gameCompiler, string logFilename)
         {
             MoveNumber = 0;
             MyNumber = number;
             this.words = new List<string>();
+            GameCompiler = gameCompiler;
             Settings = GameCompiler.GetGameSettings();
             Bank = GameCompiler.getBank();
+            this.logFilename = logFilename;
         }
-
-        //public PlayerAdapter(int number, GameSettings settings, Bank bank, IEnumerable<IWords> playersWords)
-        //{
-        //    MoveNumber = 0;
-        //    MyNumber = number;
-        //    this.words = new List<string>();
-        //    Settings = settings;
-        //    Bank = bank;
-        //    PlayersWords = playersWords.ToList();
-        //}
 
         /// <summary>
         /// Метод применяющий выбранную продукцию из выбранной группы к выбранному слову.*/
@@ -80,10 +74,10 @@ namespace ProductsGame
                     }
                     else
                     {//B->cDe : aBf-> acDef
-                        string newWord = word.Substring(0, index - 1) +
+                        string newWord = word.Substring(0, index) +
                             right +
                             word.Substring(index + 1, word.Length - index - 1);
-                        words[index] = newWord;
+                        words[wordNumber] = newWord;
                     }
                 }
                 else
@@ -104,8 +98,10 @@ namespace ProductsGame
                 int productionNumber = 0;
                 foreach (var production in Settings.GetProductions())
                 {
-                    productionNumber++;
+                    if (Bank.getProductionCount(productionNumber) <= 0)
+                        continue;
                     char left = production.Left;
+                    productionNumber++;
                     foreach (var word in words)
                     {
                         if (word.IndexOf(left) != -1)
@@ -117,9 +113,24 @@ namespace ProductsGame
 
         public void MakeMove(int productionGroupNumber)
         {
+            StreamWriter log = new StreamWriter(logFilename,true);
+            log.AutoFlush = false;
             Move move = this.CalculateMove(productionGroupNumber);
             //TODO add Logging
             applyMove(move, productionGroupNumber);
+            log.WriteLine("Move: {0}, Player: {1}",MoveNumber,MyNumber);
+            log.WriteLine("Move: {0}", move.ToString());
+            log.WriteLine("Bank: {0}", Bank.ToString());
+            List<List<string>> words = GameCompiler.getPlayersWords();
+            for (int playerNumber= 0;playerNumber<words.Count;++playerNumber ) {
+                log.Write("Player {0} words:",playerNumber);
+                foreach (var word in words[playerNumber]) {
+                    log.Write(" " + word);
+                }
+                log.WriteLine();
+            }
+            log.Flush();
+            log.Close();
             //TODO catch exception and write it to logs
         }
 

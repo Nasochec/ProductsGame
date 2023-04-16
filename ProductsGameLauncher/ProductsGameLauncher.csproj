@@ -55,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="GameResults.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -62,6 +66,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GameResults.xaml.cs">
+      <DependentUpon>GameResults.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -95,6 +102,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GUIStrrategy\GUIStrrategy.csproj">
+      <Project>{4152b41b-295a-4891-8267-1c365fcba2bf}</Project>
+      <Name>GUIStrrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
+      <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
+      <Name>ProductionsGameCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProductsGame\ProductsGame.csproj">
       <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
       <Name>ProductsGame</Name>

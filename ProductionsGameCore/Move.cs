@@ -22,10 +22,11 @@ namespace ProductionsGameCore
 
         public void addMove(int wordNumber, int groupNumber, int productionNumber)
         {
-            moves.Add(new PrimaryMove(wordNumber,groupNumber, productionNumber));
+            moves.Add(new PrimaryMove(wordNumber, groupNumber, productionNumber));
         }
 
-        public IEnumerable<PrimaryMove> getMoves() { 
+        public IEnumerable<PrimaryMove> getMoves()
+        {
             return moves.AsEnumerable();
         }
 
@@ -36,10 +37,12 @@ namespace ProductionsGameCore
         //    productionNumber = move.Value;
         //}
 
-        public static Move FromString(string move) {
+        public static Move FromString(string move)
+        {
             Move moveRez = new Move();
-            string[] splittedMove = move.Split('\n');
-            for (int i = 0; i < splittedMove.Length; i++) {
+            string[] splittedMove = move.Split(',');
+            for (int i = 0; i < splittedMove.Length; i++)
+            {
                 string[] sss = splittedMove[i].Split(' ');
                 int wordNumber, productionGroupNumber, productionNumber;
                 if (!int.TryParse(sss[0], out wordNumber)
@@ -50,11 +53,15 @@ namespace ProductionsGameCore
             }
             return moveRez;
         }
-        
-        public override string ToString() { 
+
+        public override string ToString()
+        {
             StringBuilder sb = new StringBuilder();
-            foreach (PrimaryMove move in this.moves) { 
-                sb.AppendLine(move.ToString());
+            if (moves.Count != 0)
+                sb.Append(moves[0].ToString());
+            for (int index = 1; index < moves.Count; ++index)
+            {
+                sb.Append("," + moves[index].ToString());
             }
             return sb.ToString();
         }

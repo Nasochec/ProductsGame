@@ -15,6 +15,8 @@ namespace ProductionsGameCore
         public Bank(int productionsNumber)
         {
             productionsBank = new List<int>(productionsNumber);
+            for (int i = 0; i < productionsNumber; ++i)
+                productionsBank.Add(0);
         }
 
         public Bank(SerializationInfo info, StreamingContext context)
@@ -42,6 +44,15 @@ namespace ProductionsGameCore
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("productionsBank", productionsBank, typeof(List<int>)); 
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb =new StringBuilder();
+            foreach(var item in productionsBank) {
+                sb.Append(item + " ");
+            }
+            return sb.ToString();
         }
     }
 }

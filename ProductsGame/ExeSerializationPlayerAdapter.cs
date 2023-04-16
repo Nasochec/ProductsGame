@@ -16,8 +16,9 @@ namespace ProductsGame
         private Process player;
         public ExeSerializationPlayerAdapter(int number,
             GameCompiler gameCompiler,
-            String filename)
-            : base(number,gameCompiler)
+            String filename,
+            string logFilename)
+            : base(number,gameCompiler,logFilename)
         {
             this.filename = filename;
         }
@@ -42,6 +43,7 @@ namespace ProductsGame
             formatter.Serialize(player.StandardInput.BaseStream, Bank);
             formatter.Serialize(player.StandardInput.BaseStream, MyNumber);
             formatter.Serialize(player.StandardInput.BaseStream, playersWords);
+            formatter.Serialize(player.StandardInput.BaseStream, productionGroupNumber);
 
             player.StandardInput.Flush();
             player.StandardInput.Close();
