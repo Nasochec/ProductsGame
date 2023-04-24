@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D6278432-0D8E-4EB8-BB0F-C0329F7490FE}</ProjectGuid>
+    <ProjectGuid>{85B2AF95-10BA-4AED-955F-918BACA9D7BA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>ProductsGame</RootNamespace>
-    <AssemblyName>ProductsGame</AssemblyName>
+    <RootNamespace>ProductsGameLauncher</RootNamespace>
+    <AssemblyName>ProductsGameLauncher</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="GameResults.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -64,14 +67,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GameSettings.cs" />
+    <Compile Include="GameResults.xaml.cs">
+      <DependentUpon>GameResults.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Production.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +100,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GUIStrrategy\GUIStrrategy.csproj">
+      <Project>{4152b41b-295a-4891-8267-1c365fcba2bf}</Project>
+      <Name>GUIStrrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
+      <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
+      <Name>ProductionsGameCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProductsGame\ProductsGame.csproj">
+      <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
+      <Name>ProductsGame</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

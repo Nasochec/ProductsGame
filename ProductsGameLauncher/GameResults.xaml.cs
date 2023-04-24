@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProductsGame;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,19 +11,28 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ProductsGame
+namespace ProductsGameLauncher
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for GameResults.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class GameResults : Window
     {
-        public MainWindow()
+        private GameCompiler compiler;
+        public GameResults()
         {
             InitializeComponent();
         }
+
+        public GameResults(GameCompiler gc)
+        {
+            InitializeComponent();
+            this.compiler = gc;
+            compiler.play();
+        }
+
+        
     }
 }
