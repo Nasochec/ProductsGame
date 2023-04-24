@@ -42,7 +42,7 @@ namespace ProductsGame
             for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
             {
                 playerFilenameEnumerator.MoveNext();
-                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, playerFilenameEnumerator.Current,logFilename));
+                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, logFilename, playerFilenameEnumerator.Current));
                 //playerFilenameEnumerator.MoveNext();
             }            
         }
@@ -71,6 +71,8 @@ namespace ProductsGame
             for (int moveNumber = 0; moveNumber < gameSettings.NumberOfMoves; ++moveNumber) {
                 for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber) {
                     players[playerNumber].MakeMove(randomProvider.getRandom());
+                    if (players[playerNumber].Finished)
+                        return;//TODO maybe do something
                 }
             }
         }

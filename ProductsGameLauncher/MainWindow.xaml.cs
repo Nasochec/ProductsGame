@@ -117,6 +117,7 @@ namespace ProductsGameLauncher
         {
             if (gameSettings != null)
             {
+                this.Hide();
                 GameResults gameResultsWidow = new GameResults(new GameCompiler(gameSettings, playersFilenames.AsEnumerable()));
                 gameResultsWidow.Show();
                 this.Close();

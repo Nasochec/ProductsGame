@@ -54,6 +54,10 @@ namespace ProductionsGameCore
                 );
         }
 
+        public IEnumerable<string> getRights() { 
+            return right.AsEnumerable();
+        }
+
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("left", Left, typeof(char));
@@ -65,10 +69,12 @@ namespace ProductionsGameCore
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(Left + ":");
-            foreach (string r in right)
+            sb.Append(Left + "->");
+            if (right.Count != 0)
+                sb.Append(right[0].ToString());
+            for (int index = 1; index < right.Count; ++index)
             {
-                sb.Append(" " + right);
+                sb.Append("|" + right[index].ToString());
             }
             return sb.ToString();
         }

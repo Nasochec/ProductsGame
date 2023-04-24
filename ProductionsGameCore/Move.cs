@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace ProductionsGameCore
 {
+    /// <summary>
+    /// Соглашение для ходов: ход это множество простейших ходов (если оно пустое, то считается что делается пропуск хода).
+    /// Соглашение для простейших ходов: простейший ход это 3 числа: номер слова, номер группы продукций, и номер продукции в группе.
+    /// Если слова с заданным номером нет, то это значит что должно добавиться новое слово, но только в том случае, если группа продукций в правой части имеет нетерминал S.
+    /// </summary>
     public class Move
     {
         private List<PrimaryMove> moves;
         public int WordNumber { get; private set; }
-
-        //private Queue<KeyValuePair<int, int>> moves = new Queue<KeyValuePair<int, int>>();
-
         public Move()
         {
             moves = new List<PrimaryMove>();
@@ -30,15 +32,10 @@ namespace ProductionsGameCore
             return moves.AsEnumerable();
         }
 
-        //public void popMove(out int groupNumber, out int productionNumber)
-        //{
-        //    KeyValuePair<int, int> move = moves.Dequeue();
-        //    groupNumber = move.Key;
-        //    productionNumber = move.Value;
-        //}
-
         public static Move FromString(string move)
         {
+            if(move == null)
+                return new Move();//TODO return null
             Move moveRez = new Move();
             string[] splittedMove = move.Split(',');
             for (int i = 0; i < splittedMove.Length; i++)

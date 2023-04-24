@@ -25,6 +25,7 @@ namespace ProductsGame
         protected Bank Bank { get; private set; }
         private string logFilename;
         public int Score { get; private set; }
+        public bool Finished { get; private set; }
 
         public PlayerAdapter(int number, GameCompiler gameCompiler, string logFilename)
         {
@@ -35,6 +36,7 @@ namespace ProductsGame
             Settings = GameCompiler.GetGameSettings();
             Bank = GameCompiler.getBank();
             this.logFilename = logFilename;
+            Finished = false;
         }
 
         /// <summary>
@@ -116,27 +118,58 @@ namespace ProductsGame
 
         public void MakeMove(int productionGroupNumber)
         {
+            if (Finished)
+                return;
             StreamWriter log = new StreamWriter(logFilename, true);
             log.AutoFlush = false;
-            Move move = this.CalculateMove(productionGroupNumber);
-            applyMove(move, productionGroupNumber);
-            log.WriteLine("Move: {0}, Player: {1}", MoveNumber, MyNumber);
-            log.WriteLine("Move: {0}", move.ToString());
-            log.WriteLine("Bank: {0}", Bank.ToString());
-            List<List<string>> words = GameCompiler.getPlayersWords();
-            for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
+            Move move = null;
+            try
             {
-                log.Write("Player {0} words:", playerNumber);
-                foreach (var word in words[playerNumber])
+                move = this.CalculateMove(productionGroupNumber);
+                applyMove(move, productionGroupNumber);
+                log.WriteLine("Production number:{0}", productionGroupNumber);
+                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, MyNumber);
+                log.WriteLine("Move: {0}", move.ToString());
+                log.WriteLine("Bank: {0}", Bank.ToString());
+                List<List<string>> words = GameCompiler.getPlayersWords();
+                for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
                 {
-                    log.Write(" " + word);
+                    log.Write("Player {0} words:", playerNumber);
+                    foreach (var word in words[playerNumber])
+                    {
+                        log.Write(" " + word);
+                    }
+                    log.WriteLine();
                 }
-                log.WriteLine();
             }
-            log.Flush();
-            log.Close();
+            catch (Exception ex)
+            {
+                log.WriteLine("ERROR");
+                log.WriteLine("Программа заранее завершила работу из-за игрока" + MyNumber + ":" + ex.Message);
+                log.WriteLine("Конфигурация, на которой произошла ошибка: ");
+                log.WriteLine("Production number:{0}", productionGroupNumber);
+                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, MyNumber);
+                log.WriteLine("Bank: {0}", Bank.ToString());
+                List<List<string>> words = GameCompiler.getPlayersWords();
+                for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
+                {
+                    log.Write("Player {0} words:", playerNumber);
+                    foreach (var word in words[playerNumber])
+                    {
+                        log.Write(" " + word);
+                    }
+                    log.WriteLine();
+                }
+                Finished = true;
+            }
+            finally
+            {
+                log.Flush();
+                log.Close();
+            }
+
             //TODO catch exception and write it to logs
-            if (MoveNumber == Settings.NumberOfMoves)//в конце игры - подсчитываем очки
+            if (MoveNumber == Settings.NumberOfMoves || Finished)//в конце игры - подсчитываем очки
                 calculateScore();
         }
 

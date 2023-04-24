@@ -59,6 +59,7 @@
     <Compile Include="ExeSerializationPlayerAdapter.cs" />
     <Compile Include="GameCompiler.cs" />
     <Compile Include="Strategy.cs" />
+    <Compile Include="StrategyUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PlayerAdapter.cs" />

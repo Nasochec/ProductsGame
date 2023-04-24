@@ -72,7 +72,7 @@ namespace ProductionsGameCore
             List<ProductionGroup> productions = new List<ProductionGroup>();
             foreach (var XProduction in XProductions.Elements())
             {
-                char left = XProduction.Attribute("Left").Value[0];
+                char left = XProduction.Attribute("Left").Value[0];//TODO check left is big english letter
                 List<string> rights = new List<string>();
                 foreach (var XRight in XProduction.Elements())
                     rights.Add(XRight.Value);
