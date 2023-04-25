@@ -20,7 +20,7 @@ namespace ProductionsGameCore
             moves = new List<PrimaryMove>();
         }
 
-        public int MovesNumber { get { return moves.Count; } }
+        public int MovesCount { get { return moves.Count; } }
 
         public void addMove(int wordNumber, int groupNumber, int productionNumber)
         {
@@ -34,7 +34,7 @@ namespace ProductionsGameCore
 
         public static Move FromString(string move)
         {
-            if(move == null)
+            if(move == null || move == "")
                 return new Move();//TODO return null
             Move moveRez = new Move();
             string[] splittedMove = move.Split(',');

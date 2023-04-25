@@ -8,13 +8,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace ProductionsGameCore
 {
     [Serializable]
     public class GameSettings : ISerializable
     {
-        List<ProductionGroup> productions = new List<ProductionGroup>();
+        public List<ProductionGroup> productions = new List<ProductionGroup>();
         public RandomSettings RandomSettings { get; private set; }
         public bool IsBankShare { get; private set; }
         public int NumberOfPlayers { get; private set; }
@@ -95,7 +96,7 @@ namespace ProductionsGameCore
             return new GameSettings(isBankShare,numberOfPlayers,numberOfMoves,productions,randomSettings);
         }
 
-        public void WriteToFile(string filename)
+        public void WriteToFile(string filename, bool saveSeed = true)
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
@@ -118,7 +119,8 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                XRandomSettings.Add(new XAttribute("Seed", RandomSettings.getSeed()));
+                if(saveSeed)
+                    XRandomSettings.Add(new XAttribute("Seed", RandomSettings.getSeed()));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
                 for (int i = 0; i < ProductionsCount; ++i)
@@ -128,7 +130,11 @@ namespace ProductionsGameCore
             }
             using (FileStream fs = new FileStream(purchaseOrderFilepath, FileMode.Create))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(fs))
+                var settings = new XmlWriterSettings();
+                settings.OmitXmlDeclaration = true;
+                settings.Indent = true;
+                //settings.NewLineOnAttributes = true;
+                using (XmlWriter xmlWriter = XmlWriter.Create(fs,settings))
                 {
                     XEGameSettings.WriteTo(xmlWriter);
                 }

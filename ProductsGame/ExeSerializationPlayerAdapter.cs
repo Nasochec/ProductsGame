@@ -67,13 +67,13 @@ namespace ProductsGame
             if (player.HasExited)
                 if (player.ExitCode == 2)
                     throw new Exception("Игрок " + MyNumber + " сдался.");
-                else if (player.ExitCode == 1)
+                else if (player.ExitCode != 0)
                     throw new Exception("Программа игрока " + MyNumber + " завершена с ошибкой.");
             Move move = Move.FromString(output);
             if (player.HasExited)
                 if (player.ExitCode == 2)
                     throw new Exception("Игрок " + MyNumber + " сдался.");
-                else if (player.ExitCode == 1)
+                else if (player.ExitCode != 0)
                     throw new Exception("Программа игрока " + MyNumber + " завершена с ошибкой.");
             return move;
         }

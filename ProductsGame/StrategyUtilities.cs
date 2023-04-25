@@ -28,8 +28,16 @@ namespace ProductsGame
             }
             return indexes;
         }
-        //public static bool applyPrimaryMove(PrimaryMove move, List<string> words, Bank bank) { 
-            
+        //TODO delete
+        //public static List<int> findAvaliableProductions(IEnumerable<string> words, IEnumerable<ProductionGroup> productions) {
+        //    List<int> indexes = new List<int>();
+        //    int index = 0;
+        //    foreach (var prod in productions) {
+        //        if (findMatches(words, prod.Left).Count != 0 || )
+        //            indexes.Add(index);
+        //        index++;
+        //    }
+        //    return indexes;
         //}
     }
 }

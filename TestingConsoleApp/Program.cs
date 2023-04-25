@@ -20,14 +20,14 @@ namespace TestingConsoleApp
             
             GameSettings settings = new GameSettings(true,2,3,new ProductionGroup[] {A,B},rs);
 
-            settings.WriteToFile("out.xml");
+            settings.WriteToFile("out.xml",false);
 
             XElement XGameSettings = XElement.Load("out.xml");
 
             XElement Xprods = XGameSettings.Element("Productions");
             Console.WriteLine(Xprods.Elements().Count());
 
-            GameSettings gs = GameSettings.ReadFromFile("out.xml");
+            //GameSettings gs = GameSettings.ReadFromFile("out.xml");
         }
     }
 }

@@ -44,7 +44,8 @@ namespace ProductsGame
                 playerFilenameEnumerator.MoveNext();
                 players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, logFilename, playerFilenameEnumerator.Current));
                 //playerFilenameEnumerator.MoveNext();
-            }            
+            }
+            gameSettings.WriteToFile(logFilename);
         }
 
         public Bank getBank()
