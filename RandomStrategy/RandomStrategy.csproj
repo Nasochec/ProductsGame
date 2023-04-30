@@ -58,6 +58,10 @@
       <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
       <Name>ProductsGame</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
+      <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
+      <Name>StrategyUtilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

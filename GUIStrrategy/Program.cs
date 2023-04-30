@@ -21,7 +21,7 @@ using System.Windows;
 //const int SW_SHOW = 5;
 
 
-namespace GUIStrrategy
+namespace GUIStrategy
 {
     internal class Program
     {

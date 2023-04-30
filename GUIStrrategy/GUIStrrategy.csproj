@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4152B41B-295A-4891-8267-1C365FCBA2BF}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>GUIStrrategy</RootNamespace>
-    <AssemblyName>GUIStrrategy</AssemblyName>
+    <RootNamespace>GUIStrategy</RootNamespace>
+    <AssemblyName>GUIStrategy</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -78,6 +78,10 @@
     <ProjectReference Include="..\ProductsGame\ProductsGame.csproj">
       <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
       <Name>ProductsGame</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
+      <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
+      <Name>StrategyUtilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -19,7 +19,7 @@ namespace ProductsGame
             private set;
         }
         private List<string> words;
-        protected int MyNumber { get; private set; }
+        public int PlayerNumber { get; private set; }
         protected GameCompiler GameCompiler { get; private set; }
         protected GameSettings Settings { get; private set; }
         protected Bank Bank { get; private set; }
@@ -30,7 +30,7 @@ namespace ProductsGame
         public PlayerAdapter(int number, GameCompiler gameCompiler, string logFilename)
         {
             MoveNumber = 0;
-            MyNumber = number;
+            PlayerNumber = number;
             this.words = new List<string>();
             GameCompiler = gameCompiler;
             Settings = GameCompiler.GetGameSettings();
@@ -128,7 +128,7 @@ namespace ProductsGame
                 move = this.CalculateMove(productionGroupNumber);
                 applyMove(move, productionGroupNumber);
                 log.WriteLine("Production number:{0}", productionGroupNumber);
-                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, MyNumber);
+                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, PlayerNumber);
                 log.WriteLine("Move: {0}", move.ToString());
                 log.WriteLine("Bank: {0}", Bank.ToString());
                 List<List<string>> words = GameCompiler.getPlayersWords();
@@ -145,10 +145,12 @@ namespace ProductsGame
             catch (Exception ex)
             {
                 log.WriteLine("ERROR");
-                log.WriteLine("Программа заранее завершила работу из-за игрока" + MyNumber + ":" + ex.Message);
+                log.WriteLine("Программа заранее завершила работу из-за игрока" + PlayerNumber + ":" + ex.Message);
                 log.WriteLine("Конфигурация, на которой произошла ошибка: ");
                 log.WriteLine("Production number:{0}", productionGroupNumber);
-                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, MyNumber);
+                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, PlayerNumber);
+                if(move != null)
+                    log.WriteLine("Move: {0}", move.ToString());
                 log.WriteLine("Bank: {0}", Bank.ToString());
                 List<List<string>> words = GameCompiler.getPlayersWords();
                 for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)

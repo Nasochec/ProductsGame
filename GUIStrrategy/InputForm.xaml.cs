@@ -1,26 +1,13 @@
 ﻿using ProductionsGameCore;
-using ProductsGame;
+using StrategyUtilities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using System.Diagnostics.Tracing;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace GUIStrrategy
+namespace GUIStrategy
 {
     /// <summary>
     /// Interaction logic for InputForm.xaml
@@ -83,7 +70,7 @@ namespace GUIStrrategy
                 TextBlock tb = new TextBlock();
                 tb.Text = (productioNumber + 1) + ". Количество: " + bank.getProductionCount(productioNumber) +
                     " " + curr.ToString();
-                if ((StrategyUtilities.findMatches(words[playerNumber], curr.Left).Count != 0 || curr.Left == 'S') &&
+                if ((StrategyUtilitiesClass.findMatches(words[playerNumber], curr.Left).Count != 0 || curr.Left == 'S') &&
                     bank.getProductionCount(productioNumber) > 0)
                 {
                     tb.Foreground = Brushes.Green;
@@ -140,7 +127,7 @@ namespace GUIStrrategy
             else
                 index = productionGroupNumber;
             ProductionGroup prod = gameSettings.getProductionGroup(index);
-            List<int> matches = StrategyUtilities.findMatches(words[playerNumber], prod.Left);
+            List<int> matches = StrategyUtilitiesClass.findMatches(words[playerNumber], prod.Left);
             avaliablePlayerWordsListBox.Items.Clear();
             foreach (var match in matches)
             {
@@ -275,7 +262,7 @@ namespace GUIStrrategy
                 return;
             }
 
-            List<int> allowedIndexes = StrategyUtilities.findMatches(words[playerNumber], prod.Left);
+            List<int> allowedIndexes = StrategyUtilitiesClass.findMatches(words[playerNumber], prod.Left);
 
             if (moves.Count >= 1)
                 if (bank.getProductionCount(productionGroupIndex) <= 0)
@@ -288,7 +275,7 @@ namespace GUIStrrategy
             {
                 wordIndex = allowedIndexes[wordIndex];
                 string word = words[playerNumber][wordIndex];
-                int letterIndex = StrategyUtilities.isHaveLetter(word, prod.Left);
+                int letterIndex = StrategyUtilitiesClass.isHaveLetter(word, prod.Left);
                 if (letterIndex == -1)
                 {
                     MessageBox.Show("Выбрано некорректное слово, оно не сождержит подходящего нетерминального симола.");
@@ -333,7 +320,7 @@ namespace GUIStrrategy
             {
                 if (bank.getProductionCount(i) > 0)
                 {
-                    if (StrategyUtilities.findMatches(
+                    if (StrategyUtilitiesClass.findMatches(
                         words[playerNumber],
                         gameSettings.getProductionGroup(i).Left
                         ).Count != 0 || gameSettings.getProductionGroup(i).Left == 'S')

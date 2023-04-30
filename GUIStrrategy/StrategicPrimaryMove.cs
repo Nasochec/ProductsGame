@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GUIStrrategy
+namespace GUIStrategy
 {
     internal class StrategicPrimaryMove : PrimaryMove
     {

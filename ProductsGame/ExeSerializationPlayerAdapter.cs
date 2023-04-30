@@ -44,7 +44,7 @@ namespace ProductsGame
             player.Start();
             //передаём программе необходимые данные
             formatter.Serialize(player.StandardInput.BaseStream, Settings);
-            formatter.Serialize(player.StandardInput.BaseStream, MyNumber);
+            formatter.Serialize(player.StandardInput.BaseStream, PlayerNumber);
 
         }
 
@@ -66,15 +66,15 @@ namespace ProductsGame
             string output = player.StandardOutput.ReadLine();
             if (player.HasExited)
                 if (player.ExitCode == 2)
-                    throw new Exception("Игрок " + MyNumber + " сдался.");
+                    throw new Exception("Игрок " + PlayerNumber + " сдался.");
                 else if (player.ExitCode != 0)
-                    throw new Exception("Программа игрока " + MyNumber + " завершена с ошибкой.");
+                    throw new Exception("Программа игрока " + PlayerNumber + " завершена с ошибкой.");
             Move move = Move.FromString(output);
             if (player.HasExited)
                 if (player.ExitCode == 2)
-                    throw new Exception("Игрок " + MyNumber + " сдался.");
+                    throw new Exception("Игрок " + PlayerNumber + " сдался.");
                 else if (player.ExitCode != 0)
-                    throw new Exception("Программа игрока " + MyNumber + " завершена с ошибкой.");
+                    throw new Exception("Программа игрока " + PlayerNumber + " завершена с ошибкой.");
             return move;
         }
     }

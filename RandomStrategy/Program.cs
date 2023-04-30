@@ -1,7 +1,9 @@
 ﻿using ProductionsGameCore;
 using ProductsGame;
+using StrategyUtilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -49,7 +51,7 @@ namespace RandomStrategy
                     List<List<int>> allowedWords = new List<List<int>>();
                     foreach (var pr in prods)//находим слова допустимые для каждой продукции
                     {
-                        allowedWords.Add(StrategyUtilities.findMatches(words[playerNumber], pr.Left));
+                        allowedWords.Add(StrategyUtilitiesClass.findMatches(words[playerNumber], pr.Left));
                         if (pr.Left == 'S')//если можно создать новое слово
                             allowedWords.Last().Add(-1);
                     }
@@ -82,13 +84,14 @@ namespace RandomStrategy
                     if (wordnumber != -1)
                     {
                         string word = words[playerNumber][wordnumber];
-                        int letterIndex = StrategyUtilities.isHaveLetter(word, prod.Left);
+                        int letterIndex = StrategyUtilitiesClass.isHaveLetter(word, prod.Left);
                         string newWord = word.Substring(0, letterIndex) +
                                  prod.getRightAt(productionNumber) +
                                  word.Substring(letterIndex + 1, word.Length - letterIndex - 1);
                         words[playerNumber][wordnumber] = newWord;
                     }
-                    else {
+                    else
+                    {
                         string newWord = prod.getRightAt(productionNumber);
                         words[playerNumber].Add(newWord);
                     }

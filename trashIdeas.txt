@@ -1,0 +1,141 @@
+//static KeyValuePair<int, string> findMove(SimplifiedWord oldWord, Move currentMove, Bank bank, List<SimplifiedProductionGroup> prods)
+        //{
+        //    KeyValuePair<int, string> bestWord
+        //        = new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString()); ;
+        //    KeyValuePair<int, string> tmpPair;
+        //    SimplifiedWord tmpWord;
+        //    SimplifiedProductionGroup prod;
+        //    for (int prodIndex = 0; prodIndex < prods.Count; prodIndex++)
+        //    {
+        //        if (bank.getProductionCount(prodIndex) == 0) continue;
+
+        //        prod = prods[prodIndex];
+        //        if (oldWord.neterminalsCount[prod.Left] == 0) continue;
+
+        //        bank.removeProduction(prodIndex);
+        //        for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
+        //        {
+        //            //tmpWord = new SimplifiedWord(oldWord);
+        //            oldWord.neterminalsCount[prod.Left]--;
+        //            oldWord.terminals += prod.rights[rightIndex].terminals;
+        //            foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+        //                oldWord.addNeterminal(neterminal.Key, neterminal.Value);
+
+
+        //            currentMove.addMove(0, prodIndex, rightIndex);
+        //            tmpPair = findMove(oldWord, currentMove, bank, prods);
+        //            if (bestWord.Key < tmpPair.Key)
+        //                bestWord = tmpPair;
+        //            currentMove.popMove();
+        //            oldWord.neterminalsCount[prod.Left]++;
+        //            oldWord.terminals -= prod.rights[rightIndex].terminals;
+        //            foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+        //                oldWord.addNeterminal(neterminal.Key, -neterminal.Value);
+        //        }
+        //        bank.addProduction(prodIndex);
+        //    }
+        //    return bestWord;
+        //}
+
+
+//public static void findFirstMetric(List<SimplifiedProductionGroup> productions,
+        //    GameSettings settings,
+        //    out int[] netMetric,
+        //    out int[][] prodMetric
+        //    )
+        //{
+        //    netMetric = new int[productions.Count];
+        //    prodMetric = new int[productions.Count][];
+        //    int productionsCount = productions.Count;
+        //    for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
+        //    {
+        //        netMetric[prodIndex] = -1;
+        //        prodMetric[prodIndex] = new int[productions[prodIndex].RightSize];
+        //        for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
+        //        {
+        //            var right = productions[prodIndex].rights[rightIndex];
+        //            if (right.neterminalsCount.Count == 0)
+        //                netMetric[prodIndex] = prodMetric[prodIndex][rightIndex] = 1;
+        //            else
+        //                prodMetric[prodIndex][rightIndex] = -1;
+        //        }
+        //    }
+        //    bool found = false;
+        //    while (true)
+        //    {
+        //        for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
+        //        {
+        //            for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
+        //            {
+        //                var right = productions[prodIndex].rights[rightIndex];
+        //                if (right.neterminalsCount.Count != 0)
+        //                {//если в продукции есть нетерминалы - высчитываем её
+        //                    foreach (var neterminal in right.neterminalsCount)
+        //                    {
+        //                        for (int i = 0; i < productionsCount; ++i)
+        //                        {
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+
+
+//public static Dictionary<char, int> convertNeterminalsToInt(List<SimplifiedProductionGroup> productions)
+        //{
+        //    int neterminalCount = 0;
+        //    Dictionary<char, int> charToInt = new Dictionary<char, int>();
+        //    for (int i = 0; i < productions.Count; ++i)
+        //    {
+        //        char left = productions[i].Left;
+        //        if (!charToInt.ContainsKey(left))
+        //        {
+        //            charToInt.Add(left, neterminalCount++);
+        //        }
+        //    }
+        //    return charToInt;
+        //}
+
+
+//static bool greather(SimplifiedWord word1, SimplifiedWord word2)
+        //{
+        //    return word1.terminals > word2.terminals;
+        //}
+
+//static KeyValuePair<SimplifiedWord, string> findMove(SimplifiedWord oldWord, Move currentMove, Bank bank, List<SimplifiedProductionGroup> prods)
+        //        {
+        //            KeyValuePair<SimplifiedWord, string> bestWord
+        //                = new KeyValuePair<SimplifiedWord, string>(oldWord, currentMove.ToString()); ;
+        //            KeyValuePair<SimplifiedWord, string> tmpPair;
+        //        SimplifiedWord tmpWord;
+        //        SimplifiedProductionGroup prod;
+        //            for (int prodIndex = 0; prodIndex<prods.Count; prodIndex++)
+        //            {
+        //                if (bank.getProductionCount(prodIndex) == 0) continue;
+
+        //                prod = prods[prodIndex];
+        //                if (oldWord.neterminalsCount[prod.Left]==0) continue;
+
+        //                bank.removeProduction(prodIndex);
+        //                for (int rightIndex = 0; rightIndex<prod.RightSize; ++rightIndex)
+        //                {
+        //                    tmpWord = new SimplifiedWord(oldWord);
+        //        tmpWord.neterminalsCount[prod.Left]--;
+        //                    tmpWord.terminals += prod.rights[rightIndex].terminals;
+        //                    foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+        //                        tmpWord.addNeterminal(neterminal.Key, neterminal.Value);
+
+
+        //                    currentMove.addMove(0, prodIndex, rightIndex);
+        //                    tmpPair = findMove(tmpWord, currentMove, bank, prods);
+        //                    if (greather(bestWord.Key, tmpPair.Key))
+        //                        bestWord = tmpPair;
+        //                    currentMove.popMove();
+        //                }
+        //    bank.addProduction(prodIndex);
+        //            }
+        //return bestWord;
+        //        }

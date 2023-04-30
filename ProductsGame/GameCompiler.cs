@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -74,6 +75,12 @@ namespace ProductsGame
                     players[playerNumber].MakeMove(randomProvider.getRandom());
                     if (players[playerNumber].Finished)
                         return;//TODO maybe do something
+                }
+            }
+
+            using (StreamWriter log = new StreamWriter(logFilename, true)) {
+                foreach (var player in players) {
+                    log.WriteLine("Player " + player.PlayerNumber + " score: " + player.Score);
                 }
             }
         }

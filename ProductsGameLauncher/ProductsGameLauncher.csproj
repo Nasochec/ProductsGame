@@ -106,6 +106,10 @@
       <Project>{4152b41b-295a-4891-8267-1c365fcba2bf}</Project>
       <Name>GUIStrrategy</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OneMoveStrategy\OneMoveStrategy.csproj">
+      <Project>{5737c059-c757-4aa2-85f7-02de77f6c5ee}</Project>
+      <Name>OneMoveStrategy</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
       <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
       <Name>ProductionsGameCore</Name>
@@ -117,6 +121,10 @@
     <ProjectReference Include="..\RandomStrategy\RandomStrategy.csproj">
       <Project>{efcb29b7-4f33-42f7-ab51-cd9aa7903baf}</Project>
       <Name>RandomStrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ShortWordsStrategy\ShortWordsStrategy.csproj">
+      <Project>{a65fc203-81ba-4796-968f-ff10db0c26f5}</Project>
+      <Name>ShortWordsStrategy</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
