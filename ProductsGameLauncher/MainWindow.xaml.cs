@@ -49,15 +49,19 @@ namespace ProductsGameLauncher
                 PlayersGrid.RowDefinitions.Add(new RowDefinition());
                 TextBlock label = new TextBlock();
                 label.Text = "Игрок " + (i + 1);
+                label.TextWrapping = TextWrapping.Wrap;
                 Grid.SetRow(label, i);
                 PlayersGrid.Children.Add(label);
 
                 TextBlock playerFileNameTextBlock = new TextBlock();
+                playerFileNameTextBlock.TextWrapping = TextWrapping.Wrap;
                 Grid.SetRow(playerFileNameTextBlock, i);
                 Grid.SetColumn(playerFileNameTextBlock, 1);
                 PlayersGrid.Children.Add(playerFileNameTextBlock);
 
                 Button playerFilenameChoseButton = new Button();
+                playerFilenameChoseButton.Content = "Выбрать";
+                playerFilenameChoseButton.Height = 40;
                 playerFilenameChoseButton.Click += (sender, e) =>
                 {
                     string fname = showChoseFileDialog("EXE program file (.exe)|*.exe");
@@ -110,7 +114,8 @@ namespace ProductsGameLauncher
 
         private void SettingsMoreInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            //TODO see config info + change it?
+            SettingsChageWindow settingsChageWindow = new SettingsChageWindow(gameSettings);
+            settingsChageWindow.Show();
         }
 
         private void StartGameButton(object sender, RoutedEventArgs e)

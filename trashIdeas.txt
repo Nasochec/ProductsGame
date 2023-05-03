@@ -139,3 +139,59 @@
         //            }
         //return bestWord;
         //        }
+
+
+
+
+
+        static KeyValuePair<int, string> findMoveSecond(SuperSimmplifiedWord oldWord, Move currentMove, Bank bank, List<SimplifiedProductionGroup> prods)
+        {
+            KeyValuePair<int, string> bestWord = new KeyValuePair<int, string>(0, "");
+            // = new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString()); ;
+            KeyValuePair<int, string> tmpPair;
+            SimplifiedWord tmpWord;
+            SimplifiedProductionGroup prod;
+            int prodsCount = prods.Count;
+            bool found = false;
+            for (int i=0;i< oldWord.neterminalCount.Length;++i)
+            {
+                if (neterminal.Value > 0)
+                {
+                    found = true;
+                    for (int prodIndex = 0; prodIndex < prodsCount; prodIndex++)
+                    {
+                        if (prods[prodIndex].Left == neterminal.Key && bank.getProductionCount(prodIndex) > 0)
+                        {
+                            prod = prods[prodIndex];
+                            bank.removeProduction(prodIndex);
+                            for (int rightIndex = 0; rightIndex < prod.RightSize; rightIndex++)
+                            {
+                                oldWord.neterminalsCount[prod.Left]--;
+                                oldWord.terminals += prod.rights[rightIndex].terminals;
+                                foreach (var net in prod.rights[rightIndex].neterminalsCount)
+                                    oldWord.addNeterminal(net.Key, net.Value);
+
+
+                                currentMove.addMove(0, prodIndex, rightIndex);
+                                tmpPair = findMoveSecond(oldWord, currentMove, bank, prods);
+                                if (bestWord.Key < tmpPair.Key)
+                                    bestWord = tmpPair;
+
+
+                                currentMove.popMove();
+                                oldWord.neterminalsCount[prod.Left]++;
+                                oldWord.terminals -= prod.rights[rightIndex].terminals;
+                                foreach (var net in prod.rights[rightIndex].neterminalsCount)
+                                    oldWord.addNeterminal(net.Key, -net.Value);
+                            }
+                            bank.addProduction(prodIndex);
+                        }
+                    }
+                }
+            }
+
+
+            if (!found)
+                return new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString());
+            return bestWord;
+        }

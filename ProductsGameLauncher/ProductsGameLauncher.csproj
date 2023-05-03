@@ -55,6 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SettingsChageWindow.xaml.cs">
+      <DependentUpon>SettingsChageWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="GameResults.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -74,6 +77,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SettingsChageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -106,10 +113,6 @@
       <Project>{4152b41b-295a-4891-8267-1c365fcba2bf}</Project>
       <Name>GUIStrrategy</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OneMoveStrategy\OneMoveStrategy.csproj">
-      <Project>{5737c059-c757-4aa2-85f7-02de77f6c5ee}</Project>
-      <Name>OneMoveStrategy</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
       <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
       <Name>ProductionsGameCore</Name>
@@ -125,6 +128,10 @@
     <ProjectReference Include="..\ShortWordsStrategy\ShortWordsStrategy.csproj">
       <Project>{a65fc203-81ba-4796-968f-ff10db0c26f5}</Project>
       <Name>ShortWordsStrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StupidShortWordsStrategy\StupidShortWordsStrategy.csproj">
+      <Project>{7fcb58f8-bb5f-43ea-80aa-98dd7247fa59}</Project>
+      <Name>StupidShortWordsStrategy</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

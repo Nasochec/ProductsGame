@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5737C059-C757-4AA2-85F7-02DE77F6C5EE}</ProjectGuid>
+    <ProjectGuid>{7FCB58F8-BB5F-43EA-80AA-98DD7247FA59}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>OneMoveStrategy</RootNamespace>
-    <AssemblyName>OneMoveStrategy</AssemblyName>
+    <RootNamespace>StupidShortWordsStrategy</RootNamespace>
+    <AssemblyName>StupidShortWordsStrategy</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SuperSimplifiedWord.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -54,10 +53,6 @@
     <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
       <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
       <Name>ProductionsGameCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ProductsGame\ProductsGame.csproj">
-      <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
-      <Name>ProductsGame</Name>
     </ProjectReference>
     <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
       <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
