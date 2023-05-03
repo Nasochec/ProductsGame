@@ -26,12 +26,24 @@ namespace ProductionsGameCore
 
         public void addProduction(int productionIndex)
         {
-            productionsBank[productionIndex]++;
+            addProduction(productionIndex, 1);
+        }
+
+        public void addProduction(int productionIndex, int count)
+        {
+            productionsBank[productionIndex] += count;
         }
 
         public void removeProduction(int productionIndex)
         {
-            productionsBank[productionIndex]--;
+            removeProduction(productionIndex,1);
+        }
+
+        public void removeProduction(int productionIndex, int count)
+        {
+            if (productionsBank[productionIndex] < count)
+                throw new ArgumentException("The number of profuctions of index " + productionIndex + " in bank was less than " + count + ".");
+            productionsBank[productionIndex] -= count;
         }
 
         public IEnumerable<int> getProductions()

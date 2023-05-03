@@ -113,6 +113,10 @@
       <Project>{4152b41b-295a-4891-8267-1c365fcba2bf}</Project>
       <Name>GUIStrrategy</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OneMoveStrategy\OneMoveStrategy.csproj">
+      <Project>{5737c059-c757-4aa2-85f7-02de77f6c5ee}</Project>
+      <Name>OneMoveStrategy</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
       <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
       <Name>ProductionsGameCore</Name>

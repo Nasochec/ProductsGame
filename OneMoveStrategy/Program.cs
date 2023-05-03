@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.AccessControl;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +16,12 @@ namespace OneMoveStrategy
 {
     internal class Program
     {
+
+        const int maxDeep = 5;
+        /// <summary>
+        /// Идея стратегии - поскольку сделать перебор вариантов слишком затруднительно по времени, то возникла идея перебирать ходы с небольшой глубиной и выбрирать из получаемых выводов, вывод с лучшей метрикой, а после снова применять тот же перебор пока остаются доступные ходы.
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             Bank bank;
@@ -25,26 +33,37 @@ namespace OneMoveStrategy
             BinaryFormatter formatter = new BinaryFormatter();
             Stream inputStream = Console.OpenStandardInput();
 
-            //gameSettings = (GameSettings)formatter.Deserialize(inputStream);
-            //playerNumber = (int)formatter.Deserialize(inputStream);
+            gameSettings = (GameSettings)formatter.Deserialize(inputStream);
+            playerNumber = (int)formatter.Deserialize(inputStream);
 
-            gameSettings = GameSettings.ReadFromFile(@"./conf2.xml");
-            playerNumber = 0;
-            bank = new Bank(gameSettings.ProductionsCount);
-            for (int i = 0; i < gameSettings.ProductionsCount; i++)
-            {
-                bank.addProduction(i);
-                bank.addProduction(i);
-                bank.addProduction(i);
-                bank.addProduction(i);
-                bank.addProduction(i);
-                bank.addProduction(i);
-                bank.addProduction(i);
-            }
-            words = new List<List<string>>();
-            words.Add(new List<string>());
-            words.Add(new List<string>());
-            productionGroupNumber = 0;
+            //gameSettings = GameSettings.ReadFromFile(@"./conf1.xml");
+            //playerNumber = 1;
+            //bank = new Bank(gameSettings.ProductionsCount);
+            ////for (int i = 0; i < gameSettings.ProductionsCount; i++)
+            ////{
+            ////    bank.addProduction(i);
+            ////    bank.addProduction(i);
+            ////    bank.addProduction(i);
+            ////    bank.addProduction(i);
+            ////    bank.addProduction(i);
+            ////    bank.addProduction(i);
+            ////    bank.addProduction(i);
+            ////}
+            //bank.addProduction(3);
+            //bank.addProduction(5, 3);
+            //bank.addProduction(6, 6);
+            //bank.addProduction(7, 3);
+            //bank.addProduction(8, 1);
+            //bank.addProduction(9, 2);
+
+            //words = new List<List<string>>();
+            //words.Add(new List<string>());
+            //words.Add(new List<string>());
+            //productionGroupNumber = 3;
+            //words[1].Add("bcabacabade");
+            //words[1].Add("ab");
+            //words[1].Add("ab");
+            //words[1].Add("Ab");
 
             List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
 
@@ -56,243 +75,245 @@ namespace OneMoveStrategy
 
 
             //Высчитываем метрику оценки продукций. При выборе продукции будем брать ту, у которой значение метрикик больше.
-            //double[] netMetric;
-            //double[][] prodsMetric;
-            //countMetric(prods, gameSettings, out netMetric, out prodsMetric);
+            double[] netMetric;
+            double[][] prodsMetric;
+            StrategyUtilitiesClass.countMetric(prods, gameSettings, out netMetric, out prodsMetric);
 
-            ////Найдём для каждой группы продукций лучшую продукцию.
-            //int[] bestProd;
-            //bestProd = new int[netMetric.Length];
-            //for (int i = 0; i < bestProd.Length; ++i)
-            //{
-            //    double maxMetric = -1;
-            //    for (int j = 0; j < prodsMetric[i].Length; ++j)
-            //    {
-            //        if (prodsMetric[i][j] > maxMetric)
-            //        {
-            //            maxMetric = prodsMetric[i][j];
-            //            bestProd[i] = j;
-            //        }
-            //    }
-            //}
-
-
-
+            //Найдём для каждой группы продукций лучшую продукцию.
+            int[] bestProd;
+            bestProd = new int[netMetric.Length];
+            for (int i = 0; i < bestProd.Length; ++i)
+            {
+                double maxMetric = -1;
+                for (int j = 0; j < prodsMetric[i].Length; ++j)
+                {
+                    if (prodsMetric[i][j] > maxMetric)
+                    {
+                        maxMetric = prodsMetric[i][j];
+                        bestProd[i] = j;
+                    }
+                }
+            }
+            List<double> wordsMetric = new List<double>();
+            StringBuilder rez = new StringBuilder();
             for (int moveIndex = 0; moveIndex < gameSettings.NumberOfMoves; moveIndex++)
             {
-                //moveNumber = (int)formatter.Deserialize(inputStream);
-                //bank = (Bank)formatter.Deserialize(inputStream);
-                //words = (List<List<string>>)formatter.Deserialize(inputStream);
-                //productionGroupNumber = (int)formatter.Deserialize(inputStream);
+                moveNumber = (int)formatter.Deserialize(inputStream);
+                bank = (Bank)formatter.Deserialize(inputStream);
+                words = (List<List<string>>)formatter.Deserialize(inputStream);
+                productionGroupNumber = (int)formatter.Deserialize(inputStream);
 
-                Move move = new Move();
 
-                //преобразуем слова к упрощенному виду, чтобы алогритм работал быстрее.
+
+                //преобразуем выводы к упрощенному виду, чтобы алогритм работал быстрее.
                 simpleWords.Clear();
                 foreach (var word in words[playerNumber])
                 {
                     simpleWords.Add(new SimplifiedWord(word));
                 }
 
-                int groupNumber;
+                rez.Clear();
+                //Посчитаем метрику всех выводов, потом будем её обновлять по ходу алгоритма.
+                wordsMetric.Clear();
+                for (int i = 0; i < simpleWords.Count; ++i)
+                    wordsMetric.Add(StrategyUtilitiesClass.countWordMetric(simpleWords[i], gameSettings.RandomSettings, netMetric, prods));
 
-                if (prods[productionGroupNumber].Left == 'S')
+                //Сначала мы обязаны применить именно выпавшую продукцию
                 {
+                    var prod = prods[productionGroupNumber];
+                    List<int> allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left).ToList();
+
+                    int maxIndex;
+                    SimplifiedWord word = null;
+                    {
+                        double maxMetric = -1;
+                        maxIndex = 0;
+                        //находим вывод с максимальной метрикой
+                        foreach (var index in allowedWords)
+                        {
+                            if (wordsMetric[index] > maxMetric)
+                            {
+                                maxMetric = wordsMetric[index];
+                                maxIndex = index;
+                                word = simpleWords[index];
+                            }
+                        }
+                        //если можно создать новый вывод
+                        if (prod.Left == 'S' &&
+                            maxMetric < StrategyUtilitiesClass.countWordMetric(new SimplifiedWord("S"), gameSettings.RandomSettings, netMetric, prods))
+                        {
+                            maxIndex = -1;
+                            word = new SimplifiedWord("S");
+                        }
+                        else if (maxMetric == -1)
+                        {//Ни к одному выводу применить продукцию невозможно
+                            Console.WriteLine();
+                            continue;
+                        }
+                    }
+                    Move move = new Move();
+                    string bestMove = "", tmpMove;
+                    double bestMetric = -1, tmpMetric, bestTerminals = 0, tmpTerminals;
+                    //новый индекс вывода, если этот вывод создайтся на этом ходу 
+                    int newIndex = (maxIndex == -1 ? simpleWords.Count : maxIndex);
+                    //Переберём варианты начальной продукции и выберем ту у которой метрика вывода получаемого с помощью findMove больше
+                    word.neterminalsCount[prod.Left]--;
+                    for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
+                    {
+                        word.terminals += prod.rights[rightIndex].terminals;
+                        foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+                            word.addNeterminal(neterminal.Key, neterminal.Value);
+
+                        move.addMove(maxIndex, productionGroupNumber, rightIndex);
+                        findMove(word, newIndex, bank, prods, gameSettings, netMetric, out tmpMove, out tmpMetric, out tmpTerminals, move);
+                        if (bestMetric == -1 || tmpMetric > bestMetric || tmpMetric == bestMetric && tmpTerminals > bestTerminals)
+                        {
+                            bestMetric = tmpMetric;
+                            bestMove = tmpMove;
+                            bestTerminals = tmpTerminals;
+                        }
+                        move.popMove();
+
+                        word.terminals -= prod.rights[rightIndex].terminals;
+                        foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+                            word.addNeterminal(neterminal.Key, -neterminal.Value);
+                    }
+                    word.neterminalsCount[prod.Left]++;
+
+                    move = Move.FromString(bestMove);
                     bank.addProduction(productionGroupNumber);
-                    var word = new SimplifiedWord("S");
-                    foreach (var prod in prods)
-                        word.addNeterminal(prod.Left, 0);
-                    var rez = findMove(word, move, bank, prods);
-                    var word1 = new SuperSimplifiedWord("S", prods);
-                    var rez1 = findMoveSecond(word1,move,bank,prods);
+                    applyMove(move, bank, word, prods);
+                    rez.Append(move);
                 }
 
-
-
-                //while (true)
-                //{
-                //    List<List<int>> allowedWords = new List<List<int>>();
-                //    foreach (var pr in prods)//находим слова допустимые для каждой продукции
-                //    {
-                //        allowedWords.Add(StrategyUtilitiesClass.findMatches(simpleWords, pr.Left));
-                //        if (pr.Left == 'S')//если можно создать новое слово
-                //            allowedWords.Last().Add(-1);
-                //    }
-
-                //    if (move.MovesCount > 0)//выбираем номер группы продукций
-                //    {//выбираем продукцию из банка
-                //        groupNumber = -1;
-                //        double maxMetric = -1;
-                //        for (int i = 0; i < gameSettings.ProductionsCount; ++i)
-                //            if (allowedWords[i].Count > 0 && bank.getProductionCount(i) > 0)
-                //                if (netMetric[i] > maxMetric)
-                //                {
-                //                    maxMetric = netMetric[i];
-                //                    groupNumber = i;
-                //                }
-                //        if (groupNumber == -1)
-                //            break;//не нашлось продукций доступных к применению
-                //    }
-                //    else//если это первый ход - обязаны применить выпавшую продукцию
-                //    {
-                //        if (allowedWords[productionGroupNumber].Count == 0)
-                //            break;
-                //        groupNumber = productionGroupNumber;
-                //    }
-
-                //    SimplifiedProductionGroup prod = prods[groupNumber];
-                //    int productionNumber = bestProd[groupNumber];//выбираем номер продукции в группе
-                //    int wordNumber = -1;
-                //    //выбираем слово. Выберем то слово, у кторого самая большая метрика
-                //    {
-                //        double maxMetric = -1;
-                //        for (int i = 0; i < allowedWords[groupNumber].Count; ++i)
-                //        {
-                //            SimplifiedWord word;
-                //            if (allowedWords[groupNumber][i] == -1)
-                //                word = new SimplifiedWord("" + prods[groupNumber].Left);
-                //            else
-                //                word = simpleWords[allowedWords[groupNumber][i]];
-                //            double metric = countWordMetric(word,
-                //                gameSettings.RandomSettings,
-                //                netMetric,
-                //                prods);
-                //            if (metric > maxMetric)
-                //            {
-                //                maxMetric = metric;
-                //                wordNumber = i;
-                //            }
-
-                //        }
-                //        wordNumber = allowedWords[groupNumber][wordNumber];
-                //    }
-
-
-                //    if (move.MovesCount >= 1)//удаляем продукцию из банка если надо
-                //        bank.removeProduction(groupNumber);
-                //    //теперь совершим этот ход
-                //    move.addMove(wordNumber, groupNumber, productionNumber);
-
-
-                //    if (wordNumber != -1)
-                //    {
-                //        SimplifiedWord word = simpleWords[wordNumber];
-                //        word.neterminalsCount[prod.Left]--;
-                //        word.terminals += prod.rights[productionNumber].terminals;
-                //        foreach (var neterminal in prod.rights[productionNumber].neterminalsCount)
-                //            word.addNeterminal(neterminal.Key, neterminal.Value);
-                //    }
-                //    else
-                //    {
-                //        SimplifiedWord word = new SimplifiedWord(prods[groupNumber].rights[productionNumber]);
-                //        simpleWords.Add(word);
-                //    }
-                //}
-                Console.Out.WriteLine(move);
+                while (true)
+                {
+                    string bestMove;
+                    double bestMetric, bestTerminals;
+                    List<int> allowedIndexes = new List<int>();
+                    for (int i = 0; i < simpleWords.Count; i++)
+                    {
+                        for (int prodIndex = 0; prodIndex < prods.Count; ++prodIndex)
+                        {
+                            var prod = prods[prodIndex];
+                            //Если в банке есть продукция применимая к выводу, сохнаняем индекс вывода.
+                            if (simpleWords[i].getNeterminal(prod.Left) > 0 && bank.getProductionCount(prodIndex) > 0)
+                                allowedIndexes.Add(i);
+                        }
+                    }
+                    if (allowedIndexes.Count == 0)//Слов к которым можно применить продукции не осталось.
+                        break;
+                    int wordNumber = -1;
+                    //Выбираем слово. Выберем тот вывод, у которого самая большая метрика.
+                    {
+                        double maxMetric = -1;
+                        for (int i = 0; i < allowedIndexes.Count; ++i)
+                        {
+                            var word = simpleWords[allowedIndexes[i]];
+                            double metric = StrategyUtilitiesClass.countWordMetric(word,
+                                gameSettings.RandomSettings,
+                                netMetric,
+                                prods);
+                            if (metric > maxMetric && metric != 1)
+                            {
+                                maxMetric = metric;
+                                wordNumber = i;
+                            }
+                        }
+                        wordNumber = allowedIndexes[wordNumber];
+                    }
+                    //находим лучший вывод
+                    findMove(simpleWords[wordNumber], wordNumber, bank, prods, gameSettings, netMetric, out bestMove, out bestMetric, out bestTerminals);
+                    Move move1 = Move.FromString(bestMove);
+                    if (move1.MovesCount != 0)
+                    {
+                        wordsMetric[wordNumber] = bestMetric;
+                        applyMove(move1, bank, simpleWords[wordNumber], prods);
+                        rez.Append("," + bestMove);
+                    }
+                }
+                Console.Out.WriteLine(rez.ToString());
             }
             return;
         }
 
-        /// <summary>
-        /// Алогоритм поиска максимальной выводимой строки из продукций уже находящихся в банке.
-        /// </summary>
-        /// <param name="oldWord"></param>
-        /// <param name="currentMove"></param>
-        /// <param name="bank"></param>
-        /// <param name="prods"></param>
-        /// <returns></returns>
-        static KeyValuePair<int, string> findMoveSecond(SuperSimplifiedWord oldWord, Move currentMove, Bank bank, List<SimplifiedProductionGroup> prods)
+        static void applyMove(Move move, Bank bank, SimplifiedWord word, List<SimplifiedProductionGroup> prods)
         {
-            KeyValuePair<int, string> bestWord = new KeyValuePair<int, string>(0, "");
-            // = new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString()); ;
-            KeyValuePair<int, string> tmpPair;
-            SimplifiedWord tmpWord;
-            SimplifiedProductionGroup prod;
-            int prodsCount = prods.Count;
-            bool found = false;
-            for (int i = 0; i < oldWord.neterminalsCount.Length; ++i)
+            foreach (var m in move.getMoves())
             {
-                if (oldWord.neterminalsCount[i] > 0)
-                {
-                    found = true;
-                    for (int prodIndex = 0; prodIndex < prodsCount; prodIndex++)
-                    {
-                        if (oldWord.CharToInt[prods[prodIndex].Left] == i && bank.getProductionCount(prodIndex) > 0)
-                        {
-                            prod = prods[prodIndex];
-                            bank.removeProduction(prodIndex);
-                            for (int rightIndex = 0; rightIndex < prod.RightSize; rightIndex++)
-                            {
-                                oldWord.neterminalsCount[oldWord.CharToInt[prod.Left]]--;
-                                oldWord.terminals += prod.rights[rightIndex].terminals;
-                                foreach (var net in prod.rights[rightIndex].neterminalsCount)
-                                    oldWord.neterminalsCount[oldWord.CharToInt[net.Key]] += net.Value;
-
-
-                                currentMove.addMove(0, prodIndex, rightIndex);
-                                tmpPair = findMoveSecond(oldWord, currentMove, bank, prods);
-                                if (bestWord.Key < tmpPair.Key)
-                                    bestWord = tmpPair;
-
-
-                                currentMove.popMove();
-                                oldWord.neterminalsCount[oldWord.CharToInt[prod.Left]]++;
-                                oldWord.terminals -= prod.rights[rightIndex].terminals;
-                                foreach (var net in prod.rights[rightIndex].neterminalsCount)
-                                    oldWord.neterminalsCount[oldWord.CharToInt[net.Key]] -= net.Value;
-                            }
-                            bank.addProduction(prodIndex);
-                        }
-                    }
-                }
+                bank.removeProduction(m.ProductionGroupNumber);
+                var prod = prods[m.ProductionGroupNumber];
+                word.neterminalsCount[prod.Left]--;
+                word.terminals += prod.rights[m.ProductionNumber].terminals;
+                foreach (var neterminal in prod.rights[m.ProductionNumber].neterminalsCount)
+                    word.addNeterminal(neterminal.Key, -neterminal.Value);
             }
-
-
-            if (!found)
-                return new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString());
-            return bestWord;
         }
 
-        static KeyValuePair<int, string> findMove(SimplifiedWord oldWord, Move currentMove, Bank bank, List<SimplifiedProductionGroup> prods)
+        static void findMove(SimplifiedWord oldWord,
+            int wordIndex,
+            Bank bank,
+            List<SimplifiedProductionGroup> prods,
+            GameSettings settings,
+            double[] netMetric,
+            out string bestMove,
+            out double bestMetric,
+            out double bestTerminals,
+            Move currentMove = null,
+            int deep = 0)
         {
-            KeyValuePair<int, string> bestWord = new KeyValuePair<int, string>(0, "");
-            //  = new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString()); ;
-            KeyValuePair<int, string> tmpPair;
-            SimplifiedWord tmpWord;
-            SimplifiedProductionGroup prod;
+
+            bestMove = "";
+            bestMetric = -1;
+            bestTerminals = 0;
             bool found = false;
-            for (int prodIndex = 0; prodIndex < prods.Count; ++prodIndex)
+            if (deep < maxDeep)
             {
-                if (bank.getProductionCount(prodIndex) == 0) continue;
-
-                prod = prods[prodIndex];
-                if (oldWord.neterminalsCount[prod.Left] == 0) continue;
-                found = true;
-                bank.removeProduction(prodIndex);
-                for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
+                if (currentMove == null)
+                    currentMove = new Move();
+                string bMove;
+                double bMetric, bTerminals;
+                SimplifiedProductionGroup prod;
+                for (int prodIndex = 0; prodIndex < prods.Count; ++prodIndex)
                 {
-                    //tmpWord = new SimplifiedWord(oldWord);
+                    if (bank.getProductionCount(prodIndex) <= 0) continue;
+
+                    prod = prods[prodIndex];
+                    if (oldWord.getNeterminal(prod.Left) <= 0) continue;
+                    found = true;
+                    bank.removeProduction(prodIndex);
                     oldWord.neterminalsCount[prod.Left]--;
-                    oldWord.terminals += prod.rights[rightIndex].terminals;
-                    foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
-                        oldWord.addNeterminal(neterminal.Key, neterminal.Value);
+                    for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
+                    {
 
-                    currentMove.addMove(0, prodIndex, rightIndex);
-                    tmpPair = findMove(oldWord, currentMove, bank, prods);
-                    if (bestWord.Key < tmpPair.Key)
-                        bestWord = tmpPair;
-                    currentMove.popMove();
+                        oldWord.terminals += prod.rights[rightIndex].terminals;
+                        foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+                            oldWord.addNeterminal(neterminal.Key, neterminal.Value);
 
+                        currentMove.addMove(wordIndex, prodIndex, rightIndex);
+                        findMove(oldWord, wordIndex, bank, prods, settings, netMetric, out bMove, out bMetric, out bTerminals, currentMove, deep + 1);
+                        if (bestMetric == -1 || bMetric > bestMetric || bMetric == bestMetric && bTerminals > bestTerminals)
+                        {
+                            bestMetric = bMetric;
+                            bestMove = bMove;
+                            bestTerminals = bTerminals;
+                        }
+                        currentMove.popMove();
+
+                        oldWord.terminals -= prod.rights[rightIndex].terminals;
+                        foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
+                            oldWord.addNeterminal(neterminal.Key, -neterminal.Value);
+                    }
                     oldWord.neterminalsCount[prod.Left]++;
-                    oldWord.terminals -= prod.rights[rightIndex].terminals;
-                    foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
-                        oldWord.addNeterminal(neterminal.Key, -neterminal.Value);
+                    bank.addProduction(prodIndex);
                 }
-                bank.addProduction(prodIndex);
             }
             if (!found)
-                bestWord = new KeyValuePair<int, string>(oldWord.terminals, currentMove.ToString());
-            return bestWord;
+            {
+                bestMetric = StrategyUtilitiesClass.countWordMetric(oldWord, settings.RandomSettings, netMetric, prods);
+                bestMove = currentMove.ToString();
+                bestTerminals = oldWord.terminals;
+            }
         }
     }
 }

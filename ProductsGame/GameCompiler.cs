@@ -47,6 +47,16 @@ namespace ProductsGame
                 //playerFilenameEnumerator.MoveNext();
             }
             gameSettings.WriteToFile(logFilename);
+            using (StreamWriter log = new StreamWriter(logFilename, true))
+            {
+                log.WriteLine();
+                int index = 0;
+                foreach (var player in playersFilenames)
+                {
+                    index++;
+                    log.WriteLine("Player " + index + ": " + player);
+                }
+            }
         }
 
         public Bank getBank()
@@ -69,17 +79,22 @@ namespace ProductsGame
             return words;
         }
 
-        public void play() {
-            for (int moveNumber = 0; moveNumber < gameSettings.NumberOfMoves; ++moveNumber) {
-                for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber) {
+        public void play()
+        {
+            for (int moveNumber = 0; moveNumber < gameSettings.NumberOfMoves; ++moveNumber)
+            {
+                for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
+                {
                     players[playerNumber].MakeMove(randomProvider.getRandom());
                     if (players[playerNumber].Finished)
                         return;//TODO maybe do something
                 }
             }
 
-            using (StreamWriter log = new StreamWriter(logFilename, true)) {
-                foreach (var player in players) {
+            using (StreamWriter log = new StreamWriter(logFilename, true))
+            {
+                foreach (var player in players)
+                {
                     log.WriteLine("Player " + player.PlayerNumber + " score: " + player.Score);
                 }
             }

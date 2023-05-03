@@ -67,5 +67,86 @@ namespace StrategyUtilities
             }
             return indexes;
         }
+
+
+        /// <summary>
+        /// Находит метрику оценки продукций. 
+        /// Предполагается что чем больше её значение тем за меньшее количество ходов можно получить терминальную строку.
+        /// </summary>
+        /// <param name="productions"></param>
+        /// <param name="settings"></param>
+        /// <param name="netMetric"></param>
+        /// <param name="prodMetric"></param>
+        public static void countMetric(List<SimplifiedProductionGroup> productions,
+            GameSettings settings,
+            out double[] netMetric,
+            out double[][] prodMetric
+            )
+        {
+            netMetric = new double[productions.Count];
+            prodMetric = new double[productions.Count][];
+            int productionsCount = productions.Count;
+            const double eps = 0.00001;
+
+
+            for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
+            {
+                netMetric[prodIndex] = -1;
+                prodMetric[prodIndex] = new double[productions[prodIndex].RightSize];
+                for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
+                {
+                    var right = productions[prodIndex].rights[rightIndex];
+                    if (right.neterminalsCount.Count == 0)
+                        netMetric[prodIndex] = prodMetric[prodIndex][rightIndex] = 1;
+                    else
+                        prodMetric[prodIndex][rightIndex] = -1;
+                }
+            }
+            RandomSettings rs = settings.RandomSettings;
+            bool found = true;
+            while (found)
+            {
+                found = false;
+                for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
+                {
+                    for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
+                    {
+                        var right = productions[prodIndex].rights[rightIndex];
+                        if (right.neterminalsCount.Count != 0)
+                        {//если в продукции есть нетерминалы - высчитываем её
+                            double rightSum = countWordMetric(right, rs, netMetric, productions);
+                            if (Math.Abs(prodMetric[prodIndex][rightIndex] - rightSum) >= eps)
+                            {
+                                found = true;
+                                prodMetric[prodIndex][rightIndex] = rightSum;
+                                netMetric[prodIndex] = Math.Max(netMetric[prodIndex], rightSum);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static double countWordMetric(SimplifiedWord word, RandomSettings rs, double[] netMetric,
+            List<SimplifiedProductionGroup> productions)
+        {
+            int productionsCount = productions.Count;
+            double rightSum = 1;
+            foreach (var neterminal in word.neterminalsCount)
+            {
+                double sum = 0;
+                for (int i = 0; i < productionsCount; ++i)
+                {
+                    if (netMetric[i] != -1 && productions[i].Left == neterminal.Key)
+                    {
+                        sum += netMetric[i] * rs.getProductionPossibility(i) / rs.getTotalPossibility();
+                    }
+                }
+                sum = Math.Pow(sum, neterminal.Value);
+                rightSum *= sum;
+            }
+            return rightSum;
+        }
+
     }
 }
