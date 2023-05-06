@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.TextFormatting;
 using ProductionsGameCore;
 
@@ -61,23 +62,21 @@ namespace ProductsGame
                 if (isfirst)
                 {//Проверка что указана верная продукция 
                     if (firstMoveProductionGroupNumber != productionGroupNumber)
-                        throw new Exception(String.Format("Wrong move. Production group must be {0} but was {1}.", firstMoveProductionGroupNumber, productionNumber));
+                        throw new Exception(String.Format("Неверный ход. Номер группы продукции должен быть {0}, но был {1}.", firstMoveProductionGroupNumber, productionNumber));
                 }
                 else
                 {//Проверка что указаная продукция есть в банке
                     if (Bank.getProductionCount(productionGroupNumber) == 0)
-                        throw new Exception(String.Format("Wrong move. Bank doesn't contain production group {0}.", productionGroupNumber));
+                        throw new Exception(String.Format("Неверный ход. В банке не содержится продукций с номером {0}.", productionGroupNumber));
                 }
                 if (wordNumber >= 0 && wordNumber < words.Count)
                 {
                     string word = words[wordNumber];
                     int index = word.IndexOf(left);
                     if (index == -1)
-                    {
-                        throw new Exception(String.Format("Wrong move. Word {0} doesn't contain letter {1}", word, left));
-                    }
+                        throw new Exception(String.Format("Неверный ход. Вывод {0} не содержит нетерминала {1}", word, left));
                     else
-                    {//B->cDe : aBf-> acDef
+                    {//Применяем продукцию. B->cDe : aBf-> acDef
                         string newWord = word.Substring(0, index) +
                             right +
                             word.Substring(index + 1, word.Length - index - 1);
@@ -91,25 +90,37 @@ namespace ProductsGame
                         words.Add(right);
                     }
                 }
-                if (!isfirst)  //удаляем продукцию из банка
+                if (!isfirst)  //Удаляем продукцию из банка
                     Bank.removeProduction(productionGroupNumber);
                 isfirst = false;
             }
-            if (isfirst)//осталось истиной -> ни одна продукция не была применена, добавить её в 
+            if (isfirst)//осталось истиной -> ни одна продукция не была применена, добавить её в банк
                 Bank.addProduction(firstMoveProductionGroupNumber);
 
             {// проверить что применены все возможные продукции
-                int productionNumber = 0;
-                foreach (var production in Settings.GetProductions())
+                if (moves.MovesCount == 0)//если не была применена первая продукция
                 {
-                    if (Bank.getProductionCount(productionNumber) <= 0)
-                        continue;
-                    char left = production.Left;
-                    productionNumber++;
+                    char left = Settings.getProductionGroup(firstMoveProductionGroupNumber).Left;
                     foreach (var word in words)
                     {
                         if (word.IndexOf(left) != -1)
-                            throw new Exception(String.Format("The production group {0} can be aplied to word {1}.", productionNumber, word));
+                            throw new Exception(String.Format("Группа продукций {0} может быть применена к выводу {1}.", firstMoveProductionGroupNumber, word));
+                    }
+                }
+                else
+                {//проверим сто в банке нет применимых прдукций
+                    int productionNumber = 0;
+                    foreach (var production in Settings.GetProductions())
+                    {
+                        if (Bank.getProductionCount(productionNumber) <= 0)
+                            continue;
+                        char left = production.Left;
+                        productionNumber++;
+                        foreach (var word in words)
+                        {
+                            if (word.IndexOf(left) != -1)
+                                throw new Exception(String.Format("Группа продукций {0} может быть применена к выводу {1}.", productionNumber, word));
+                        }
                     }
                 }
             }
@@ -127,50 +138,34 @@ namespace ProductsGame
             {
                 move = this.CalculateMove(productionGroupNumber);
                 applyMove(move, productionGroupNumber);
-                log.WriteLine("Production number:{0}", productionGroupNumber);
-                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, PlayerNumber);
-                log.WriteLine("Move: {0}", move.ToString());
-                log.WriteLine("Bank: {0}", Bank.ToString());
-                List<List<string>> words = GameCompiler.getPlayersWords();
-                for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
-                {
-                    log.Write("Player {0} words:", playerNumber);
-                    foreach (var word in words[playerNumber])
-                    {
-                        log.Write(" " + word);
-                    }
-                    log.WriteLine();
-                }
             }
             catch (Exception ex)
             {
                 log.WriteLine("ERROR");
                 log.WriteLine("Программа заранее завершила работу из-за игрока" + PlayerNumber + ":" + ex.Message);
                 log.WriteLine("Конфигурация, на которой произошла ошибка: ");
-                log.WriteLine("Production number:{0}", productionGroupNumber);
-                log.WriteLine("Move: {0}, Player: {1}", MoveNumber, PlayerNumber);
-                if(move != null)
-                    log.WriteLine("Move: {0}", move.ToString());
-                log.WriteLine("Bank: {0}", Bank.ToString());
+                Finished = true;
+            }
+            finally
+            {
+                log.WriteLine("Индекс выпавше продукции:{0}", productionGroupNumber);
+                log.WriteLine("Номер хода: {0}, Игрок: {1}", MoveNumber, PlayerNumber);
+                if (move != null)
+                    log.WriteLine("Ход: {0}", move.ToString());
+                log.WriteLine("Банк: {0}", Bank.ToString());
                 List<List<string>> words = GameCompiler.getPlayersWords();
                 for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
                 {
-                    log.Write("Player {0} words:", playerNumber);
+                    log.Write("Выводы игрока {0}:", playerNumber);
                     foreach (var word in words[playerNumber])
                     {
                         log.Write(" " + word);
                     }
                     log.WriteLine();
                 }
-                Finished = true;
-            }
-            finally
-            {
                 log.Flush();
                 log.Close();
             }
-
-            //TODO catch exception and write it to logs
             if (MoveNumber == Settings.NumberOfMoves || Finished)//в конце игры - подсчитываем очки
                 calculateScore();
         }
@@ -189,11 +184,11 @@ namespace ProductsGame
         }
 
         private void calculateScore()
-        {//TODO возможно можно переделать сделав отдельное хранилище сентенциальных форм
+        {
             Score = 0;
             foreach (var word in words)
             {
-                if (!Regex.IsMatch(word, "[A-Z]"))//проверка что слово - сентенция
+                if (!Regex.IsMatch(word, "[A-Z]"))//проверка что вывод - сентенция
                 {
                     Score += word.Length;
                     Score += 3;

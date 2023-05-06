@@ -13,17 +13,17 @@ namespace ProductsGame
 
 
     /// <summary>
-    /// Параметр filename конструктора отвечает за путь к приложению стратегии. Ему тна стандартный входной поток будет даваться информация для мормирования хода.
-    /// Формат входных данных: в сериализованном виде класс GameSettings и номер игрока типа int, далее перед каждым шагом - номер шага типа int, текущее содержимое банка как сериализованный класс типа Bank, слова(текеущие выводы) всех игроков типа List<List<string>>, и индекс выпавшей продукции типа int.
+    /// Параметр filename конструктора отвечает за путь к приложению стратегии. Ему на стандартный входной поток будет даваться информация для формирования хода.
+    /// Формат входных данных: в сериализованном виде класс GameSettings и номер игрока типа int, далее перед каждым шагом - номер шага типа int, текущее содержимое банка как сериализованный класс типа Bank, текеущие выводы всех игроков типа List<List<string>>, и индекс выпавшей продукции типа int.
     /// В качестве ответа должен быть передан ход в строковом формате: простейщие ходы, разделённыйе запятыми без пробелов, в конце отделённые переносом строки. Простейший ход:  индекс слова, индекс группы продукции и индекс продукции в группе продукций, разделитель - пробел.
-    /// Согоашения относительно выходных кодов: 0 - успешное завершение программы после совершения всех ходов, 1 - в программе произошла ошибка исполнения, 2 - игрок сдался.
+    /// Соглашения относительно выходных кодов: 0 - успешное завершение программы после совершения всех ходов, 2 - игрок сдался, любое другое - в программе произошла ошибка исполнения.
     ///
     /// </summary>
     public class ExeSerializationPlayerAdapter : PlayerAdapter
     {
         //TODO возможно надо добавить IDisposable для остановки потока стратегии
         //TODO если процесс завершён до завершения игры - ошибка
-        String filename;
+        private String filename;
         private Process player;
         private BinaryFormatter formatter;
         public ExeSerializationPlayerAdapter(int number,
@@ -36,16 +36,17 @@ namespace ProductsGame
             formatter = new BinaryFormatter();
             player = new Process();
             player.StartInfo.FileName = filename;
-            player.StartInfo.CreateNoWindow = true;//TODO возможно надо удалить
+            player.StartInfo.CreateNoWindow = true;
             player.StartInfo.RedirectStandardInput = true;
             player.StartInfo.RedirectStandardOutput = true;
             player.StartInfo.UseShellExecute = false;
-            //player.StartInfo.WorkingDirectory = filename;
             player.Start();
+
             //передаём программе необходимые данные
+            player.StandardInput.AutoFlush = false;
             formatter.Serialize(player.StandardInput.BaseStream, Settings);
             formatter.Serialize(player.StandardInput.BaseStream, PlayerNumber);
-
+            player.StandardInput.Flush();
         }
 
 
@@ -53,7 +54,7 @@ namespace ProductsGame
         override protected Move CalculateMove(int productionGroupNumber)
         {
 
-            //Получим список всех слов всех пользователей для передачи в программы стратегий.
+            //Получим список всех выводов всех пользователей для передачи в программы стратегий.
             List<List<string>> playersWords = GameCompiler.getPlayersWords();
 
             //Направляем программе на вход текущую конфигурацию

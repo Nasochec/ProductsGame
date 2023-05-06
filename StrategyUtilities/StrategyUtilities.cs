@@ -11,7 +11,7 @@ namespace StrategyUtilities
     public class StrategyUtilitiesClass
     {
         /// <summary>
-        /// Ищет есть ли нетерминал в упрошённом слове.
+        /// Ищет есть ли нетерминал в упрошённом выводе.
         /// </summary>
         /// <param name="word"></param>
         /// <param name="c"></param>
@@ -22,7 +22,7 @@ namespace StrategyUtilities
         }
 
         /// <summary>
-        /// Возвращает список индексов упрощённых слов, в котрых присутствует указанный нетерминал.
+        /// Возвращает список индексов упрощённых выводов, в котрых присутствует указанный нетерминал.
         /// </summary>
         /// <param name="words"></param>
         /// <param name="c"></param>
@@ -40,7 +40,7 @@ namespace StrategyUtilities
         }
 
         /// <summary>
-        /// ищет первое вхождение символа в слове. Если не найдено возвращает -1.
+        /// ищет первое вхождение символа в выводе. Если не найдено возвращает -1.
         /// </summary>
         /// <param name="word"></param>
         /// <param name="c"></param>
@@ -51,7 +51,7 @@ namespace StrategyUtilities
         }
 
         /// <summary>
-        /// Возвращает список индексов слов, в котрых присутствует указанный символ.
+        /// Возвращает список индексов выводов, в котрых присутствует указанный символ.
         /// </summary>
         /// <param name="words"></param>
         /// <param name="c"></param>
@@ -88,7 +88,7 @@ namespace StrategyUtilities
             int productionsCount = productions.Count;
             const double eps = 0.00001;
 
-
+            //начальная инициализация
             for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
             {
                 netMetric[prodIndex] = -1;
@@ -96,15 +96,15 @@ namespace StrategyUtilities
                 for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
                 {
                     var right = productions[prodIndex].rights[rightIndex];
-                    if (right.neterminalsCount.Count == 0)
+                    if (right.neterminalsCount.Count == 0)//терминальная строка оценивается в 1
                         netMetric[prodIndex] = prodMetric[prodIndex][rightIndex] = 1;
                     else
-                        prodMetric[prodIndex][rightIndex] = -1;
+                        prodMetric[prodIndex][rightIndex] = -1;//ещё не посчитанная метрика обозначается -1
                 }
             }
             RandomSettings rs = settings.RandomSettings;
             bool found = true;
-            while (found)
+            while (found)//остановимся когда добьёмся указанной точнсти 
             {
                 found = false;
                 for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
@@ -113,7 +113,7 @@ namespace StrategyUtilities
                     {
                         var right = productions[prodIndex].rights[rightIndex];
                         if (right.neterminalsCount.Count != 0)
-                        {//если в продукции есть нетерминалы - высчитываем её
+                        {//если в продукции есть нетерминалы - пересчитываем её
                             double rightSum = countWordMetric(right, rs, netMetric, productions);
                             if (Math.Abs(prodMetric[prodIndex][rightIndex] - rightSum) >= eps)
                             {

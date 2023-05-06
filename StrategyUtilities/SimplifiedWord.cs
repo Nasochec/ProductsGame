@@ -8,7 +8,7 @@ namespace StrategyUtilities
 {
 
     /// <summary>
-    /// Упрощённое понимание слова(сентенциальной формы), не как строку, а как количество терминалов и множество нетерминальных симаолов, встречающихся в слове.
+    /// Упрощённое понимание вывоода, не как строку, а как количество терминалов и множество нетерминальных симаолов, встречающихся в выводе.
     /// </summary>
     public class SimplifiedWord
     {
@@ -17,13 +17,11 @@ namespace StrategyUtilities
         public SimplifiedWord()
         {
             terminals = 0;
-            //neterminalsCount ;
         }
 
         public SimplifiedWord(string word)
         {
             terminals = 0;
-            //neterminalsCount = new Dictionary<char, int>();
             foreach (var c in word)
             {
                 if (c >= 'A' && c <= 'Z')

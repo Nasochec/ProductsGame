@@ -29,11 +29,15 @@ namespace ProductionsGameCore
             RandomSettings randomSettings)
         {
             IsBankShare = isBankShare;
+            if (numberOfMoves <= 0)
+                throw new ArgumentException("Количествол ходов должно быть неотрицательным числом.");
             NumberOfMoves = numberOfMoves;
+            if (numberOfPlayers <= 0)
+                throw new ArgumentException("Количествол игороков должно быть неотрицательным числом.");
             NumberOfPlayers = numberOfPlayers;
             this.productions = productions.ToList();
             RandomSettings = randomSettings;
-        }//TODO delete? or add verification
+        }
 
         public GameSettings(SerializationInfo info, StreamingContext context)
         {
@@ -50,7 +54,7 @@ namespace ProductionsGameCore
             if (index >= 0 && index < ProductionsCount)
                 return productions[index];
             throw new IndexOutOfRangeException(
-                String.Format("Index {0} was out of range [0,{1})", index, ProductionsCount)
+                String.Format("Индекс {0} был вне границ [0,{1}).", index, ProductionsCount)
                 );
         }
 
@@ -60,20 +64,28 @@ namespace ProductionsGameCore
         }
 
         public static GameSettings ReadFromFile(string filename)
-        {
+        {//TODO Проверить что файл существует
             var currentDirectory = Directory.GetCurrentDirectory();
             var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
-            XElement XGameSettings = XElement.Load(purchaseOrderFilepath);
+            XElement XGameSettings = null;
+            try
+            {
+                XGameSettings = XElement.Load(purchaseOrderFilepath);
+            }
+            catch {
+                throw new IOException("Входной файл в неыерном формате: неудалось считать xml данные.");
+            }
             //Считываем простые свойства
             bool isBankShare = XGameSettings.Attribute("IsBankShare").Value.Equals("true");
             int numberOfPlayers = int.Parse(XGameSettings.Attribute("NumberOfPlayers").Value);
             int numberOfMoves = int.Parse(XGameSettings.Attribute("NumberOfMoves").Value);
+
             //считываем иформацию о группах продукций
             XElement XProductions = XGameSettings.Element("Productions");
             List<ProductionGroup> productions = new List<ProductionGroup>();
             foreach (var XProduction in XProductions.Elements())
             {
-                char left = XProduction.Attribute("Left").Value[0];//TODO check left is big english letter
+                char left = XProduction.Attribute("Left").Value[0];
                 List<string> rights = new List<string>();
                 foreach (var XRight in XProduction.Elements())
                     rights.Add(XRight.Value);
@@ -83,17 +95,17 @@ namespace ProductionsGameCore
             XElement XRandomSettings = XGameSettings.Element("RandomSettings");
             int totalPossibility = int.Parse(XRandomSettings.Attribute("TotalPossibility").Value);
             int? seed = null;
-            if(XRandomSettings.Attribute("Seed") != null)
+            if (XRandomSettings.Attribute("Seed") != null)
                 seed = int.Parse(XRandomSettings.Attribute("Seed").Value);
             List<int> possibilities = new List<int>();
-            foreach (var XPossibility in XRandomSettings.Element("Possibilities").Elements()) 
+            foreach (var XPossibility in XRandomSettings.Element("Possibilities").Elements())
                 possibilities.Add(int.Parse(XPossibility.Value));
             RandomSettings randomSettings;
             if (seed != null)
                 randomSettings = new RandomSettings(totalPossibility, possibilities, seed.Value);
             else
                 randomSettings = new RandomSettings(totalPossibility, possibilities);
-            return new GameSettings(isBankShare,numberOfPlayers,numberOfMoves,productions,randomSettings);
+            return new GameSettings(isBankShare, numberOfPlayers, numberOfMoves, productions, randomSettings);
         }
 
         public void WriteToFile(string filename, bool saveSeed = true)
@@ -104,7 +116,7 @@ namespace ProductionsGameCore
             XEGameSettings.Add(new XAttribute("IsBankShare", IsBankShare));
             XEGameSettings.Add(new XAttribute("NumberOfPlayers", NumberOfPlayers));
             XEGameSettings.Add(new XAttribute("NumberOfMoves", NumberOfMoves));
-            { //Добавляем двнные о группах продукций
+            { //Добавляем данные о группах продукций
                 XElement XProductions = new XElement("Productions");
                 foreach (var production in productions)
                 {
@@ -119,7 +131,7 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                if(saveSeed)
+                if (saveSeed)
                     XRandomSettings.Add(new XAttribute("Seed", RandomSettings.getSeed()));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
@@ -128,13 +140,12 @@ namespace ProductionsGameCore
                 XRandomSettings.Add(XPossibilities);
                 XEGameSettings.Add(XRandomSettings);
             }
-            using (FileStream fs = new FileStream(purchaseOrderFilepath, FileMode.Create))
+            using (FileStream fs = new FileStream(purchaseOrderFilepath, FileMode.OpenOrCreate))
             {
                 var settings = new XmlWriterSettings();
                 settings.OmitXmlDeclaration = true;
                 settings.Indent = true;
-                //settings.NewLineOnAttributes = true;
-                using (XmlWriter xmlWriter = XmlWriter.Create(fs,settings))
+                using (XmlWriter xmlWriter = XmlWriter.Create(fs, settings))
                 {
                     XEGameSettings.WriteTo(xmlWriter);
                 }

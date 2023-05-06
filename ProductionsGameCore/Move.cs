@@ -49,7 +49,7 @@ namespace ProductionsGameCore
                 if (!int.TryParse(sss[0], out wordNumber)
                     || !int.TryParse(sss[1], out productionGroupNumber)
                     || !int.TryParse(sss[2], out productionNumber))
-                    throw new ArgumentException("String was in wrong format.");
+                    throw new ArgumentException("Входная строка в неверном формате.");
                 moveRez.addMove(wordNumber, productionGroupNumber, productionNumber);
             }
             return moveRez;

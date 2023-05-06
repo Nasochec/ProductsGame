@@ -17,17 +17,11 @@ namespace ProductsGame
         private Bank bank;
         private string logFilename;
 
-        //public GameCompiler(string filename)
-        //{
-        //    gameSettings = GameSettings.ReadFromFile(filename);
-        //    bank = new Bank(gameSettings.ProductionsCount);
-        //    randomProvider = new RandomProvider(gameSettings.RandomSettings);
-        //    //for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
-        //    //    players.Add(new ExeSerializationPlayerAdapter(playerNumber, this,));
-        //}
-
         public GameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames)
         {
+            if (gameSettings.NumberOfPlayers != 2 || !gameSettings.IsBankShare || gameSettings.ProductionsCount != 12) {
+                throw new ArgumentException("Указанная конфигурация игры пока не поддерживается");
+            }
             StringBuilder sb = new StringBuilder();
             sb.Append(@"./logs/");
             sb.Append(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-"));
@@ -38,13 +32,12 @@ namespace ProductsGame
             bank = new Bank(gameSettings.ProductionsCount);
             randomProvider = new RandomProvider(gameSettings.RandomSettings);
             if (playersFilenames.Count() != gameSettings.NumberOfPlayers)
-                throw new ArgumentException("Number of players must be equal to number of players in game settings.");
+                throw new ArgumentException("Количество игроков должно быть равно количеству игроков указанному в конфигурации игры.");
             var playerFilenameEnumerator = playersFilenames.GetEnumerator();
             for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
             {
                 playerFilenameEnumerator.MoveNext();
                 players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, logFilename, playerFilenameEnumerator.Current));
-                //playerFilenameEnumerator.MoveNext();
             }
             gameSettings.WriteToFile(logFilename);
             using (StreamWriter log = new StreamWriter(logFilename, true))

@@ -16,8 +16,8 @@ namespace OneMoveStrategy
 {
     internal class Program
     {
-
-        const int maxDeep = 5;
+        //Максимальная глубина перебора
+        const int maxDeep = 6;
         /// <summary>
         /// Идея стратегии - поскольку сделать перебор вариантов слишком затруднительно по времени, то возникла идея перебирать ходы с небольшой глубиной и выбрирать из получаемых выводов, вывод с лучшей метрикой, а после снова применять тот же перебор пока остаются доступные ходы.
         /// </summary>
@@ -33,37 +33,9 @@ namespace OneMoveStrategy
             BinaryFormatter formatter = new BinaryFormatter();
             Stream inputStream = Console.OpenStandardInput();
 
+            //Считываем данные постоянные на протяжении всей игры.
             gameSettings = (GameSettings)formatter.Deserialize(inputStream);
             playerNumber = (int)formatter.Deserialize(inputStream);
-
-            //gameSettings = GameSettings.ReadFromFile(@"./conf1.xml");
-            //playerNumber = 1;
-            //bank = new Bank(gameSettings.ProductionsCount);
-            ////for (int i = 0; i < gameSettings.ProductionsCount; i++)
-            ////{
-            ////    bank.addProduction(i);
-            ////    bank.addProduction(i);
-            ////    bank.addProduction(i);
-            ////    bank.addProduction(i);
-            ////    bank.addProduction(i);
-            ////    bank.addProduction(i);
-            ////    bank.addProduction(i);
-            ////}
-            //bank.addProduction(3);
-            //bank.addProduction(5, 3);
-            //bank.addProduction(6, 6);
-            //bank.addProduction(7, 3);
-            //bank.addProduction(8, 1);
-            //bank.addProduction(9, 2);
-
-            //words = new List<List<string>>();
-            //words.Add(new List<string>());
-            //words.Add(new List<string>());
-            //productionGroupNumber = 3;
-            //words[1].Add("bcabacabade");
-            //words[1].Add("ab");
-            //words[1].Add("ab");
-            //words[1].Add("Ab");
 
             List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
 
@@ -79,31 +51,16 @@ namespace OneMoveStrategy
             double[][] prodsMetric;
             StrategyUtilitiesClass.countMetric(prods, gameSettings, out netMetric, out prodsMetric);
 
-            //Найдём для каждой группы продукций лучшую продукцию.
-            int[] bestProd;
-            bestProd = new int[netMetric.Length];
-            for (int i = 0; i < bestProd.Length; ++i)
-            {
-                double maxMetric = -1;
-                for (int j = 0; j < prodsMetric[i].Length; ++j)
-                {
-                    if (prodsMetric[i][j] > maxMetric)
-                    {
-                        maxMetric = prodsMetric[i][j];
-                        bestProd[i] = j;
-                    }
-                }
-            }
+            
             List<double> wordsMetric = new List<double>();
             StringBuilder rez = new StringBuilder();
             for (int moveIndex = 0; moveIndex < gameSettings.NumberOfMoves; moveIndex++)
             {
+                //считывам данные на каждом шагу
                 moveNumber = (int)formatter.Deserialize(inputStream);
                 bank = (Bank)formatter.Deserialize(inputStream);
                 words = (List<List<string>>)formatter.Deserialize(inputStream);
                 productionGroupNumber = (int)formatter.Deserialize(inputStream);
-
-
 
                 //преобразуем выводы к упрощенному виду, чтобы алогритм работал быстрее.
                 simpleWords.Clear();
@@ -113,6 +70,7 @@ namespace OneMoveStrategy
                 }
 
                 rez.Clear();
+
                 //Посчитаем метрику всех выводов, потом будем её обновлять по ходу алгоритма.
                 wordsMetric.Clear();
                 for (int i = 0; i < simpleWords.Count; ++i)
@@ -154,7 +112,7 @@ namespace OneMoveStrategy
                     Move move = new Move();
                     string bestMove = "", tmpMove;
                     double bestMetric = -1, tmpMetric, bestTerminals = 0, tmpTerminals;
-                    //новый индекс вывода, если этот вывод создайтся на этом ходу 
+                    //новый индекс вывода, если этот вывод создайтся на этом ходу (продукция S->) 
                     int newIndex = (maxIndex == -1 ? simpleWords.Count : maxIndex);
                     //Переберём варианты начальной продукции и выберем ту у которой метрика вывода получаемого с помощью findMove больше
                     word.neterminalsCount[prod.Left]--;
@@ -190,6 +148,7 @@ namespace OneMoveStrategy
                 {
                     string bestMove;
                     double bestMetric, bestTerminals;
+                    //найдём выводы к которым можно применить какие-либо продукции из банка
                     List<int> allowedIndexes = new List<int>();
                     for (int i = 0; i < simpleWords.Count; i++)
                     {
@@ -201,10 +160,10 @@ namespace OneMoveStrategy
                                 allowedIndexes.Add(i);
                         }
                     }
-                    if (allowedIndexes.Count == 0)//Слов к которым можно применить продукции не осталось.
+                    if (allowedIndexes.Count == 0)//Выводов к которым можно применить продукции не осталось.
                         break;
                     int wordNumber = -1;
-                    //Выбираем слово. Выберем тот вывод, у которого самая большая метрика.
+                    //Выберем тот вывод, у которого самая большая метрика.
                     {
                         double maxMetric = -1;
                         for (int i = 0; i < allowedIndexes.Count; ++i)

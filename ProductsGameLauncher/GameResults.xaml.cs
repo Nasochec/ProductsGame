@@ -1,4 +1,5 @@
-﻿using ProductsGame;
+﻿using ProductionsGameCore;
+using ProductsGame;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,12 @@ namespace ProductsGameLauncher
             compiler.play();
         }
 
-        
+        public GameResults(GameSettings gs,List<string> tournamentPlayersFilenames)
+        {
+            InitializeComponent();
+            this.compiler = gc;
+            compiler.play();
+        }
+
     }
 }

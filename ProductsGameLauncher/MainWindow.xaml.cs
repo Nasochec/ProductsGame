@@ -34,8 +34,13 @@ namespace ProductsGameLauncher
         private void readConfig()
         {
             string filename = SettingsFileChoseTextBlock.Text;
-            //TODO catch exception
-            gameSettings = GameSettings.ReadFromFile(filename);
+            try
+            {
+                gameSettings = GameSettings.ReadFromFile(filename);
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Ошибка считывания конфигурации. Конфигурация была в неверном формате.");
+            }
             fillPlayersGrid();
         }
 

@@ -15,7 +15,7 @@ namespace RandomStrategy
 {
     internal class Program
     {
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
             Bank bank;
             GameSettings settings;
@@ -26,8 +26,10 @@ namespace RandomStrategy
             BinaryFormatter formatter = new BinaryFormatter();
             Stream inputStream = Console.OpenStandardInput();
 
+            //зададим начальное значения генератора случайных чисел
             Random random = new Random((int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId);
-
+            
+            //Считываем данные постоянные на протяжении всей игры.
             settings = (GameSettings)formatter.Deserialize(inputStream);
             playerNumber = (int)formatter.Deserialize(inputStream);
 
@@ -39,20 +41,18 @@ namespace RandomStrategy
                 bank = (Bank)formatter.Deserialize(inputStream);
                 words = (List<List<string>>)formatter.Deserialize(inputStream);
                 productionGroupNumber = (int)formatter.Deserialize(inputStream);
-                //TODO catch + check errors
 
                 Move move = new Move();
-
 
                 int groupNumber;
 
                 while (true)
                 {
                     List<List<int>> allowedWords = new List<List<int>>();
-                    foreach (var pr in prods)//находим слова допустимые для каждой продукции
+                    foreach (var pr in prods)//находим выводы допустимые для каждой продукции
                     {
                         allowedWords.Add(StrategyUtilitiesClass.findMatches(words[playerNumber], pr.Left));
-                        if (pr.Left == 'S')//если можно создать новое слово
+                        if (pr.Left == 'S')//если можно создать новый вывод
                             allowedWords.Last().Add(-1);
                     }
 
@@ -69,13 +69,13 @@ namespace RandomStrategy
                     else//если это первый ход - обязаны применить выпавшую продукцию
                     {
                         if (allowedWords[productionGroupNumber].Count == 0)
-                            break;
+                            break;//нет выводов к которым можно применить первую продукцию
                         groupNumber = productionGroupNumber;
                     }
                     ProductionGroup prod = settings.getProductionGroup(groupNumber);
                     int productionNumber = random.Next(prod.RightSize);//выбираем номер продукции в группе
 
-                    int wordnumber = random.Next(allowedWords[groupNumber].Count);//выбираем слово
+                    int wordnumber = random.Next(allowedWords[groupNumber].Count);//выбираем вывод
                     if (move.MovesCount >= 1)
                         bank.removeProduction(groupNumber);
                     wordnumber = allowedWords[groupNumber][wordnumber];
@@ -98,7 +98,7 @@ namespace RandomStrategy
                 }
                 Console.Out.WriteLine(move);
             }
-            return 0;
+            return;
         }
     }
 }

@@ -1,3 +1,17 @@
+            //gameSettings = GameSettings.ReadFromFile(@"./conf1.xml");
+            //playerNumber = 0;
+            //bank = new Bank(gameSettings.ProductionsCount);
+            //for (int i = 0; i < gameSettings.ProductionsCount; i++)
+            //{
+            //    bank.addProduction(i);
+            //    //bank.addProduction(i);
+            //}
+            //words = new List<List<string>>();
+            //words.Add(new List<string>());
+            //words.Add(new List<string>());
+            //productionGroupNumber = 0;
+
+
 //static KeyValuePair<int, string> findMove(SimplifiedWord oldWord, Move currentMove, Bank bank, List<SimplifiedProductionGroup> prods)
         //{
         //    KeyValuePair<int, string> bestWord

@@ -21,23 +21,21 @@ namespace ProductionsGameCore
             this.possibilityList = possibilityList.ToList();
             int sum = 0;//Проверка что введено сумма вероятностей равна знаменателю
             foreach (int possibility in possibilityList)
+            {
                 sum += possibility;
+                if (possibility <= 0)
+                    throw new ArgumentException("Вероятность должна быть неотрицательным числом.");
+            }
             if (sum != totalPossibility)
-                throw new ArgumentException("Sum of possibility list must be equal to totalPossibility.");
+                throw new ArgumentException("Сумма вероятностей должна быть равна totalPossibility.");
             //созжаём случайный сид для будуещей генерации случайных чисел, добавив некую защиту от повторений при многопоточности
             Seed = (int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId;
                 //DateTime.Now.Millisecond + Thread.CurrentThread.ManagedThreadId;
         }
 
-        public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList, int seed)
+        public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList, int seed) 
+            : this(totalPossibility,possibilityList)
         {
-            this.totalPossibility = totalPossibility;
-            this.possibilityList = possibilityList.ToList();
-            int sum = 0;//Проверка что введено сумма вероятностей равна знаменателю
-            foreach (int possibility in possibilityList)
-                sum += possibility;
-            if (sum != totalPossibility)
-                throw new ArgumentException("Sum of possibility list must be equal to totalPossibility.");
             Seed = seed;
         }
 
