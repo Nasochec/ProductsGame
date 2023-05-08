@@ -65,15 +65,21 @@ namespace ProductionsGameCore
 
         public static GameSettings ReadFromFile(string filename)
         {//TODO Проверить что файл существует
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
+            using (FileStream fs = new FileStream(filename, FileMode.Open)) { 
+                return ReadFromStream(fs);
+            }
+        }
+
+        public static GameSettings ReadFromStream(Stream s)
+        {
             XElement XGameSettings = null;
             try
             {
-                XGameSettings = XElement.Load(purchaseOrderFilepath);
+                XGameSettings = XElement.Load(s);
             }
-            catch {
-                throw new IOException("Входной файл в неыерном формате: неудалось считать xml данные.");
+            catch
+            {
+                throw new IOException("Входной поток в неверном формате: неудалось считать xml данные.");
             }
             //Считываем простые свойства
             bool isBankShare = XGameSettings.Attribute("IsBankShare").Value.Equals("true");
@@ -131,8 +137,8 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                if (saveSeed)
-                    XRandomSettings.Add(new XAttribute("Seed", RandomSettings.getSeed()));
+                if (saveSeed && RandomSettings.Seed!=null)//TODO delete seed from config?
+                    XRandomSettings.Add(new XAttribute("Seed", RandomSettings.Seed.Value));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
                 for (int i = 0; i < ProductionsCount; ++i)

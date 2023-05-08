@@ -27,7 +27,7 @@ namespace ProductsGame
         private Process player;
         private BinaryFormatter formatter;
         public ExeSerializationPlayerAdapter(int number,
-            GameCompiler gameCompiler,
+            ExeSerializationGameCompiler gameCompiler,
             string logFilename,
             String filename)
             : base(number, gameCompiler, logFilename)

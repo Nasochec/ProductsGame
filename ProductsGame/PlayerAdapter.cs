@@ -21,14 +21,14 @@ namespace ProductsGame
         }
         private List<string> words;
         public int PlayerNumber { get; private set; }
-        protected GameCompiler GameCompiler { get; private set; }
+        protected ExeSerializationGameCompiler GameCompiler { get; private set; }
         protected GameSettings Settings { get; private set; }
         protected Bank Bank { get; private set; }
         private string logFilename;
         public int Score { get; private set; }
         public bool Finished { get; private set; }
 
-        public PlayerAdapter(int number, GameCompiler gameCompiler, string logFilename)
+        public PlayerAdapter(int number, ExeSerializationGameCompiler gameCompiler, string logFilename)
         {
             MoveNumber = 0;
             PlayerNumber = number;

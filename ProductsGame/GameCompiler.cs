@@ -9,47 +9,28 @@ using ProductionsGameCore;
 
 namespace ProductsGame
 {
-    public class GameCompiler
+    public abstract class GameCompiler
     {
-        private List<PlayerAdapter> players = new List<PlayerAdapter>();
-        private GameSettings gameSettings;
-        private RandomProvider randomProvider;
-        private Bank bank;
-        private string logFilename;
+        protected List<PlayerAdapter> players = new List<PlayerAdapter>();
+        protected GameSettings gameSettings { get; private set; }
+        protected RandomProvider randomProvider { get; private set; }
+        protected Bank bank { get; private set; }
+        public string LogFilename { get; private set; }
 
-        public GameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames)
+        public bool Finished { get; private set; }
+
+        public GameCompiler(GameSettings gameSettings)
         {
-            if (gameSettings.NumberOfPlayers != 2 || !gameSettings.IsBankShare || gameSettings.ProductionsCount != 12) {
-                throw new ArgumentException("Указанная конфигурация игры пока не поддерживается");
-            }
             StringBuilder sb = new StringBuilder();
             sb.Append(@"./logs/");
             sb.Append(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-"));
             sb.Append(Thread.CurrentThread.ManagedThreadId);
             sb.Append(".txt");
-            this.logFilename = sb.ToString();
+            this.LogFilename = sb.ToString();
             this.gameSettings = gameSettings;
             bank = new Bank(gameSettings.ProductionsCount);
             randomProvider = new RandomProvider(gameSettings.RandomSettings);
-            if (playersFilenames.Count() != gameSettings.NumberOfPlayers)
-                throw new ArgumentException("Количество игроков должно быть равно количеству игроков указанному в конфигурации игры.");
-            var playerFilenameEnumerator = playersFilenames.GetEnumerator();
-            for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
-            {
-                playerFilenameEnumerator.MoveNext();
-                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, logFilename, playerFilenameEnumerator.Current));
-            }
-            gameSettings.WriteToFile(logFilename);
-            using (StreamWriter log = new StreamWriter(logFilename, true))
-            {
-                log.WriteLine();
-                int index = 0;
-                foreach (var player in playersFilenames)
-                {
-                    index++;
-                    log.WriteLine("Player " + index + ": " + player);
-                }
-            }
+            gameSettings.WriteToFile(LogFilename);
         }
 
         public Bank getBank()
@@ -83,14 +64,24 @@ namespace ProductsGame
                         return;//TODO maybe do something
                 }
             }
+            Finished = true;
 
-            using (StreamWriter log = new StreamWriter(logFilename, true))
+            using (StreamWriter log = new StreamWriter(LogFilename, true))
             {
                 foreach (var player in players)
                 {
-                    log.WriteLine("Player " + player.PlayerNumber + " score: " + player.Score);
+                    log.WriteLine("Счёт игорка " + player.PlayerNumber + ": " + player.Score);
                 }
             }
+        }
+
+        public int getPlayerScore(int index)
+        {
+            if (!(index >= 0 && index < players.Count))
+                throw new IndexOutOfRangeException(
+                String.Format("Индекс {0} был вне границ [0,{1}).", index, players.Count)
+                );
+            return players[index].Score;
         }
     }
 }
