@@ -65,7 +65,8 @@ namespace ProductionsGameCore
 
         public static GameSettings ReadFromFile(string filename)
         {//TODO Проверить что файл существует
-            using (FileStream fs = new FileStream(filename, FileMode.Open)) { 
+            using (FileStream fs = new FileStream(filename, FileMode.Open))
+            {
                 return ReadFromStream(fs);
             }
         }
@@ -118,6 +119,15 @@ namespace ProductionsGameCore
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
+            using (StreamWriter fs = new StreamWriter(purchaseOrderFilepath))
+            {
+                WriteToStream(fs, saveSeed);
+            }
+        }
+
+        public void WriteToStream(StreamWriter stream, bool saveSeed = true)
+        {
+
             XElement XEGameSettings = new XElement("GameSettings");
             XEGameSettings.Add(new XAttribute("IsBankShare", IsBankShare));
             XEGameSettings.Add(new XAttribute("NumberOfPlayers", NumberOfPlayers));
@@ -137,7 +147,7 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                if (saveSeed && RandomSettings.Seed!=null)//TODO delete seed from config?
+                if (saveSeed && RandomSettings.Seed != null)//TODO delete seed from config?
                     XRandomSettings.Add(new XAttribute("Seed", RandomSettings.Seed.Value));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
@@ -146,12 +156,11 @@ namespace ProductionsGameCore
                 XRandomSettings.Add(XPossibilities);
                 XEGameSettings.Add(XRandomSettings);
             }
-            using (FileStream fs = new FileStream(purchaseOrderFilepath, FileMode.OpenOrCreate))
             {
                 var settings = new XmlWriterSettings();
                 settings.OmitXmlDeclaration = true;
                 settings.Indent = true;
-                using (XmlWriter xmlWriter = XmlWriter.Create(fs, settings))
+                using (XmlWriter xmlWriter = XmlWriter.Create(stream, settings))
                 {
                     XEGameSettings.WriteTo(xmlWriter);
                 }

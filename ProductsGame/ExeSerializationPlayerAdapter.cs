@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -23,14 +24,14 @@ namespace ProductsGame
     {
         //TODO возможно надо добавить IDisposable для остановки потока стратегии
         //TODO если процесс завершён до завершения игры - ошибка
-        private String filename;
+        private string filename;
         private Process player;
         private BinaryFormatter formatter;
         public ExeSerializationPlayerAdapter(int number,
             ExeSerializationGameCompiler gameCompiler,
-            string logFilename,
-            String filename)
-            : base(number, gameCompiler, logFilename)
+            StreamWriter log,
+            string filename)
+            : base(number, gameCompiler, log)
         {
             this.filename = filename;
             formatter = new BinaryFormatter();

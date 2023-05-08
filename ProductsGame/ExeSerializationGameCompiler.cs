@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace ProductsGame
 {
     public class ExeSerializationGameCompiler : GameCompiler
     {
-
+       
         public ExeSerializationGameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames)
             : base(gameSettings)
         {
@@ -22,26 +23,15 @@ namespace ProductsGame
             for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
             {
                 playerFilenameEnumerator.MoveNext();
-                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, LogFilename, playerFilenameEnumerator.Current));
+                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current));
             }
-            using (StreamWriter log = new StreamWriter(LogFilename, true))
+            log.WriteLine();
+            int index = 0;
+            foreach (var player in playersFilenames)
             {
-                log.WriteLine();
-                int index = 0;
-                foreach (var player in playersFilenames)
-                {
-                    index++;
-                    log.WriteLine("Player " + index + ": " + player);
-                }
+                index++;
+                log.WriteLine("Player " + index + ": " + player);
             }
         }
-
-        //public ExeSerializationRoundResults getResults() {
-        //    if (!Finished)
-        //        return null;
-
-        //    return new ExeSerializationRoundResults(LogFilename);
-        //}
-        
     }
 }

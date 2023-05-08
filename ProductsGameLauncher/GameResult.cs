@@ -16,7 +16,7 @@ namespace ProductsGameLauncher
         public List<string> shortPlayersFilanames = new List<string>();
         public List<int> playersScores = new List<int>();
 
-        GameResult(string filename)
+        public GameResult(string filename)
         {
             this.filename = filename;
             //readConfig();

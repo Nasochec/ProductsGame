@@ -21,14 +21,28 @@ namespace ProductsGame
         }
         private List<string> words;
         public int PlayerNumber { get; private set; }
-        protected ExeSerializationGameCompiler GameCompiler { get; private set; }
+        protected GameCompiler GameCompiler { get; private set; }
         protected GameSettings Settings { get; private set; }
         protected Bank Bank { get; private set; }
         private string logFilename;
         public int Score { get; private set; }
         public bool Finished { get; private set; }
 
-        public PlayerAdapter(int number, ExeSerializationGameCompiler gameCompiler, string logFilename)
+        private StreamWriter log;
+
+        //public PlayerAdapter(int number, GameCompiler gameCompiler, string logFilename)
+        //{
+        //    MoveNumber = 0;
+        //    PlayerNumber = number;
+        //    this.words = new List<string>();
+        //    GameCompiler = gameCompiler;
+        //    Settings = GameCompiler.GetGameSettings();
+        //    Bank = GameCompiler.getBank();
+        //    this.logFilename = logFilename;
+        //    Finished = false;
+        //}
+
+        public PlayerAdapter(int number, GameCompiler gameCompiler, StreamWriter log)
         {
             MoveNumber = 0;
             PlayerNumber = number;
@@ -36,7 +50,8 @@ namespace ProductsGame
             GameCompiler = gameCompiler;
             Settings = GameCompiler.GetGameSettings();
             Bank = GameCompiler.getBank();
-            this.logFilename = logFilename;
+            this.log = log;
+            log.AutoFlush = false;
             Finished = false;
         }
 
@@ -131,8 +146,8 @@ namespace ProductsGame
         {
             if (Finished)
                 return;
-            StreamWriter log = new StreamWriter(logFilename, true);
-            log.AutoFlush = false;
+            //StreamWriter log = new StreamWriter(logFilename, true);
+            //log.AutoFlush = false;
             Move move = null;
             try
             {
@@ -164,7 +179,6 @@ namespace ProductsGame
                     log.WriteLine();
                 }
                 log.Flush();
-                log.Close();
             }
             if (MoveNumber == Settings.NumberOfMoves || Finished)//в конце игры - подсчитываем очки
                 calculateScore();

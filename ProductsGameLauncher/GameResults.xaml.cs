@@ -103,14 +103,14 @@ namespace ProductsGameLauncher
                         resultFilenames.Add(gc.LogFilename);
                         //}
                         gc.play();
-                        //lock (firstPlayerScores[f, s])
-                        //{
-                        //    firstPlayerScores[f, s].Add(gc.getPlayerScore(0));
-                        //}
-                        //lock (secondPlayerScores[f, s])
-                        //{
-                        //    firstPlayerScores[f, s].Add(gc.getPlayerScore(1));
-                        //}
+                        lock (firstPlayerScores[f, s])
+                        {
+                            firstPlayerScores[f, s].Add(gc.getPlayerScore(0));
+                        }
+                        lock (secondPlayerScores[f, s])
+                        {
+                            firstPlayerScores[f, s].Add(gc.getPlayerScore(1));
+                        }
                     }
                     ));
                     newGCThread.Start();
@@ -142,7 +142,6 @@ namespace ProductsGameLauncher
                     {
                         activeThreads.RemoveAt(i);
                         ++finishedThreads;
-                        //backgroundWorker.ReportProgress(finishedThreads);
                         continue;
                     }
                     ++i;
@@ -152,6 +151,15 @@ namespace ProductsGameLauncher
 
         public void fillGameResults()
         {
+            List<GameResult> results = new List<GameResult>();
+            foreach (var s in resultFilenames) {
+                results.Add(new GameResult(s));
+            }
+
+
+
+
+
 
         }
     }

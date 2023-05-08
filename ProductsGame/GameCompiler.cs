@@ -16,6 +16,7 @@ namespace ProductsGame
         protected RandomProvider randomProvider { get; private set; }
         protected Bank bank { get; private set; }
         public string LogFilename { get; private set; }
+        protected StreamWriter log { get; private set; }
 
         public bool Finished { get; private set; }
 
@@ -27,10 +28,12 @@ namespace ProductsGame
             sb.Append(Thread.CurrentThread.ManagedThreadId);
             sb.Append(".txt");
             this.LogFilename = sb.ToString();
+            log = new StreamWriter(this.LogFilename);
+            log.AutoFlush = false;
             this.gameSettings = gameSettings;
             bank = new Bank(gameSettings.ProductionsCount);
             randomProvider = new RandomProvider(gameSettings.RandomSettings);
-            gameSettings.WriteToFile(LogFilename);
+            gameSettings.WriteToStream(log);
         }
 
         public Bank getBank()
@@ -66,13 +69,12 @@ namespace ProductsGame
             }
             Finished = true;
 
-            using (StreamWriter log = new StreamWriter(LogFilename, true))
+
+            foreach (var player in players)
             {
-                foreach (var player in players)
-                {
-                    log.WriteLine("Счёт игорка " + player.PlayerNumber + ": " + player.Score);
-                }
+                log.WriteLine("Счёт игорка " + player.PlayerNumber + ": " + player.Score);
             }
+            log.Close();
         }
 
         public int getPlayerScore(int index)

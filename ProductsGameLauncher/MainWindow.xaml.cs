@@ -210,7 +210,7 @@ namespace ProductsGameLauncher
         {
             if (gameSettings != null)
             {
-               
+
                 List<string> filenames = getPlayersFilenames();
                 foreach (string filename in filenames)
                 {
@@ -232,8 +232,7 @@ namespace ProductsGameLauncher
                     return;
                 }
                 this.Hide();
-               
-                GameResults gameResultsWidow = new GameResults(gameSettings, filenames, numberOfRounds);
+                GameResults gameResultsWidow = new GameResults(gameSettings, filenames, numberOfRounds, tournamentCheckBox.IsChecked.Value);
                 gameResultsWidow.Show();
                 this.Close();
             }
