@@ -13,7 +13,7 @@ namespace ProductionsGameCore
     {
         private int totalPossibility;
         private List<int> possibilityList;
-        public int Seed { get; private set; }
+        public Nullable<int> Seed { get; private set; }
 
         public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList)
         {
@@ -21,25 +21,22 @@ namespace ProductionsGameCore
             this.possibilityList = possibilityList.ToList();
             int sum = 0;//Проверка что введено сумма вероятностей равна знаменателю
             foreach (int possibility in possibilityList)
+            {
                 sum += possibility;
+                if (possibility <= 0)
+                    throw new ArgumentException("Вероятность должна быть неотрицательным числом.");
+            }
             if (sum != totalPossibility)
-                throw new ArgumentException("Sum of possibility list must be equal to totalPossibility.");
-            //созжаём случайный сид для будуещей генерации случайных чисел, добавив некую защиту от повторений при многопоточности
-            Seed = (int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId;
-                //DateTime.Now.Millisecond + Thread.CurrentThread.ManagedThreadId;
+                throw new ArgumentException("Сумма вероятностей должна быть равна totalPossibility.");
+            Seed = null;
         }
 
-        public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList, int seed)
+        public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList, int seed) 
+            : this(totalPossibility,possibilityList)
         {
-            this.totalPossibility = totalPossibility;
-            this.possibilityList = possibilityList.ToList();
-            int sum = 0;//Проверка что введено сумма вероятностей равна знаменателю
-            foreach (int possibility in possibilityList)
-                sum += possibility;
-            if (sum != totalPossibility)
-                throw new ArgumentException("Sum of possibility list must be equal to totalPossibility.");
             Seed = seed;
         }
+
 
         public RandomSettings(SerializationInfo info, StreamingContext context)
         {
@@ -60,11 +57,6 @@ namespace ProductionsGameCore
         public int getTotalPossibility()
         {
             return totalPossibility;
-        }
-
-        public int getSeed()
-        {
-            return Seed;
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)

@@ -20,11 +20,15 @@ namespace ProductionsGameCore
             moves = new List<PrimaryMove>();
         }
 
-        public int MovesNumber { get { return moves.Count; } }
+        public int MovesCount { get { return moves.Count; } }
 
         public void addMove(int wordNumber, int groupNumber, int productionNumber)
         {
             moves.Add(new PrimaryMove(wordNumber, groupNumber, productionNumber));
+        }
+
+        public void popMove() {
+            moves.RemoveAt(moves.Count - 1);
         }
 
         public IEnumerable<PrimaryMove> getMoves()
@@ -34,7 +38,7 @@ namespace ProductionsGameCore
 
         public static Move FromString(string move)
         {
-            if(move == null)
+            if(move == null || move == "")
                 return new Move();//TODO return null
             Move moveRez = new Move();
             string[] splittedMove = move.Split(',');
@@ -45,7 +49,7 @@ namespace ProductionsGameCore
                 if (!int.TryParse(sss[0], out wordNumber)
                     || !int.TryParse(sss[1], out productionGroupNumber)
                     || !int.TryParse(sss[2], out productionNumber))
-                    throw new ArgumentException("String was in wrong format.");
+                    throw new ArgumentException("Входная строка в неверном формате.");
                 moveRez.addMove(wordNumber, productionGroupNumber, productionNumber);
             }
             return moveRez;

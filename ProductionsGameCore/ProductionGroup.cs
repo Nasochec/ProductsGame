@@ -21,7 +21,11 @@ namespace ProductionsGameCore
 
         public ProductionGroup(char left, List<string> right)
         {
+            if(!(left>='A' && left<='Z'))
+                throw new ArgumentException("В левой части продукции должен стоять нетерминал - заглавная английская буква(от A до Z).");
             this.Left = left;
+            if (right.Count == 0)
+                throw new ArgumentException("В каждой группе продукций должна быть как минимум одна продукция.");
             right.ForEach(x => this.right.Add(x));
         }
 
@@ -50,7 +54,7 @@ namespace ProductionsGameCore
             if (index >= 0 && index < RightSize)
                 return right[index];
             throw new IndexOutOfRangeException(
-                String.Format("Index {0} was out of range [0,{1})", index, RightSize)
+                String.Format("Индекс {0} был вне границ [0,{1}).", index, RightSize)
                 );
         }
 
@@ -78,18 +82,5 @@ namespace ProductionsGameCore
             }
             return sb.ToString();
         }
-
-        //public static ProductionGroup fromString(string s)
-        //{
-        //    string[] splitted = s.Split(' ');
-
-
-        //    string[] splitted = s.Split(' ');
-        //    if (splitted[0].Length != 1 || !(splitted[0][0] >= 'A' && splitted[0][0] >= 'Z'))
-        //        throw new ArgumentException("String was in wrong format.");
-        //    char left = splitted[0][0];
-        //    char right = splitted;
-        //    ProductionGroup production = new ProductionGroup();
-        //}
     }
 }

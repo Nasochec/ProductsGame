@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GUIStrrategy
+namespace GUIStrategy
 {
     internal class StrategicPrimaryMove : PrimaryMove
     {
-        //TODO maybe replace PrimaryMove with this
         public int LetterNumer { get; }
         public string PrevWord { get; }
         public string NewWord { get; }

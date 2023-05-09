@@ -8,13 +8,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace ProductionsGameCore
 {
     [Serializable]
     public class GameSettings : ISerializable
     {
-        List<ProductionGroup> productions = new List<ProductionGroup>();
+        public List<ProductionGroup> productions = new List<ProductionGroup>();
         public RandomSettings RandomSettings { get; private set; }
         public bool IsBankShare { get; private set; }
         public int NumberOfPlayers { get; private set; }
@@ -28,11 +29,15 @@ namespace ProductionsGameCore
             RandomSettings randomSettings)
         {
             IsBankShare = isBankShare;
+            if (numberOfMoves <= 0)
+                throw new ArgumentException("Количествол ходов должно быть неотрицательным числом.");
             NumberOfMoves = numberOfMoves;
+            if (numberOfPlayers <= 0)
+                throw new ArgumentException("Количествол игороков должно быть неотрицательным числом.");
             NumberOfPlayers = numberOfPlayers;
             this.productions = productions.ToList();
             RandomSettings = randomSettings;
-        }//TODO delete? or add verification
+        }
 
         public GameSettings(SerializationInfo info, StreamingContext context)
         {
@@ -49,7 +54,7 @@ namespace ProductionsGameCore
             if (index >= 0 && index < ProductionsCount)
                 return productions[index];
             throw new IndexOutOfRangeException(
-                String.Format("Index {0} was out of range [0,{1})", index, ProductionsCount)
+                String.Format("Индекс {0} был вне границ [0,{1}).", index, ProductionsCount)
                 );
         }
 
@@ -59,20 +64,35 @@ namespace ProductionsGameCore
         }
 
         public static GameSettings ReadFromFile(string filename)
+        {//TODO Проверить что файл существует
+            using (FileStream fs = new FileStream(filename, FileMode.Open))
+            {
+                return ReadFromStream(fs);
+            }
+        }
+
+        public static GameSettings ReadFromStream(Stream s)
         {
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
-            XElement XGameSettings = XElement.Load(purchaseOrderFilepath);
+            XElement XGameSettings = null;
+            try
+            {
+                XGameSettings = XElement.Load(s);
+            }
+            catch
+            {
+                throw new IOException("Входной поток в неверном формате: неудалось считать xml данные.");
+            }
             //Считываем простые свойства
             bool isBankShare = XGameSettings.Attribute("IsBankShare").Value.Equals("true");
             int numberOfPlayers = int.Parse(XGameSettings.Attribute("NumberOfPlayers").Value);
             int numberOfMoves = int.Parse(XGameSettings.Attribute("NumberOfMoves").Value);
+
             //считываем иформацию о группах продукций
             XElement XProductions = XGameSettings.Element("Productions");
             List<ProductionGroup> productions = new List<ProductionGroup>();
             foreach (var XProduction in XProductions.Elements())
             {
-                char left = XProduction.Attribute("Left").Value[0];//TODO check left is big english letter
+                char left = XProduction.Attribute("Left").Value[0];
                 List<string> rights = new List<string>();
                 foreach (var XRight in XProduction.Elements())
                     rights.Add(XRight.Value);
@@ -82,28 +102,37 @@ namespace ProductionsGameCore
             XElement XRandomSettings = XGameSettings.Element("RandomSettings");
             int totalPossibility = int.Parse(XRandomSettings.Attribute("TotalPossibility").Value);
             int? seed = null;
-            if(XRandomSettings.Attribute("Seed") != null)
+            if (XRandomSettings.Attribute("Seed") != null)
                 seed = int.Parse(XRandomSettings.Attribute("Seed").Value);
             List<int> possibilities = new List<int>();
-            foreach (var XPossibility in XRandomSettings.Element("Possibilities").Elements()) 
+            foreach (var XPossibility in XRandomSettings.Element("Possibilities").Elements())
                 possibilities.Add(int.Parse(XPossibility.Value));
             RandomSettings randomSettings;
             if (seed != null)
                 randomSettings = new RandomSettings(totalPossibility, possibilities, seed.Value);
             else
                 randomSettings = new RandomSettings(totalPossibility, possibilities);
-            return new GameSettings(isBankShare,numberOfPlayers,numberOfMoves,productions,randomSettings);
+            return new GameSettings(isBankShare, numberOfPlayers, numberOfMoves, productions, randomSettings);
         }
 
-        public void WriteToFile(string filename)
+        public void WriteToFile(string filename, bool saveSeed = true)
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
+            using (StreamWriter fs = new StreamWriter(purchaseOrderFilepath))
+            {
+                WriteToStream(fs, saveSeed);
+            }
+        }
+
+        public void WriteToStream(StreamWriter stream, bool saveSeed = true)
+        {
+
             XElement XEGameSettings = new XElement("GameSettings");
             XEGameSettings.Add(new XAttribute("IsBankShare", IsBankShare));
             XEGameSettings.Add(new XAttribute("NumberOfPlayers", NumberOfPlayers));
             XEGameSettings.Add(new XAttribute("NumberOfMoves", NumberOfMoves));
-            { //Добавляем двнные о группах продукций
+            { //Добавляем данные о группах продукций
                 XElement XProductions = new XElement("Productions");
                 foreach (var production in productions)
                 {
@@ -118,7 +147,8 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                XRandomSettings.Add(new XAttribute("Seed", RandomSettings.getSeed()));
+                if (saveSeed && RandomSettings.Seed != null)//TODO delete seed from config?
+                    XRandomSettings.Add(new XAttribute("Seed", RandomSettings.Seed.Value));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
                 for (int i = 0; i < ProductionsCount; ++i)
@@ -126,9 +156,11 @@ namespace ProductionsGameCore
                 XRandomSettings.Add(XPossibilities);
                 XEGameSettings.Add(XRandomSettings);
             }
-            using (FileStream fs = new FileStream(purchaseOrderFilepath, FileMode.Create))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(fs))
+                var settings = new XmlWriterSettings();
+                settings.OmitXmlDeclaration = true;
+                settings.Indent = true;
+                using (XmlWriter xmlWriter = XmlWriter.Create(stream, settings))
                 {
                     XEGameSettings.WriteTo(xmlWriter);
                 }
