@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		tasks.txt = tasks.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionsGameLauncher", "ProductionsGameLauncher\ProductionsGameLauncher.csproj", "{85B2AF95-10BA-4AED-955F-918BACA9D7BA}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionsGameCore", "ProductionsGameCore\ProductionsGameCore.csproj", "{19963D8C-0F2C-469F-B8A7-514D28C574D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUIStrrategy", "GUIStrrategy\GUIStrrategy.csproj", "{4152B41B-295A-4891-8267-1C365FCBA2BF}"
@@ -27,8 +29,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortWordsStrategy", "ShortWordsStrategy\ShortWordsStrategy.csproj", "{A65FC203-81BA-4796-968F-FF10DB0C26F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StupidShortWordsStrategy", "StupidShortWordsStrategy\StupidShortWordsStrategy.csproj", "{7FCB58F8-BB5F-43EA-80AA-98DD7247FA59}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionsGameLauncher", "ProductionsGameLauncher\ProductionsGameLauncher.csproj", "{85B2AF95-10BA-4AED-955F-918BACA9D7BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionsGame", "ProductionsGame\ProductionsGame.csproj", "{D6278432-0D8E-4EB8-BB0F-C0329F7490FE}"
 EndProject
