@@ -1,5 +1,5 @@
 ﻿using ProductionsGameCore;
-using ProductsGame;
+using ProductionsGame;
 using StrategyUtilities;
 using System;
 using System.Collections.Generic;

@@ -13,11 +13,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ProductsGame;
+using ProductionsGame;
 using ProductionsGameCore;
 using System.IO;
+using System.Threading;
 
-namespace ProductsGameLauncher
+namespace ProductionsGameLauncher
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -25,12 +26,12 @@ namespace ProductsGameLauncher
     public partial class MainWindow : Window
     {
         private GameSettings gameSettings = null;
-        private List<string> playersFilenames;
+
 
         public MainWindow()
         {
             InitializeComponent();
-            playersFilenames = new List<string>();
+            //playersFilenames = new List<string>();
         }
 
         private void readConfig()
@@ -62,51 +63,10 @@ namespace ProductsGameLauncher
         }
 
 
-        private void fillPlayersGrid()
-        {
-            PlayersGrid.Children.Clear();
-            PlayersGrid.RowDefinitions.Clear();
-            if (gameSettings == null) return;
-
-            for (int i = 0; i < gameSettings.NumberOfPlayers; ++i)
-            {
-                PlayersGrid.RowDefinitions.Add(new RowDefinition());
-                TextBlock label = new TextBlock();
-                label.Text = "Игрок " + (i + 1);
-                label.TextWrapping = TextWrapping.Wrap;
-                Grid.SetRow(label, i);
-                PlayersGrid.Children.Add(label);
-
-                TextBlock playerFileNameTextBlock = new TextBlock();
-                playerFileNameTextBlock.TextWrapping = TextWrapping.Wrap;
-                Grid.SetRow(playerFileNameTextBlock, i);
-                Grid.SetColumn(playerFileNameTextBlock, 1);
-                PlayersGrid.Children.Add(playerFileNameTextBlock);
-
-                Button playerFilenameChoseButton = new Button();
-                playerFilenameChoseButton.Content = "Выбрать";
-                playerFilenameChoseButton.Height = 40;
-                playerFilenameChoseButton.Click += (sender, e) =>
-                {
-                    string fname = showChoseFileDialog("EXE program file (.exe)|*.exe");
-                    if (!fname.Equals(""))
-                    {
-                        playerFileNameTextBlock.Text = fname;
-                        int rowNum = Grid.GetRow((Button)sender);
-                        playersFilenames[rowNum] = fname;
-                    }
-                };
-                Grid.SetRow(playerFilenameChoseButton, i);
-                Grid.SetColumn(playerFilenameChoseButton, 2);
-                PlayersGrid.Children.Add(playerFilenameChoseButton);
-
-            }
-        }
-
         private void addPlayer()
         {
             int row = PlayersGrid.RowDefinitions.Count;
-            playersFilenames.Add("");
+            //playersFilenames.Add("");
 
             RowDefinition rowDefinition = new RowDefinition();
             rowDefinition.Height = new GridLength(40);
@@ -231,8 +191,10 @@ namespace ProductsGameLauncher
                     MessageBox.Show("Указано недостаточное количество игроков, необходимо минимум " + gameSettings.NumberOfPlayers + " игроков.");
                     return;
                 }
+               
+                List<string> rezultsFileames = playTournament(numberOfRounds, tournamentCheckBox.IsChecked.Value, getPlayersFilenames());
+                GameResults gameResultsWidow = new GameResults(rezultsFileames);
                 this.Hide();
-                GameResults gameResultsWidow = new GameResults(gameSettings, filenames, numberOfRounds, tournamentCheckBox.IsChecked.Value);
                 gameResultsWidow.Show();
                 this.Close();
             }
@@ -240,6 +202,78 @@ namespace ProductsGameLauncher
             {
                 MessageBox.Show("Сначала задайте параметры игры и выберите игроков.");
             }
+        }
+
+        public List<string> playTournament(int numberOfRounds, bool isTournament, List<string> playersFilenames)
+        {
+            //TODO change it if CPU usage is too big.
+            const int maxActiveThreads = 40;
+            List<Thread> activeThreads = new List<Thread>();
+            int finishedThreads = 0;
+            List<string> resultFilenames = new List<string>();
+
+
+            int round = 0;
+            int firstIndex = 0, secondIndex = 0;
+            int playersNumber = playersFilenames.Count;
+            int allRounds = playersNumber * playersNumber * numberOfRounds;
+            if (!isTournament)
+                secondIndex = 1;
+
+            if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
+                Directory.CreateDirectory(@"./logs/");
+            string filename = @"./logs/"+DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")+"/";
+            if (!Directory.Exists(filename))
+                Directory.CreateDirectory(filename);
+
+            while (round < numberOfRounds || activeThreads.Count != 0)
+            {
+                //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
+                while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
+                {
+                    ExeSerializationGameCompiler gc =
+                        new ExeSerializationGameCompiler(
+                            gameSettings,
+                            new string[] { playersFilenames[firstIndex], playersFilenames[secondIndex] },
+                            filename + round + "-" + firstIndex + "-" + secondIndex + ".txt"
+                        );
+                    resultFilenames.Add(gc.LogFilename);
+                    Thread newGCThread = new Thread(new ThreadStart(gc.play));
+                    newGCThread.Start();
+                    activeThreads.Add(newGCThread);
+                    if (isTournament)
+                    {
+                        secondIndex++;
+                        if (secondIndex >= playersNumber)
+                        {
+                            firstIndex++;
+                            secondIndex = 0;
+                            if (firstIndex >= playersNumber)
+                            {
+                                round++;
+                                firstIndex = 0;
+                                secondIndex = 0;
+                            }
+                            continue;
+                        }
+                    }
+                    else
+                        round++;
+                }
+                //освобождаем потоки/дожидаемся окончания работы всех потоков.
+                for (int i = 0; i < activeThreads.Count;)
+                {
+                    Thread thread = activeThreads[i];
+                    if (!thread.IsAlive)
+                    {
+                        activeThreads.RemoveAt(i);
+                        ++finishedThreads;
+                        continue;
+                    }
+                    ++i;
+                }
+            }
+            return resultFilenames;
         }
 
         private List<string> getPlayersFilenames()
@@ -266,6 +300,14 @@ namespace ProductsGameLauncher
         private void addPlayerButton_Click(object sender, RoutedEventArgs e)
         {
             addPlayer();
+        }
+
+        private void resultButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            GameResults rez = new GameResults();
+            rez.Show();
+            this.Close();
         }
     }
 }

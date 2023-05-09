@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProductionsGameCore;
 
-namespace ProductsGame
+namespace ProductionsGame
 {
     public class RandomProvider
     {

@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace ProductsGame
+namespace ProductionsGame
 {
 
 
@@ -34,6 +34,10 @@ namespace ProductsGame
             : base(number, gameCompiler, log)
         {
             this.filename = filename;
+        }
+
+        private void startPlayer()
+        {
             formatter = new BinaryFormatter();
             player = new Process();
             player.StartInfo.FileName = filename;
@@ -41,6 +45,8 @@ namespace ProductsGame
             player.StartInfo.RedirectStandardInput = true;
             player.StartInfo.RedirectStandardOutput = true;
             player.StartInfo.UseShellExecute = false;
+
+
             player.Start();
 
             //передаём программе необходимые данные
@@ -50,11 +56,11 @@ namespace ProductsGame
             player.StandardInput.Flush();
         }
 
-
-
         override protected Move CalculateMove(int productionGroupNumber)
         {
 
+            if (player == null)
+                startPlayer();
             //Получим список всех выводов всех пользователей для передачи в программы стратегий.
             List<List<string>> playersWords = GameCompiler.getPlayersWords();
 

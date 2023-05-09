@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameSettings IsBankShare="true" NumberOfPlayers="2" NumberOfMoves="160">
+  <Productions>
+    <Production Left="S">
+      <Right>ABC</Right>
+    </Production>
+    <Production Left="A">
+      <Right>aA</Right>
+      <Right>B</Right>
+    </Production>
+    <Production Left="A">
+      <Right>bc</Right>
+      <Right>CA</Right>
+    </Production>
+    <Production Left="A">
+      <Right>a</Right>
+    </Production>
+    <Production Left="S">
+      <Right>AB</Right>
+      <Right>AC</Right>
+    </Production>
+    <Production Left="B">
+      <Right>b</Right>
+    </Production>
+    <Production Left="B">
+      <Right>BBB</Right>
+    </Production>
+    <Production Left="C">
+      <Right>AA</Right>
+      <Right>c</Right>
+    </Production>
+    <Production Left="C">
+      <Right>A</Right>
+      <Right>B</Right>
+      <Right>c</Right>
+    </Production>
+    <Production Left="C">
+      <Right>T</Right>
+      <Right>A</Right>
+    </Production>
+    <Production Left="B">
+      <Right>abacabade</Right>
+    </Production>
+  </Productions>
+  <RandomSettings TotalPossibility="36">
+    <Possibilities>
+      <Possibility>1</Possibility>
+      <Possibility>2</Possibility>
+      <Possibility>3</Possibility>
+      <Possibility>4</Possibility>
+      <Possibility>5</Possibility>
+      <Possibility>6</Possibility>
+      <Possibility>5</Possibility>
+      <Possibility>4</Possibility>
+      <Possibility>3</Possibility>
+      <Possibility>2</Possibility>
+      <Possibility>1</Possibility>
+    </Possibilities>
+  </RandomSettings>
+</GameSettings>

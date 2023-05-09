@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{85B2AF95-10BA-4AED-955F-918BACA9D7BA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>ProductsGameLauncher</RootNamespace>
-    <AssemblyName>ProductsGameLauncher</AssemblyName>
+    <RootNamespace>ProductionsGameLauncher</RootNamespace>
+    <AssemblyName>ProductionsGameLauncher</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -122,9 +122,9 @@
       <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
       <Name>ProductionsGameCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ProductsGame\ProductsGame.csproj">
+    <ProjectReference Include="..\ProductionsGame\ProductionsGame.csproj">
       <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
-      <Name>ProductsGame</Name>
+      <Name>ProductionsGame</Name>
     </ProjectReference>
     <ProjectReference Include="..\RandomStrategy\RandomStrategy.csproj">
       <Project>{efcb29b7-4f33-42f7-ab51-cd9aa7903baf}</Project>

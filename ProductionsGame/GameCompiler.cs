@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProductionsGameCore;
 
-namespace ProductsGame
+namespace ProductionsGame
 {
     public abstract class GameCompiler
     {
@@ -28,6 +28,17 @@ namespace ProductsGame
             sb.Append(Thread.CurrentThread.ManagedThreadId);
             sb.Append(".txt");
             this.LogFilename = sb.ToString();
+            log = new StreamWriter(this.LogFilename);
+            log.AutoFlush = false;
+            this.gameSettings = gameSettings;
+            bank = new Bank(gameSettings.ProductionsCount);
+            randomProvider = new RandomProvider(gameSettings.RandomSettings);
+            gameSettings.WriteToStream(log);
+        }
+
+        public GameCompiler(GameSettings gameSettings,string logFilename)
+        {
+            this.LogFilename = logFilename;
             log = new StreamWriter(this.LogFilename);
             log.AutoFlush = false;
             this.gameSettings = gameSettings;
@@ -70,9 +81,10 @@ namespace ProductsGame
             Finished = true;
 
 
+            log.WriteLine("Результаты:");
             foreach (var player in players)
             {
-                log.WriteLine("Счёт игорка " + player.PlayerNumber + ": " + player.Score);
+                log.WriteLine("Счёт игрока " + player.PlayerNumber + ": " + player.Score);
             }
             log.Close();
         }

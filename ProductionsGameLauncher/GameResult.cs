@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductsGameLauncher
+namespace ProductionsGameLauncher
 {
     internal class GameResult
     {
@@ -19,7 +19,6 @@ namespace ProductsGameLauncher
         public GameResult(string filename)
         {
             this.filename = filename;
-            //readConfig();
             StringBuilder sb = new StringBuilder();
             StreamReader fs = new StreamReader(filename);
 
@@ -41,20 +40,22 @@ namespace ProductsGameLauncher
             playersFilenames.Add(p1);
             playersFilenames.Add(p2);
 
-            shortPlayersFilanames.Add(p1.Split('/').Last());
-            shortPlayersFilanames.Add(p2.Split('/').Last());
+            shortPlayersFilanames.Add(p1.Split('\\').Last());
+            shortPlayersFilanames.Add(p2.Split('\\').Last());
 
             while (true)
             {
                 string s = fs.ReadLine();
-                if (s == null) break;
-                if (s.StartsWith("Cчёт игрока ", StringComparison.Ordinal)) {
-                    playersScores.Add(int.Parse(s.Split(':')[1]));
+                if (s == null)
+                    break;
+                if (s.Equals("Результаты:"))
+                {
+                    string r1 = fs.ReadLine();
+                    string r2 = fs.ReadLine();
+                    playersScores.Add(int.Parse(r1.Split(':')[1]));
+                    playersScores.Add(int.Parse(r2.Split(':')[1]));
                 }
             }
-
-
         }
-
     }
 }

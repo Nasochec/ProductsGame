@@ -1,5 +1,5 @@
 ﻿using ProductionsGameCore;
-using ProductsGame;
+using ProductionsGame;
 using StrategyUtilities;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ namespace OneMoveStrategy
 {
     internal class Program
     {
+        //TODO change it if this strategy works too long, or you want to make strategy better
         //Максимальная глубина перебора
         const int maxDeep = 4;
         /// <summary>

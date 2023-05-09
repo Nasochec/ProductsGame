@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media.TextFormatting;
 using ProductionsGameCore;
 
-namespace ProductsGame
+namespace ProductionsGame
 {
     public abstract class PlayerAdapter
     {
@@ -163,7 +163,7 @@ namespace ProductsGame
             }
             finally
             {
-                log.WriteLine("Индекс выпавше продукции:{0}", productionGroupNumber);
+                log.WriteLine("Индекс выпавшей продукции:{0}", productionGroupNumber);
                 log.WriteLine("Номер хода: {0}, Игрок: {1}", MoveNumber, PlayerNumber);
                 if (move != null)
                     log.WriteLine("Ход: {0}", move.ToString());
