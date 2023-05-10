@@ -26,42 +26,41 @@ namespace ProductionsGameLauncher
     public partial class MainWindow : Window
     {
         private GameSettings gameSettings = null;
+        List<Grammatic> grammatics = new List<Grammatic>(new Grammatic[] {
+        new Grammatic("classic",new string[] {
+                "S->ABC",
+                "A->aA|B",
+                "A->bc|CA",
+                "A->a",
+                "S->AB|AC",
+                "B->b",
+                "B->BBB",
+                "C->AA|c",
+                "C->A|B|c",
+                "C->T|A",
+                "B->abacabade"
+            }),
+        new Grammatic("long chain",new string[] {
+                "S->A",
+                "A->B",
+                "B->C",
+                "C->D",
+                "D->Exal",
+                "E->F",
+                "F->J",
+                "J->Kefteme|Cabaka",
+                "K->L",
+                "L->H",
+                "H->hallula"
+            })
+        });
+        private Grammatic grammatic = null;
 
 
         public MainWindow()
         {
             InitializeComponent();
-            //playersFilenames = new List<string>();
         }
-
-        private void readConfig()
-        {
-            string filename = SettingsFileChoseTextBlock.Text;
-            try
-            {
-                gameSettings = GameSettings.ReadFromFile(filename);
-                if (gameSettings.NumberOfPlayers != 2)
-                {
-                    MessageBox.Show("Введена неверная конфигурация, количество игроков должно быть равно 2.");
-                    gameSettings = null;
-                }
-                else if (gameSettings.IsBankShare == false)
-                {
-                    MessageBox.Show("Введена неверная конфигурация, банк продукций должен быть общим.");
-                    gameSettings = null;
-                }
-                else if (gameSettings.ProductionsCount != 11)
-                {
-                    MessageBox.Show("Введена неверная конфигурация, количество продукций должно быть равно 11.");
-                    gameSettings = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка считывания конфигурации. Конфигурация была в неверном формате.");
-            }
-        }
-
 
         private void addPlayer()
         {
@@ -127,14 +126,14 @@ namespace ProductionsGameLauncher
             PlayersGrid.Children.Add(playerDeleteButton);
         }
 
-        private void SettigsFileChoseButton_Click(object sender, RoutedEventArgs e)
+        private void GrammaticChoseButton_Click(object sender, RoutedEventArgs e)
         {
-            string fname = showChoseFileDialog("XML documents (.xml)|*.xml");
-
-            if (!fname.Equals(""))
+            SettingsSelect s = new SettingsSelect(grammatics);
+            bool? rez = s.ShowDialog();
+            if (rez == true)
             {
-                SettingsFileChoseTextBlock.Text = fname;
-                readConfig();
+                grammatic = s.Result;
+                GrammaticTextBlock.Text = grammatic.Name;
             }
         }
 
@@ -158,12 +157,6 @@ namespace ProductionsGameLauncher
                 fname = openFileDlg.FileName;
             }
             return fname;
-        }
-
-        private void SettingsMoreInfoButton_Click(object sender, RoutedEventArgs e)
-        {
-            SettingsChageWindow settingsChageWindow = new SettingsChageWindow(gameSettings);
-            settingsChageWindow.Show();
         }
 
         private void StartGameButton(object sender, RoutedEventArgs e)
@@ -191,7 +184,7 @@ namespace ProductionsGameLauncher
                     MessageBox.Show("Указано недостаточное количество игроков, необходимо минимум " + gameSettings.NumberOfPlayers + " игроков.");
                     return;
                 }
-               
+
                 List<string> rezultsFileames = playTournament(numberOfRounds, tournamentCheckBox.IsChecked.Value, getPlayersFilenames());
                 GameResults gameResultsWidow = new GameResults(rezultsFileames);
                 this.Hide();
@@ -222,7 +215,7 @@ namespace ProductionsGameLauncher
 
             if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
                 Directory.CreateDirectory(@"./logs/");
-            string filename = @"./logs/"+DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")+"/";
+            string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
             if (!Directory.Exists(filename))
                 Directory.CreateDirectory(filename);
 

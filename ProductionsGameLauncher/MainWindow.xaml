@@ -22,10 +22,9 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Файл конфигурации:" TextWrapping="Wrap" Margin="10,10,10,10"/>
-            <TextBlock x:Name="SettingsFileChoseTextBlock" TextWrapping="Wrap" Text="Не выбрано" Margin="10,10,10,10" Grid.Column="1"/>
-            <Button x:Name="SettingsMoreInfoButton" Grid.Column="2" Content="Подробнее" Margin="10,10,10,10" Click="SettingsMoreInfoButton_Click"/>
-            <Button x:Name="SettigsFileChoseButton" Grid.Column="3" Content="Выбрать" Margin="10,4,10,4" Click="SettigsFileChoseButton_Click"/>
+            <TextBlock Text="Грамматика:" TextWrapping="Wrap" Margin="10,10,10,10"/>
+            <TextBlock x:Name="GrammaticTextBlock" TextWrapping="Wrap" Text="Не выбрана" Margin="10,10,10,10" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <Button x:Name="SettigsFileChoseButton" Grid.Column="3" Content="Выбрать" Margin="10,10,10,10" Click="GrammaticChoseButton_Click"/>
             <TextBlock Grid.Row="1" TextWrapping="Wrap" Margin="10,10,10,10" Text="Количество партий:"/>
             <TextBox x:Name="roundsNumberTextBox" Grid.Column="1" Margin="10,10,10,10" Grid.Row="1" TextWrapping="Wrap" PreviewTextInput="roundsNumberTextBox_PreviewTextInput"/>
 

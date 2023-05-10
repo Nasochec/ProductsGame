@@ -55,10 +55,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GameResult.cs" />
-    <Compile Include="SettingsChageWindow.xaml.cs">
-      <DependentUpon>SettingsChageWindow.xaml</DependentUpon>
+    <Compile Include="CreateGrammatic.xaml.cs">
+      <DependentUpon>CreateGrammatic.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameResult.cs" />
+    <Compile Include="Grammatic.cs" />
+    <Compile Include="GrammaticSelect.xaml.cs">
+      <DependentUpon>GrammaticSelect.xaml</DependentUpon>
+    </Compile>
+    <Page Include="CreateGrammatic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GameResults.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -78,7 +86,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SettingsChageWindow.xaml">
+    <Page Include="GrammaticSelect.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

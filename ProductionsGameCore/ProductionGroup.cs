@@ -21,7 +21,7 @@ namespace ProductionsGameCore
 
         public ProductionGroup(char left, List<string> right)
         {
-            if(!(left>='A' && left<='Z'))
+            if (!(left >= 'A' && left <= 'Z'))
                 throw new ArgumentException("В левой части продукции должен стоять нетерминал - заглавная английская буква(от A до Z).");
             this.Left = left;
             if (right.Count == 0)
@@ -58,7 +58,8 @@ namespace ProductionsGameCore
                 );
         }
 
-        public IEnumerable<string> getRights() { 
+        public IEnumerable<string> getRights()
+        {
             return right.AsEnumerable();
         }
 
@@ -81,6 +82,44 @@ namespace ProductionsGameCore
                 sb.Append("|" + right[index].ToString());
             }
             return sb.ToString();
+        }
+
+        public static ProductionGroup fromString(string s)
+        {
+            StringBuilder sb = new StringBuilder();
+            char? left = null;
+            List<string> right = new List<string>();
+            for (int i = 0; i < s.Length; ++i)
+            {
+                if (s[i] == '|')//нашли разделитель продукции
+                {
+                    if (left == null)
+                        throw new ArgumentException("Не указана левая чать продукции.");
+                    right.Add(sb.ToString());
+                    sb.Clear();
+                    continue;
+                }
+                if (s[i] == '-' && i + 1 < s.Length && s[i + 1] == '>')//Еслии встретилась стрелочка ->
+                {
+                    if (left == null)//Если левая часть ещё не найдена
+                        if (sb.Length == 1 && sb[0] >= 'A' && sb[0] <= 'Z')//проверка корректности левой части
+                        {
+                            left = sb[0];
+                            sb.Clear();
+                            i++;//Пропустить символ >
+                            continue;
+                        }
+                        else
+                            throw new ArgumentException("Левой частью продукции может выступать только один нетерминал - заглавная английская буква.");
+                    //else//если левая чать уже найдена, то эта стрелочка - часть продукции
+                    //    sb.Append(s[i]);
+                }
+                sb.Append(s[i]);
+            }
+            right.Add(sb.ToString());
+            if (left == null)
+                throw new ArgumentException("Не указана левая чать продукции.");
+            return new ProductionGroup(left.Value, right);
         }
     }
 }

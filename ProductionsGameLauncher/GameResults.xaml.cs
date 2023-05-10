@@ -203,7 +203,6 @@ namespace ProductionsGameLauncher
                 firstPlayerScore[f, s] += rez.playersScores[0];
                 secondPlayerScore[f, s] += rez.playersScores[1];
             }
-            //TODO continue
             firstPlayerMeanScore = new double[playersCount, playersCount];
             secondPlayerMeanScore = new double[playersCount, playersCount];
 
