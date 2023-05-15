@@ -68,6 +68,8 @@ namespace ProductionsGameLauncher
             new Player("Переборная стратегия.",@"./OneMoveStrategy.exe"),
         });
 
+        Player guiPlayer = new Player("Графический интерфейс", @"./GUIStrategy.exe");
+
         BackgroundWorker worker;
 
         private Grammatic grammatic = null;
@@ -201,6 +203,7 @@ namespace ProductionsGameLauncher
                 playerComboBox.Height = 20;
                 foreach (var item in players)
                     playerComboBox.Items.Add(item);
+                playerComboBox.Items.Add(guiPlayer);
                 playerComboBox.SelectedIndex = 0;
                 Grid.SetRow(playerComboBox, i);
                 Grid.SetColumn(playerComboBox, 1);
@@ -208,10 +211,9 @@ namespace ProductionsGameLauncher
             }
         }
 
-        //TODO добавить выбор числа шагов+
-        //добавить просмотр раунов
+        //TODO 
+        //добавить просмотр раундов из окна результатов раунда
         //скрыть от пользователя exe, подменитиь выбором из списка+
-        //если выбран GUIStrategy то раунд всегда один+-???!!
         //
         private void GrammaticChoseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -222,29 +224,6 @@ namespace ProductionsGameLauncher
                 grammatic = s.Result;
                 GrammaticTextBlock.Text = grammatic.Name;
             }
-        }
-
-        //TODO-DELETE
-        private string showChoseFileDialog(string filter)
-        {
-            // Initialize the filename
-            string fname = string.Empty;
-
-            // Configure open file dialog box
-            OpenFileDialog openFileDlg = new OpenFileDialog();
-            openFileDlg.InitialDirectory = System.IO.Directory.GetParent(@"./").FullName;
-            openFileDlg.Filter = filter; // Filter files by extension
-
-            // Show open file dialog box
-            bool result = openFileDlg.ShowDialog() == true;
-
-            // Process open file dialog box results
-            if (result == true)
-            {
-                // Open document
-                fname = openFileDlg.FileName;
-            }
-            return fname;
         }
 
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
@@ -286,7 +265,11 @@ namespace ProductionsGameLauncher
             else
             {
                 List<string> filenames = getTwoPlayersFilenames();
-                //TODO
+                GameCompiler gc = new ExeSerializationGameCompiler(gameSettings,filenames);
+                LookGame look = new LookGame(gc);
+                this.Hide();
+                look.ShowDialog();
+                this.Close();
             }
         }
 
@@ -299,11 +282,11 @@ namespace ProductionsGameLauncher
             helpButton.IsEnabled = false;
             startGameButton.IsEnabled = false;
             resultButton.IsEnabled = false;
-
         }
 
+        //Вариант проигрываения партий турнира по-очереди
         public void playTournamentLinear(int numberOfRounds, List<string> playersFilenames)
-        {  
+        {
             int finishedRounds = 0;
             List<string> resultFilenames = new List<string>();
             makeInactiveButtons();
@@ -323,7 +306,7 @@ namespace ProductionsGameLauncher
             worker.DoWork += (sender, e) =>
             {
                 //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
-                for (int round = 0; round < numberOfRounds; ++round) 
+                for (int round = 0; round < numberOfRounds; ++round)
                     for (int firstIndex = 0; firstIndex < playersNumber; ++firstIndex)
                         for (int secondIndex = 0; secondIndex < playersNumber; ++secondIndex)
                         {
@@ -338,7 +321,7 @@ namespace ProductionsGameLauncher
                             ++finishedRounds;
                             worker.ReportProgress(finishedRounds * 100 / allRounds);
                         }
-                
+
             };
             worker.ProgressChanged += (sender, e) =>
             {
@@ -356,6 +339,7 @@ namespace ProductionsGameLauncher
         }
 
         List<Thread> activeThreads;
+        //Вариант проигрывания игр турнира параллельно, работает в несколько раз быстрее чем линейный вариант, но больше затраты времени
         public void playTournament(int numberOfRounds, List<string> playersFilenames)
         {
             //TODO change it if CPU usage is too big.
@@ -386,14 +370,18 @@ namespace ProductionsGameLauncher
                     //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
                     while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
                     {
-                        ExeSerializationGameCompiler gc =
-                            new ExeSerializationGameCompiler(
-                                gameSettings,
-                                new string[] { playersFilenames[firstIndex], playersFilenames[secondIndex] },
-                                filename + round + "-" + firstIndex + "-" + secondIndex + ".txt"
-                            );
-                        resultFilenames.Add(gc.LogFilename);
-                        Thread newGCThread = new Thread(new ThreadStart(gc.play));
+                        string currFilename = filename + round + "-" + firstIndex + "-" + secondIndex + ".txt";
+                        GameStart gameStart = new GameStart(gameSettings, currFilename, playersFilenames[firstIndex], playersFilenames[secondIndex]);
+                        //ExeSerializationGameCompiler gc =
+                        //    new ExeSerializationGameCompiler(
+                        //        gameSettings,
+                        //        new string[] { playersFilenames[firstIndex], playersFilenames[secondIndex] },          
+                        //    );
+                        //resultFilenames.Add(gc.LogFilename);
+                        //Thread newGCThread = new Thread(new ThreadStart(gc.play));
+                        resultFilenames.Add(currFilename);
+                        Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
+
                         newGCThread.Start();
                         activeThreads.Add(newGCThread);
                         secondIndex++;
@@ -434,11 +422,10 @@ namespace ProductionsGameLauncher
             {
                 GameResults gameResultsWidow = new GameResults(resultFilenames);
                 this.Hide();
-                gameResultsWidow.Show();
                 this.Close();
+                gameResultsWidow.ShowDialog();
             };
             worker.RunWorkerAsync();
-            //return resultFilenames;
         }
 
         private List<string> getTournamentPlayersFilenames()
@@ -486,8 +473,8 @@ namespace ProductionsGameLauncher
         {
             this.Hide();
             GameResults rez = new GameResults();
-            rez.Show();
             this.Close();
+            rez.ShowDialog();
         }
 
         private void movesNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -523,6 +510,42 @@ namespace ProductionsGameLauncher
                                 thread.Abort();
                         }
                 }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            LookGame lg = new LookGame(@"E:\repos2.0\ProductsGame\ProductionsGameLauncher\bin\Debug\logs\2023-05-15-16-41-18\0-0-0.txt");
+            lg.ShowDialog();
+        }
+    }
+
+
+    internal class GameStart
+    {
+        GameSettings gameSettings;
+        string logFilename;
+        string player1Filename;
+        string player2Filename;
+
+
+        public GameStart(GameSettings gameSettings, string logFilename, string player1Filename, string player2Filename)
+        {
+            this.gameSettings = gameSettings;
+            this.logFilename = logFilename;
+            this.player1Filename = player1Filename;
+            this.player2Filename = player2Filename;
+        }
+
+
+        public void start()
+        {
+            ExeSerializationGameCompiler gc =
+                new ExeSerializationGameCompiler(
+                    gameSettings,
+                    new string[] { player1Filename, player2Filename },
+                    logFilename
+                );
+            gc.play();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace ProductionsGameCore
         }
 
         public void addProduction(int productionIndex, int count)
-        {//TODO add index out of range exceptions
+        {
             productionsBank[productionIndex] += count;
         }
 

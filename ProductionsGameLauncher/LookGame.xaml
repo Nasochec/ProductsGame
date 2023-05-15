@@ -7,6 +7,30 @@
         mc:Ignorable="d"
         Title="LookGame" Height="450" Width="800">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="288*"/>
+            <ColumnDefinition Width="239*"/>
+            <ColumnDefinition Width="273*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="185*"/>
+            <RowDefinition Height="173*"/>
+            <RowDefinition Height="36*"/>
+        </Grid.RowDefinitions>
+        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,10" TextWrapping="Wrap" Text="Содержимое банка:" RenderTransformOrigin="0.52,1.017" Width="134"/>
+        <TextBlock x:Name="productionsTextBlock" TextWrapping="Wrap" Text="TextBlock" Grid.Row="1" Margin="10,10,10,9" Grid.RowSpan="3"/>
+        <TextBlock x:Name="totalMovesTextBlock" Margin="144,10,0,10" TextWrapping="Wrap" Text="TextBlock" HorizontalAlignment="Left" Width="134"/>
+        <TextBlock x:Name="currentMoveTextBlock" Grid.Column="1" Margin="10,10,10,10" TextWrapping="Wrap" Text="TextBlock"/>
+        <TextBlock x:Name="currentPlayerTextBlock" Grid.Column="2" Margin="10,10,10,10" TextWrapping="Wrap" Text="TextBlock"/>
+        <ListBox x:Name="firstPlayerWordsListBox" Grid.Column="1" Grid.Row="1" Margin="10,10,10,40"/>
+        <ListBox x:Name="secondplayerWordsListBox" Grid.Column="2" Grid.Row="1" Margin="10,10,10,40"/>
+        <ListBox x:Name="currentMoveListBox" Grid.Column="1" Grid.Row="2"  Margin="10,29,10,10" Grid.ColumnSpan="2"/>
+        <Button x:Name="forwardMoveButton" Grid.Column="2" Content="Вперёд" Margin="0,5,10,5" Grid.Row="3" Click="forwardMoveButton_Click" HorizontalAlignment="Right"/>
+        <Button x:Name="backMoveButton" Grid.Column="1" Content="Назад" Margin="0,5,10,5" Grid.Row="3" Click="backMoveButton_Click" RenderTransformOrigin="-0.035,0.606" HorizontalAlignment="Right" Width="36"/>
+        <TextBlock x:Name="productionTextBlock" Grid.Column="1" Margin="10,5,10,0" Grid.Row="2" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
+        <TextBlock x:Name="firstPlayerScoreTextBlock" Grid.Column="1" Margin="10,0,10,8" Grid.Row="1" TextWrapping="Wrap" Text="TextBlock" Height="16" VerticalAlignment="Bottom"/>
+        <TextBlock x:Name="secondPlayerScoreTextBlock" Grid.Column="2" HorizontalAlignment="Center" Margin="0,0,0,10" Grid.Row="1" TextWrapping="Wrap" Text="TextBlock" Width="253" Height="16" VerticalAlignment="Bottom"/>
+
     </Grid>
 </Window>

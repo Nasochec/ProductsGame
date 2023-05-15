@@ -18,7 +18,11 @@ namespace ProductionsGame
         public string LogFilename { get; private set; }
         protected StreamWriter log { get; private set; }
 
-        public bool Finished { get; private set; }
+        public bool Active { get; private set; } = false;
+        public bool Finished { get; private set; } = false;
+
+        public int moveNumber { get; private set; } = 0;
+        public int playerNumber { get; private set; } = 0;
 
         public GameCompiler(GameSettings gameSettings)
         {
@@ -36,7 +40,7 @@ namespace ProductionsGame
             gameSettings.WriteToStream(log);
         }
 
-        public GameCompiler(GameSettings gameSettings,string logFilename)
+        public GameCompiler(GameSettings gameSettings, string logFilename)
         {
             this.LogFilename = logFilename;
             log = new StreamWriter(this.LogFilename);
@@ -69,25 +73,67 @@ namespace ProductionsGame
 
         public void play()
         {
-            for (int moveNumber = 0; moveNumber < gameSettings.NumberOfMoves; ++moveNumber)
+            if (!(Active || Finished))
             {
-                for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
+                Active = true;
+                for (moveNumber = 0; moveNumber < gameSettings.NumberOfMoves; ++moveNumber)
                 {
-                    players[playerNumber].MakeMove(randomProvider.getRandom());
-                    if (players[playerNumber].Finished)
-                        return;//TODO maybe do something
+                    for (playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
+                    {
+                        players[playerNumber].MakeMove(randomProvider.getRandom());
+                        if (players[playerNumber].Finished)
+                        {
+                            Finished = true;
+                            Active = false;
+                            return;
+                        }
+                    }
                 }
-            }
-            Finished = true;
+                Finished = true;
+                Active = false;
 
-
-            log.WriteLine("Результаты:");
-            foreach (var player in players)
-            {
-                log.WriteLine("Счёт игрока " + player.PlayerNumber + ": " + player.Score);
+                log.WriteLine("Результаты:");
+                foreach (var player in players)
+                {
+                    log.WriteLine("Счёт игрока " + player.PlayerNumber + ": " + player.Score);
+                }
+                log.Close();
             }
-            log.Close();
         }
+
+        public Move playOneMove()
+        {
+            if (!Finished)
+            {
+                Move move = players[playerNumber].MakeMove(randomProvider.getRandom());
+                if (players[playerNumber].Finished)
+                {
+                    Finished = true;
+                    Active = false;
+                    return null;
+                }
+                ++playerNumber;
+                if (playerNumber >= gameSettings.NumberOfPlayers)
+                {
+                    ++moveNumber;
+                    playerNumber = 0;
+                }
+                if (moveNumber >= gameSettings.NumberOfMoves)
+                {
+                    Active = false;
+                    Finished = true;
+                    log.WriteLine("Результаты:");
+                    foreach (var player in players)
+                    {
+                        log.WriteLine("Счёт игрока " + player.PlayerNumber + ": " + player.Score);
+                    }
+                    log.Close();
+                }
+                return move;
+            }
+            return null;
+        }
+
 
         public int getPlayerScore(int index)
         {

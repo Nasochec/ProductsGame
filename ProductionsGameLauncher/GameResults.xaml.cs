@@ -71,107 +71,6 @@ namespace ProductionsGameLauncher
             SelectedFilesListBox.ItemsSource = resultFilenames;
         }
 
-        //public GameResults(GameSettings gs, IEnumerable<string> tournamentPlayersFilenames, int numberOfRounds, bool isTournament)
-        //{
-        //    InitializeComponent();
-        //    if (gs.NumberOfPlayers != 2)
-        //    {
-        //        throw new NotImplementedException("Число игрков отличное от 2 пока не поддерживается.");
-        //    }
-        //    this.numberOfRounds = numberOfRounds;
-        //    gameSettings = gs;
-        //    playersFilenames = tournamentPlayersFilenames.ToList();
-        //    resultFilenames = new List<string>();
-        //    this.isTournament = isTournament;
-        //    play();
-        //}
-
-        //public void play()
-        //{
-        //    const int maxActiveThreads = 40;
-        //    List<Thread> activeThreads = new List<Thread>();
-        //    int finishedThreads = 0;
-
-
-        //    int round = 0;
-        //    int firsrIndex = 0, secondIndex = 0;
-        //    int playersNumber = playersFilenames.Count;
-        //    int allRounds = playersNumber * playersNumber * numberOfRounds;
-        //    if (!isTournament)
-        //        secondIndex = 1;
-
-        //    firstPlayerScores = new List<int>[playersFilenames.Count, playersFilenames.Count];
-        //    secondPlayerScores = new List<int>[playersFilenames.Count, playersFilenames.Count];
-        //    for (int i = 0; i < playersNumber; ++i)
-        //        for (int j = 0; j < playersNumber; ++j)
-        //        {
-        //            firstPlayerScores[i, j] = new List<int>();
-        //            secondPlayerScores[i, j] = new List<int>();
-        //        }
-        //    while (round < numberOfRounds || activeThreads.Count != 0)
-        //    {
-        //        //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
-        //        while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
-        //        {
-        //            Thread newGCThread = new Thread(new ThreadStart(() =>
-        //            {
-        //                int f = firsrIndex, s = secondIndex;
-        //                ExeSerializationGameCompiler gc =
-        //                new ExeSerializationGameCompiler(
-        //                    gameSettings,
-        //                    new string[] { playersFilenames[f], playersFilenames[s] }
-        //                );
-        //                //lock (resultFilenames)
-        //                //{
-        //                resultFilenames.Add(gc.LogFilename);
-        //                //}
-        //                gc.play();
-        //                //lock (firstPlayerScores[f, s])
-        //                //{
-        //                //    firstPlayerScores[f, s].Add(gc.getPlayerScore(0));
-        //                //}
-        //                //lock (secondPlayerScores[f, s])
-        //                //{
-        //                //    firstPlayerScores[f, s].Add(gc.getPlayerScore(1));
-        //                //}
-        //            }
-        //            ));
-        //            newGCThread.Start();
-        //            activeThreads.Add(newGCThread);
-        //            if (isTournament)
-        //            {
-        //                secondIndex++;
-        //                if (secondIndex >= playersNumber)
-        //                {
-        //                    firsrIndex++;
-        //                    secondIndex = 0;
-        //                    if (firsrIndex >= playersNumber)
-        //                    {
-        //                        round++;
-        //                        firsrIndex = 0;
-        //                        secondIndex = 0;
-        //                    }
-        //                    continue;
-        //                }
-        //            }
-        //            else
-        //                round++;
-        //        }
-        //        //освобождаем потоки/дожидаемся окончания работы всех потоков.
-        //        for (int i = 0; i < activeThreads.Count;)
-        //        {
-        //            Thread thread = activeThreads[i];
-        //            if (!thread.IsAlive)
-        //            {
-        //                activeThreads.RemoveAt(i);
-        //                ++finishedThreads;
-        //                continue;
-        //            }
-        //            ++i;
-        //        }
-        //    }
-        //}
-
         public void fillGameResults()
         {
             List<GameResult> results = new List<GameResult>();
@@ -181,6 +80,8 @@ namespace ProductionsGameLauncher
             foreach (var s in resultFilenames)
             {
                 GameResult rez = new GameResult(s);
+                if(rez.playersScores.Count!=2 || rez.playersFilenames.Count!=2)
+                    continue;
                 results.Add(rez);
                 for (int i = 0; i < 2; ++i)//находим всех игроков встречавшихся в логирующих файла
                     if (!playersToInt.ContainsKey(rez.playersFilenames[i]))
@@ -224,8 +125,8 @@ namespace ProductionsGameLauncher
 
             DataTable dt = new DataTable();
             dt.Columns.Add(new DataColumn("Игроки"));
-            dt.Columns.Add(new DataColumn("Количество игр", typeof(int)));
-            dt.Columns.Add(new DataColumn("Срендние очки первого", typeof(double)));
+            dt.Columns.Add(new DataColumn("К-во игр", typeof(int)));
+            dt.Columns.Add(new DataColumn("Средние очки первого", typeof(double)));
             dt.Columns.Add(new DataColumn("Средние очки второго", typeof(double)));
             dt.Columns.Add(new DataColumn("Сумма очков первого", typeof(int)));
             dt.Columns.Add(new DataColumn("Сумма очков втрого", typeof(int)));

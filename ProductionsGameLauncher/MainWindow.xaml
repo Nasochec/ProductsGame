@@ -74,6 +74,7 @@
 
 
             </Grid>
+            <Button Grid.Column="3" Content="Button" HorizontalAlignment="Left" Margin="30,197,0,0" Grid.Row="2" VerticalAlignment="Top" Click="Button_Click"/>
 
 
 

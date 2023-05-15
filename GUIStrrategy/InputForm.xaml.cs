@@ -24,7 +24,7 @@ namespace GUIStrategy
 
 
         List<StrategicPrimaryMove> moves;
-        //TODO доюавить кнопку "сдаться" и возможность получить справку
+        //TODO доюавить возможность получить справку
 
         public InputForm(GameSettings gameSetting,
             int playerNumber,
@@ -336,7 +336,5 @@ namespace GUIStrategy
         {
             this.Close();
         }
-        //TODO
-        //добавить кнопку помощи и отображения конфигурации
     }
 }

@@ -58,11 +58,13 @@
     <Compile Include="CreateGrammatic.xaml.cs">
       <DependentUpon>CreateGrammatic.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameHistory.cs" />
     <Compile Include="GameResult.cs" />
     <Compile Include="Grammatic.cs" />
     <Compile Include="GrammaticSelect.xaml.cs">
       <DependentUpon>GrammaticSelect.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StrategicPrimaryMove.cs" />
     <Page Include="CreateGrammatic.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -149,6 +151,10 @@
     <ProjectReference Include="..\ShortWordsStrategy\ShortWordsStrategy.csproj">
       <Project>{a65fc203-81ba-4796-968f-ff10db0c26f5}</Project>
       <Name>ShortWordsStrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
+      <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
+      <Name>StrategyUtilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\StupidShortWordsStrategy\StupidShortWordsStrategy.csproj">
       <Project>{7fcb58f8-bb5f-43ea-80aa-98dd7247fa59}</Project>

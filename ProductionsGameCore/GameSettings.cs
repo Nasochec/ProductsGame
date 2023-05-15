@@ -64,7 +64,7 @@ namespace ProductionsGameCore
         }
 
         public static GameSettings ReadFromFile(string filename)
-        {//TODO Проверить что файл существует
+        {
             using (FileStream fs = new FileStream(filename, FileMode.Open))
             {
                 return ReadFromStream(fs);
@@ -147,7 +147,7 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                if (saveSeed && RandomSettings.Seed != null)//TODO delete seed from config?
+                if (saveSeed && RandomSettings.Seed != null)
                     XRandomSettings.Add(new XAttribute("Seed", RandomSettings.Seed.Value));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
