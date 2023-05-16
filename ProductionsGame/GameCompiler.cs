@@ -27,6 +27,8 @@ namespace ProductionsGame
         public GameCompiler(GameSettings gameSettings)
         {
             StringBuilder sb = new StringBuilder();
+            if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
+                Directory.CreateDirectory(@"./logs/");
             sb.Append(@"./logs/");
             sb.Append(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-"));
             sb.Append(Thread.CurrentThread.ManagedThreadId);
