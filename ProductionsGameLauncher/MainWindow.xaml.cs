@@ -53,7 +53,7 @@ namespace ProductionsGameLauncher
                 "D->Exal",
                 "E->F",
                 "F->J",
-                "J->Kefteme|Cabaka",
+                "J->KKefteme|Cabaka",
                 "K->L",
                 "L->H",
                 "H->hallula"
@@ -329,7 +329,7 @@ namespace ProductionsGameLauncher
             };
             worker.RunWorkerCompleted += (sender, e) =>
             {
-                GameResults gameResultsWidow = new GameResults(resultFilenames);
+                GameResultsWindow gameResultsWidow = new GameResultsWindow(resultFilenames);
                 this.Hide();
                 gameResultsWidow.Show();
                 this.Close();
@@ -420,7 +420,7 @@ namespace ProductionsGameLauncher
             };
             worker.RunWorkerCompleted += (sender, e) =>
             {
-                GameResults gameResultsWidow = new GameResults(resultFilenames);
+                GameResultsWindow gameResultsWidow = new GameResultsWindow(resultFilenames);
                 this.Hide();
                 this.Close();
                 gameResultsWidow.ShowDialog();
@@ -472,7 +472,7 @@ namespace ProductionsGameLauncher
         private void resultButton_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
-            GameResults rez = new GameResults();
+            GameResultsWindow rez = new GameResultsWindow();
             this.Close();
             rez.ShowDialog();
         }
@@ -510,12 +510,6 @@ namespace ProductionsGameLauncher
                                 thread.Abort();
                         }
                 }
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            LookGame lg = new LookGame(@"E:\repos2.0\ProductsGame\ProductionsGameLauncher\bin\Debug\logs\2023-05-15-16-41-18\0-0-0.txt");
-            lg.ShowDialog();
         }
     }
 

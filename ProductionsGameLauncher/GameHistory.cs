@@ -21,6 +21,7 @@ namespace ProductionsGameLauncher
         public int currentPlayer { get; protected set; }
         protected List<string>[] playerWords { get; set; }
         protected Move currentMove;
+        protected List<StrategicPrimaryMove> currentStrategicMove;
         protected Bank currentBank;
         public int currentProductionGroup { get; protected set; }
 
@@ -35,6 +36,10 @@ namespace ProductionsGameLauncher
         public IEnumerable<PrimaryMove> getMove()
         {
             return currentMove.getMoves();
+        }
+        public IEnumerable<StrategicPrimaryMove> getStrategicMove()
+        {
+            return currentStrategicMove;
         }
 
         public bool hasNextMove()
@@ -52,6 +57,7 @@ namespace ProductionsGameLauncher
         {
             return playerWords[index];
         }
+
     }
 
     internal class FileGameHistory : GameHistory
@@ -167,6 +173,7 @@ namespace ProductionsGameLauncher
             }
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
+            currentStrategicMove = playerMoves[currentPlayer][currentMoveNumber];
         }
 
         public override void movePrev()
@@ -204,6 +211,7 @@ namespace ProductionsGameLauncher
             currentProductionGroup = playerProductionGroups[currentPlayer][currentMoveNumber];
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
+            currentStrategicMove = playerMoves[currentPlayer][currentMoveNumber];
         }
     }
 
@@ -285,6 +293,7 @@ namespace ProductionsGameLauncher
             }
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
+            currentStrategicMove = playerMoves[currentPlayer][currentMoveNumber];
         }
 
         public override void movePrev()
@@ -322,6 +331,7 @@ namespace ProductionsGameLauncher
             currentProductionGroup = playerProductionGroups[currentPlayer][currentMoveNumber];
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
+            currentStrategicMove = playerMoves[currentPlayer][currentMoveNumber];
         }
     }
 }

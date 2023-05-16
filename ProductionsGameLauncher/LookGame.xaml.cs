@@ -43,17 +43,16 @@ namespace ProductionsGameLauncher
             fillProductionsTextBlock();
             fillPlayersInfo();
         }
-        //TODO добавить подсчёт текущих очков, добавить сообщение что игра завершена, добавить GUISTRATEGY, отображени текущего хода
+        //TODO добавить подсчёт текущих очков, добавить сообщение что игра завершена, отображени текущего хода
         private void fillProductionsTextBlock()
         {
             StringBuilder sb = new StringBuilder();
             var prod = gameHistory.GameSettings.GetProductions().GetEnumerator();
             var count = gameHistory.getCurrentBank().GetEnumerator();
-            prod.MoveNext();
-            count.MoveNext();
+            int i = 1;
             while (prod.MoveNext() && count.MoveNext())
             {
-                sb.AppendLine(count.Current + " " + prod.Current.ToString());
+                sb.AppendLine((i++) + ". " + count.Current + " " + prod.Current.ToString());
             }
             productionsTextBlock.Text = sb.ToString();
         }
@@ -62,7 +61,7 @@ namespace ProductionsGameLauncher
         {
             currentMoveTextBlock.Text = "Ход " + (gameHistory.currentMoveNumber + 1);
             currentPlayerTextBlock.Text = "Сходил игрок: " + (gameHistory.currentPlayer + 1);
-            productionTextBlock.Text = "Выпала продукция " + gameHistory.currentProductionGroup;
+            productionTextBlock.Text = "Выпала продукция " + (gameHistory.currentProductionGroup + 1);
 
             for (int player = 0; player < 2; ++player)
             {
@@ -73,6 +72,33 @@ namespace ProductionsGameLauncher
                 }
                 playersScores[player].Text = "Очки " + (player + 1) + " игрока: " + countScore(gameHistory.getPlayerWords(player));
             }
+            currentMoveListBox.Items.Clear();
+            List<string> moves = new List<string>();
+            if (gameHistory.currentPlayer != -1)
+            {
+                var words = gameHistory.getPlayerWords(gameHistory.currentPlayer).Count();
+                for (int i = 0; i < words; i++)
+                    moves.Add("");
+                foreach (var move in gameHistory.getStrategicMove())
+                {
+                    int windex = move.WordNumber;
+                    if (windex == -1)
+                        windex = moves.Count - 1;
+                    if (moves[windex] == "")
+                    {
+                        moves[windex] = move.PrevWord;
+                    }
+                    moves[windex] += "->" + move.NewWord;
+                }
+                foreach (var move in moves)
+                {
+                    if (move.Length != 0)
+                    {
+                        currentMoveListBox.Items.Add(move);
+                    }
+                }
+            }
+
         }
 
         public int countScore(IEnumerable<string> words)

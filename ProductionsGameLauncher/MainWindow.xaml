@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProductionsGameLauncher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="800" Closing="Window_Closing">
+        Title="Игра в подстановки" Height="400" Width="800" Closing="Window_Closing">
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -74,10 +74,7 @@
 
 
             </Grid>
-            <Button Grid.Column="3" Content="Button" HorizontalAlignment="Left" Margin="30,197,0,0" Grid.Row="2" VerticalAlignment="Top" Click="Button_Click"/>
-
-
-
+            
         </Grid>
 
     </Grid>

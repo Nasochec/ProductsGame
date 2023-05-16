@@ -25,10 +25,8 @@ namespace ProductionsGameLauncher
     /// <summary>
     /// Interaction logic for GameResults.xaml
     /// </summary>
-    public partial class GameResults : Window
+    public partial class GameResultsWindow : Window
     {
-        private GameSettings gameSettings;
-        private int numberOfRounds;
         //файлы стратегий игроков
         List<string> playersFilenames;
         List<string> shortPlayersFilenames;
@@ -36,7 +34,7 @@ namespace ProductionsGameLauncher
         //файлы результатов раундов игркоков
         //List<string> resultFilenames = new List<string>();
 
-        ObservableCollection<string> resultFilenames;
+        ObservableCollection<GameResult> results;
 
         Dictionary<string, int> playersToInt;
 
@@ -55,20 +53,34 @@ namespace ProductionsGameLauncher
         double[,] secondPlayerMeanScore;
 
 
-        public GameResults()
+        public GameResultsWindow()
         {
             InitializeComponent();
-            resultFilenames = new ObservableCollection<string>();
-            SelectedFilesListBox.ItemsSource = resultFilenames;
+            results = new ObservableCollection<GameResult>();
+            SelectedFilesListBox.SelectionMode = SelectionMode.Single;
+            SelectedFilesListBox.ItemsSource = results;
         }
 
-        public GameResults(List<string> resultFilenames)
+        public GameResultsWindow(List<string> resultFilenames)
         {
             InitializeComponent();
-            this.resultFilenames = new ObservableCollection<string>(resultFilenames);
+            this.results = new ObservableCollection<GameResult>();
+            addResults(resultFilenames);
             fillGameResults();
             fillDataGrid();
-            SelectedFilesListBox.ItemsSource = resultFilenames;
+            SelectedFilesListBox.SelectionMode = SelectionMode.Single;
+            SelectedFilesListBox.ItemsSource = this.results;
+        }
+
+        private void addResults(IEnumerable<string> filenames)
+        {
+            foreach (var fname in filenames)
+                addResults(fname);
+        }
+
+        private void addResults(string filename)
+        {
+            results.Add(new GameResult(filename));
         }
 
         public void fillGameResults()
@@ -77,10 +89,10 @@ namespace ProductionsGameLauncher
             playersToInt = new Dictionary<string, int>();
             playersFilenames = new List<string>();
             shortPlayersFilenames = new List<string>();
-            foreach (var s in resultFilenames)
+            foreach (var s in this.results)
             {
-                GameResult rez = new GameResult(s);
-                if(rez.playersScores.Count!=2 || rez.playersFilenames.Count!=2)
+                GameResult rez = s;
+                if (rez.playersScores.Count != 2 || rez.playersFilenames.Count != 2)
                     continue;
                 results.Add(rez);
                 for (int i = 0; i < 2; ++i)//находим всех игроков встречавшихся в логирующих файла
@@ -113,10 +125,6 @@ namespace ProductionsGameLauncher
                     firstPlayerMeanScore[i, j] = (double)firstPlayerScore[i, j] / (double)gamesCount[i, j];
                     secondPlayerMeanScore[i, j] = (double)secondPlayerScore[i, j] / (double)gamesCount[i, j];
                 }
-
-
-
-
         }
 
         private void fillDataGrid()
@@ -153,7 +161,6 @@ namespace ProductionsGameLauncher
             resultsDataGrid.CanUserAddRows = false;
             resultsDataGrid.CanUserDeleteRows = false;
             resultsDataGrid.CanUserReorderColumns = false;
-            //resultsDataGrid.CanUserSortColumns = false;
             resultsDataGrid.CanUserResizeRows = false;
         }
 
@@ -161,9 +168,7 @@ namespace ProductionsGameLauncher
         {
             IEnumerable<string> selectedFiles = showChoseFilesDialog("Text document (.txt)|*.txt");
             foreach (var item in selectedFiles)
-            {
-                resultFilenames.Add(item);
-            }
+                addResults(item);
             if (selectedFiles.Count() != 0)
             {
                 fillGameResults();
@@ -194,6 +199,17 @@ namespace ProductionsGameLauncher
                 fname = openFileDlg.FileNames;
             }
             return fname;
+        }
+
+        private void sookSelectedGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedFilesListBox.SelectedItem == null) {
+                MessageBox.Show("Не один файл не выбран!");
+                return;
+            }
+            GameResult rez = SelectedFilesListBox.SelectedItem as GameResult;
+            LookGame lg = new LookGame(rez.filename);
+            lg.ShowDialog();
         }
     }
 }

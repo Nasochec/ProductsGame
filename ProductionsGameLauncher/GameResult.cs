@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ProductionsGameLauncher
@@ -67,6 +68,23 @@ namespace ProductionsGameLauncher
             {
                 throw new ArgumentException("Файл результатов игры в неверном формате.");
             }
+        }
+
+        public override string ToString()
+        {
+            if (shortPlayersFilanames.Count == 2 && playersScores.Count == 2)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(shortPlayersFilanames[0]);
+                sb.Append(" vs ");
+                sb.Append(shortPlayersFilanames[1]);
+                sb.Append(":");
+                sb.Append(playersScores[0]);
+                sb.Append('-');
+                sb.Append(playersScores[1]);
+                return sb.ToString();
+            }
+            else return "Неверный формат файла.";
         }
     }
 }
