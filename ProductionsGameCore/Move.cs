@@ -14,7 +14,6 @@ namespace ProductionsGameCore
     public class Move
     {
         private List<PrimaryMove> moves;
-        public int WordNumber { get; private set; }
         public Move()
         {
             moves = new List<PrimaryMove>();
@@ -39,7 +38,7 @@ namespace ProductionsGameCore
         public static Move FromString(string move)
         {
             if(move == null || move == "")
-                return new Move();//TODO return null
+                return new Move();
             Move moveRez = new Move();
             string[] splittedMove = move.Split(',');
             for (int i = 0; i < splittedMove.Length; i++)

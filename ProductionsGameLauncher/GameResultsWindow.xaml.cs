@@ -25,10 +25,8 @@ namespace ProductionsGameLauncher
     /// <summary>
     /// Interaction logic for GameResults.xaml
     /// </summary>
-    public partial class GameResults : Window
+    public partial class GameResultsWindow : Window
     {
-        private GameSettings gameSettings;
-        private int numberOfRounds;
         //файлы стратегий игроков
         List<string> playersFilenames;
         List<string> shortPlayersFilenames;
@@ -36,7 +34,7 @@ namespace ProductionsGameLauncher
         //файлы результатов раундов игркоков
         //List<string> resultFilenames = new List<string>();
 
-        ObservableCollection<string> resultFilenames;
+        ObservableCollection<GameResult> results;
 
         Dictionary<string, int> playersToInt;
 
@@ -55,122 +53,35 @@ namespace ProductionsGameLauncher
         double[,] secondPlayerMeanScore;
 
 
-        public GameResults()
+        public GameResultsWindow()
         {
             InitializeComponent();
-            resultFilenames = new ObservableCollection<string>();
-            SelectedFilesListBox.ItemsSource = resultFilenames;
+            results = new ObservableCollection<GameResult>();
+            SelectedFilesListBox.SelectionMode = SelectionMode.Single;
+            SelectedFilesListBox.ItemsSource = results;
         }
 
-        public GameResults(List<string> resultFilenames)
+        public GameResultsWindow(List<string> resultFilenames)
         {
             InitializeComponent();
-            this.resultFilenames = new ObservableCollection<string>(resultFilenames);
+            this.results = new ObservableCollection<GameResult>();
+            addResults(resultFilenames);
             fillGameResults();
             fillDataGrid();
-            SelectedFilesListBox.ItemsSource = resultFilenames;
+            SelectedFilesListBox.SelectionMode = SelectionMode.Single;
+            SelectedFilesListBox.ItemsSource = this.results;
         }
 
-        //public GameResults(GameSettings gs, IEnumerable<string> tournamentPlayersFilenames, int numberOfRounds, bool isTournament)
-        //{
-        //    InitializeComponent();
-        //    if (gs.NumberOfPlayers != 2)
-        //    {
-        //        throw new NotImplementedException("Число игрков отличное от 2 пока не поддерживается.");
-        //    }
-        //    this.numberOfRounds = numberOfRounds;
-        //    gameSettings = gs;
-        //    playersFilenames = tournamentPlayersFilenames.ToList();
-        //    resultFilenames = new List<string>();
-        //    this.isTournament = isTournament;
-        //    play();
-        //}
+        private void addResults(IEnumerable<string> filenames)
+        {
+            foreach (var fname in filenames)
+                addResults(fname);
+        }
 
-        //public void play()
-        //{
-        //    const int maxActiveThreads = 40;
-        //    List<Thread> activeThreads = new List<Thread>();
-        //    int finishedThreads = 0;
-
-
-        //    int round = 0;
-        //    int firsrIndex = 0, secondIndex = 0;
-        //    int playersNumber = playersFilenames.Count;
-        //    int allRounds = playersNumber * playersNumber * numberOfRounds;
-        //    if (!isTournament)
-        //        secondIndex = 1;
-
-        //    firstPlayerScores = new List<int>[playersFilenames.Count, playersFilenames.Count];
-        //    secondPlayerScores = new List<int>[playersFilenames.Count, playersFilenames.Count];
-        //    for (int i = 0; i < playersNumber; ++i)
-        //        for (int j = 0; j < playersNumber; ++j)
-        //        {
-        //            firstPlayerScores[i, j] = new List<int>();
-        //            secondPlayerScores[i, j] = new List<int>();
-        //        }
-        //    while (round < numberOfRounds || activeThreads.Count != 0)
-        //    {
-        //        //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
-        //        while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
-        //        {
-        //            Thread newGCThread = new Thread(new ThreadStart(() =>
-        //            {
-        //                int f = firsrIndex, s = secondIndex;
-        //                ExeSerializationGameCompiler gc =
-        //                new ExeSerializationGameCompiler(
-        //                    gameSettings,
-        //                    new string[] { playersFilenames[f], playersFilenames[s] }
-        //                );
-        //                //lock (resultFilenames)
-        //                //{
-        //                resultFilenames.Add(gc.LogFilename);
-        //                //}
-        //                gc.play();
-        //                //lock (firstPlayerScores[f, s])
-        //                //{
-        //                //    firstPlayerScores[f, s].Add(gc.getPlayerScore(0));
-        //                //}
-        //                //lock (secondPlayerScores[f, s])
-        //                //{
-        //                //    firstPlayerScores[f, s].Add(gc.getPlayerScore(1));
-        //                //}
-        //            }
-        //            ));
-        //            newGCThread.Start();
-        //            activeThreads.Add(newGCThread);
-        //            if (isTournament)
-        //            {
-        //                secondIndex++;
-        //                if (secondIndex >= playersNumber)
-        //                {
-        //                    firsrIndex++;
-        //                    secondIndex = 0;
-        //                    if (firsrIndex >= playersNumber)
-        //                    {
-        //                        round++;
-        //                        firsrIndex = 0;
-        //                        secondIndex = 0;
-        //                    }
-        //                    continue;
-        //                }
-        //            }
-        //            else
-        //                round++;
-        //        }
-        //        //освобождаем потоки/дожидаемся окончания работы всех потоков.
-        //        for (int i = 0; i < activeThreads.Count;)
-        //        {
-        //            Thread thread = activeThreads[i];
-        //            if (!thread.IsAlive)
-        //            {
-        //                activeThreads.RemoveAt(i);
-        //                ++finishedThreads;
-        //                continue;
-        //            }
-        //            ++i;
-        //        }
-        //    }
-        //}
+        private void addResults(string filename)
+        {
+            results.Add(new GameResult(filename));
+        }
 
         public void fillGameResults()
         {
@@ -178,9 +89,11 @@ namespace ProductionsGameLauncher
             playersToInt = new Dictionary<string, int>();
             playersFilenames = new List<string>();
             shortPlayersFilenames = new List<string>();
-            foreach (var s in resultFilenames)
+            foreach (var s in this.results)
             {
-                GameResult rez = new GameResult(s);
+                GameResult rez = s;
+                if (rez.playersScores.Count != 2 || rez.playersFilenames.Count != 2)
+                    continue;
                 results.Add(rez);
                 for (int i = 0; i < 2; ++i)//находим всех игроков встречавшихся в логирующих файла
                     if (!playersToInt.ContainsKey(rez.playersFilenames[i]))
@@ -203,7 +116,6 @@ namespace ProductionsGameLauncher
                 firstPlayerScore[f, s] += rez.playersScores[0];
                 secondPlayerScore[f, s] += rez.playersScores[1];
             }
-            //TODO continue
             firstPlayerMeanScore = new double[playersCount, playersCount];
             secondPlayerMeanScore = new double[playersCount, playersCount];
 
@@ -213,10 +125,6 @@ namespace ProductionsGameLauncher
                     firstPlayerMeanScore[i, j] = (double)firstPlayerScore[i, j] / (double)gamesCount[i, j];
                     secondPlayerMeanScore[i, j] = (double)secondPlayerScore[i, j] / (double)gamesCount[i, j];
                 }
-
-
-
-
         }
 
         private void fillDataGrid()
@@ -225,8 +133,8 @@ namespace ProductionsGameLauncher
 
             DataTable dt = new DataTable();
             dt.Columns.Add(new DataColumn("Игроки"));
-            dt.Columns.Add(new DataColumn("Количество игр", typeof(int)));
-            dt.Columns.Add(new DataColumn("Срендние очки первого", typeof(double)));
+            dt.Columns.Add(new DataColumn("К-во игр", typeof(int)));
+            dt.Columns.Add(new DataColumn("Средние очки первого", typeof(double)));
             dt.Columns.Add(new DataColumn("Средние очки второго", typeof(double)));
             dt.Columns.Add(new DataColumn("Сумма очков первого", typeof(int)));
             dt.Columns.Add(new DataColumn("Сумма очков втрого", typeof(int)));
@@ -253,7 +161,6 @@ namespace ProductionsGameLauncher
             resultsDataGrid.CanUserAddRows = false;
             resultsDataGrid.CanUserDeleteRows = false;
             resultsDataGrid.CanUserReorderColumns = false;
-            //resultsDataGrid.CanUserSortColumns = false;
             resultsDataGrid.CanUserResizeRows = false;
         }
 
@@ -261,9 +168,7 @@ namespace ProductionsGameLauncher
         {
             IEnumerable<string> selectedFiles = showChoseFilesDialog("Text document (.txt)|*.txt");
             foreach (var item in selectedFiles)
-            {
-                resultFilenames.Add(item);
-            }
+                addResults(item);
             if (selectedFiles.Count() != 0)
             {
                 fillGameResults();
@@ -294,6 +199,17 @@ namespace ProductionsGameLauncher
                 fname = openFileDlg.FileNames;
             }
             return fname;
+        }
+
+        private void sookSelectedGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedFilesListBox.SelectedItem == null) {
+                MessageBox.Show("Не один файл не выбран!");
+                return;
+            }
+            GameResult rez = SelectedFilesListBox.SelectedItem as GameResult;
+            LookGame lg = new LookGame(rez.filename);
+            lg.ShowDialog();
         }
     }
 }

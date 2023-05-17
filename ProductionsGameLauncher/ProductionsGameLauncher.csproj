@@ -55,11 +55,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GameResult.cs" />
-    <Compile Include="SettingsChageWindow.xaml.cs">
-      <DependentUpon>SettingsChageWindow.xaml</DependentUpon>
+    <Compile Include="CreateGrammatic.xaml.cs">
+      <DependentUpon>CreateGrammatic.xaml</DependentUpon>
     </Compile>
-    <Page Include="GameResults.xaml">
+    <Compile Include="GameHistory.cs" />
+    <Compile Include="GameResult.cs" />
+    <Compile Include="Grammatic.cs" />
+    <Compile Include="GrammaticSelect.xaml.cs">
+      <DependentUpon>GrammaticSelect.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StrategicPrimaryMove.cs" />
+    <Page Include="CreateGrammatic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GameResultsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LookGame.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -71,19 +85,23 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GameResults.xaml.cs">
-      <DependentUpon>GameResults.xaml</DependentUpon>
+    <Compile Include="GameResultsWindow.xaml.cs">
+      <DependentUpon>GameResultsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LookGame.xaml.cs">
+      <DependentUpon>LookGame.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SettingsChageWindow.xaml">
+    <Page Include="GrammaticSelect.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -133,6 +151,10 @@
     <ProjectReference Include="..\ShortWordsStrategy\ShortWordsStrategy.csproj">
       <Project>{a65fc203-81ba-4796-968f-ff10db0c26f5}</Project>
       <Name>ShortWordsStrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
+      <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
+      <Name>StrategyUtilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\StupidShortWordsStrategy\StupidShortWordsStrategy.csproj">
       <Project>{7fcb58f8-bb5f-43ea-80aa-98dd7247fa59}</Project>

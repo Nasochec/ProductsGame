@@ -22,8 +22,6 @@ namespace ProductionsGame
     /// </summary>
     public class ExeSerializationPlayerAdapter : PlayerAdapter
     {
-        //TODO возможно надо добавить IDisposable для остановки потока стратегии
-        //TODO если процесс завершён до завершения игры - ошибка
         private string filename;
         private Process player;
         private BinaryFormatter formatter;

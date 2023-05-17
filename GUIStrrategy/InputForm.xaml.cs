@@ -24,7 +24,6 @@ namespace GUIStrategy
 
 
         List<StrategicPrimaryMove> moves;
-        //TODO доюавить кнопку "сдаться" и возможность получить справку
 
         public InputForm(GameSettings gameSetting,
             int playerNumber,
@@ -87,6 +86,7 @@ namespace GUIStrategy
 
         private void fillTextBlocks()
         {
+            totalMovesTextBlock.Text = "Всего ходов: " + gameSettings.NumberOfMoves; 
             moveNumberTextBlock.Text = "Номер хода: " + (moveNumber + 1);
             playerNumberTextBlock.Text = "Вы игрок под номером: " + (playerNumber + 1);
             productionNumberTextBlock.Text = "Выпала продукция под номером: " + (productionGroupNumber + 1);
@@ -94,29 +94,14 @@ namespace GUIStrategy
 
         private void fillPlayerWordsListBox()
         {
-            wordsListBox.Items.Clear();
-            for (int i = 0; i < gameSettings.NumberOfPlayers; ++i)
-            {
-                DockPanel dc = new DockPanel();
-                dc.LastChildFill = true;
-                TextBlock textBlock = new TextBlock();
-                textBlock.Text = (i + 1) + " игрок:";
-                DockPanel.SetDock(textBlock, Dock.Left);
-                dc.Children.Add(textBlock);
-                Button b = new Button();
-                b.Content = "Показать";
-                b.Click += (o, sender) =>
-                {//отображает новое окно со всеми словами выбранного игрока
-                    int index = int.Parse(textBlock.Text.Split(' ')[0]) - 1;
-                    WordsWindow wordsWindow = new WordsWindow(words[index], index);
-                    wordsWindow.Show();
-                };
-                dc.Children.Add(b);
-                wordsListBox.Items.Add(dc);
-            }
-            playerWordsListBox.Items.Clear();
+            //Заполняем слова основного игрока
+            mainPlayerWordsListBox.Items.Clear();
             foreach (var word in words[playerNumber])
-                playerWordsListBox.Items.Add(word);
+                mainPlayerWordsListBox.Items.Add(word);
+            //заполняем слова противника
+            secondaryPlayerWordsListBox.Items.Clear();
+            foreach (var word in words[1-playerNumber])
+                secondaryPlayerWordsListBox.Items.Add(word);
         }
 
         private void fillAvaliableWordsListBox()
@@ -336,7 +321,5 @@ namespace GUIStrategy
         {
             this.Close();
         }
-        //TODO
-        //добавить кнопку помощи и отображения конфигурации
     }
 }

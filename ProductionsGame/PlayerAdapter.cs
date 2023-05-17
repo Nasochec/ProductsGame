@@ -116,11 +116,14 @@ namespace ProductionsGame
                 if (moves.MovesCount == 0)//если не была применена первая продукция
                 {
                     char left = Settings.getProductionGroup(firstMoveProductionGroupNumber).Left;
+                    if (left == 'S')
+                        throw new Exception(String.Format("Группа продукций {0} может быть применена для создания нового вывода, но не была применена.", firstMoveProductionGroupNumber));
                     foreach (var word in words)
                     {
                         if (word.IndexOf(left) != -1)
                             throw new Exception(String.Format("Группа продукций {0} может быть применена к выводу {1}.", firstMoveProductionGroupNumber, word));
                     }
+
                 }
                 else
                 {//проверим сто в банке нет применимых прдукций
@@ -142,10 +145,10 @@ namespace ProductionsGame
             MoveNumber++;
         }
 
-        public void MakeMove(int productionGroupNumber)
+        public Move MakeMove(int productionGroupNumber)
         {
             if (Finished)
-                return;
+                return null;
             //StreamWriter log = new StreamWriter(logFilename, true);
             //log.AutoFlush = false;
             Move move = null;
@@ -164,10 +167,10 @@ namespace ProductionsGame
             finally
             {
                 log.WriteLine("Индекс выпавшей продукции:{0}", productionGroupNumber);
-                log.WriteLine("Номер хода: {0}, Игрок: {1}", MoveNumber, PlayerNumber);
+                log.WriteLine("Номер хода:{0}, Игрок:{1}", MoveNumber, PlayerNumber);
                 if (move != null)
-                    log.WriteLine("Ход: {0}", move.ToString());
-                log.WriteLine("Банк: {0}", Bank.ToString());
+                    log.WriteLine("Ход:{0}", move.ToString());
+                log.WriteLine("Банк:{0}", Bank.ToString());
                 List<List<string>> words = GameCompiler.getPlayersWords();
                 for (int playerNumber = 0; playerNumber < words.Count; ++playerNumber)
                 {
@@ -182,6 +185,7 @@ namespace ProductionsGame
             }
             if (MoveNumber == Settings.NumberOfMoves || Finished)//в конце игры - подсчитываем очки
                 calculateScore();
+            return move;
         }
 
         /// <summary>

@@ -23,6 +23,8 @@ namespace GUIStrategy
             settings = (GameSettings)formatter.Deserialize(inputStream);
             number = (int)formatter.Deserialize(inputStream);
 
+            if (settings.NumberOfPlayers != 2) return 1;
+
             for (int i = 0; i < settings.NumberOfMoves; i++)
             {
                 moveNumber = (int)formatter.Deserialize(inputStream);
