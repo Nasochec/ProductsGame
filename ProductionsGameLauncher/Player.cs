@@ -11,8 +11,9 @@ namespace ProductionsGameLauncher
     {
         public string Name { get; private set; }
         public string Filename { get; private set; }
+        public string Parameter { get; private set; }
 
-        public Player(string name, string filename)
+        public Player(string name, string filename, string parameter = null)
         {
             Name = name;
             Filename = filename;
@@ -20,7 +21,13 @@ namespace ProductionsGameLauncher
             {
                 throw new Exception("Указанный файл отсутствует: " + filename + ".");
             }
+            Parameter = parameter;
         }
+
+        public void setParameter(string parameter) { 
+            Parameter = parameter;
+        }
+
         public override string ToString()
         {
             return Name.ToString();

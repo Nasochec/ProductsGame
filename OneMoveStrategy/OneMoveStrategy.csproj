@@ -7,7 +7,7 @@
     <ProjectGuid>{5737C059-C757-4AA2-85F7-02DE77F6C5EE}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>OneMoveStrategy</RootNamespace>
-    <AssemblyName>OneMoveStrategy</AssemblyName>
+    <AssemblyName>SearchStrategy</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

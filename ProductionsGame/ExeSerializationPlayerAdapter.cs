@@ -23,15 +23,18 @@ namespace ProductionsGame
     public class ExeSerializationPlayerAdapter : PlayerAdapter
     {
         private string filename;
+        private string parameters;
         private Process player;
         private BinaryFormatter formatter;
         public ExeSerializationPlayerAdapter(int number,
             ExeSerializationGameCompiler gameCompiler,
             StreamWriter log,
-            string filename)
+            string filename,
+            string parameters = null)
             : base(number, gameCompiler, log)
         {
             this.filename = filename;
+            this.parameters = parameters;
         }
 
         private void startPlayer()
@@ -43,7 +46,8 @@ namespace ProductionsGame
             player.StartInfo.RedirectStandardInput = true;
             player.StartInfo.RedirectStandardOutput = true;
             player.StartInfo.UseShellExecute = false;
-
+            if (parameters != null)
+                player.StartInfo.Arguments = parameters;
 
             player.Start();
 

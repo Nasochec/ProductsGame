@@ -29,46 +29,15 @@ namespace ProductionsGameLauncher
     {
         private GameSettings gameSettings = null;
         //конфигурация генератора случайных чисел соответствующая броску двух d6 кубиков
-        RandomSettings rs = new RandomSettings(36, new int[] { 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1 });
+        RandomSettings rs;
         //Предложенные грамматики 
-        List<Grammatic> grammatics = new List<Grammatic>(new Grammatic[] {
-        new Grammatic("classic",new string[] {
-                "S->ABC",
-                "A->aA|B",
-                "A->bc|CA",
-                "A->a",
-                "S->AB|AC",
-                "B->b",
-                "B->BBB",
-                "C->AA|c",
-                "C->A|B|c",
-                "C->T|A",
-                "B->abacabade"
-            }),
-        new Grammatic("long chain",new string[] {
-                "S->A",
-                "A->B",
-                "B->C",
-                "C->D",
-                "D->Exal",
-                "E->F",
-                "F->J",
-                "J->KKefteme|Cabaka",
-                "K->L",
-                "L->H",
-                "H->hallula"
-            })
-        });
+        List<Grammatic> grammatics;
         //Написанные стратегии игроков.
         //TODO Дописать сюда если хотите добавить свою стратегию
-        List<Player> players = new List<Player>(new Player[] {
-            new Player("Случайная стратегия.",@"./RandomStrategy.exe"),
-            new Player("Стратегия коротких слов.",@"./ShortWordsStrategy.exe"),
-            new Player("Глупая стратегия коротких слов.",@"./StupidShortWordsStrategy.exe"),
-            new Player("Переборная стратегия.",@"./OneMoveStrategy.exe"),
-        });
+        Player searchPlayer;
+        List<Player> players;
 
-        Player guiPlayer = new Player("Графический интерфейс", @"./GUIStrategy.exe");
+        Player guiPlayer;
 
         BackgroundWorker worker;
 
@@ -78,7 +47,54 @@ namespace ProductionsGameLauncher
         public MainWindow()
         {
             InitializeComponent();
+            rs = new RandomSettings(36, new int[] { 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1 });
+            grammatics = new List<Grammatic>(new Grammatic[] {
+                new Grammatic("classic",new string[] {
+                        "S->ABC",
+                        "A->aA|B",
+                        "A->bc|CA",
+                        "A->a",
+                        "S->AB|AC",
+                        "B->b",
+                        "B->BBB",
+                        "C->AA|c",
+                        "C->A|B|c",
+                        "C->T|A",
+                        "B->abacabade"
+                    }),
+                new Grammatic("long chain",new string[] {
+                        "S->A",
+                        "A->B",
+                        "B->C",
+                        "C->D",
+                        "D->Exal",
+                        "E->F",
+                        "F->J",
+                        "J->KKefteme|Cabaka",
+                        "K->L",
+                        "L->H",
+                        "H->hallula"
+                    })
+                });
+            searchPlayer = new Player("Переборная стратегия.", @"./SearchStrategy.exe");
+            players = new List<Player>(new Player[] {
+                    new Player("Случайная стратегия.",@"./RandomStrategy.exe"),
+                    new Player("Стратегия коротких слов.",@"./ShortWordsStrategy.exe"),
+                    new Player("Глупая стратегия коротких слов.",@"./StupidShortWordsStrategy.exe"),
+                    searchPlayer
+                });
+            guiPlayer = new Player("Графический интерфейс", @"./GUIStrategy.exe");
+            for (int i = 1; i <= 8; i++)
+                depthSelectComboBox.Items.Add(i);
+            depthSelectComboBox.SelectedValue = 4;
+            depthSelectComboBox.SelectionChanged += (sender, e) => { searchPlayer.setParameter(depthSelectComboBox.SelectedValue.ToString()); };
+
+            for (int i = 1; i <= 4; i++)
+                parallelComboBox.Items.Add((i*5));
+            parallelComboBox.SelectedValue = 10;
+            parallelComboBox.SelectionChanged += (sender, e) => { maxActiveThreads = (int)parallelComboBox.SelectedItem; };
             addTwoPlayers();
+            showDepthSelect();
         }
 
         private List<Player> findAvaliablePlayers(int row)
@@ -150,6 +166,7 @@ namespace ProductionsGameLauncher
             {
                 int rowNum = Grid.GetRow((UIElement)sender);
                 recalculatePlayers(rowNum);
+                showDepthSelect();
             };
             Grid.SetRow(playerFilenameChoseButton, row);
             Grid.SetColumn(playerFilenameChoseButton, 1);
@@ -179,12 +196,53 @@ namespace ProductionsGameLauncher
                     TournamentPlayersGrid.Children.Remove(item);
                 TournamentPlayersGrid.RowDefinitions.RemoveAt(rowNum);
                 recalculatePlayers(rowNum - 1);
+                showDepthSelect();
             };
             Grid.SetRow(playerDeleteButton, row);
             Grid.SetColumn(playerDeleteButton, 2);
             TournamentPlayersGrid.Children.Add(playerDeleteButton);
+            showDepthSelect();
+
         }
 
+        //Отображает на экране возможность выбора глубины перебора переборной стратегии.
+        private void showDepthSelect()
+        {
+            //если турнир
+            bool found = false;
+            if (tournamentCheckBox.IsChecked.Value)
+            {
+                foreach (UIElement item in TournamentPlayersGrid.Children)
+                {
+                    if (Grid.GetColumn(item) == 1)
+                    {
+                        ComboBox cb = item as ComboBox;
+                        if ((cb.SelectedItem as Player) == searchPlayer)
+                            found = true;
+                    }
+                }
+            }
+            else
+            {
+                foreach (UIElement item in twoPlayersGrid.Children)
+                {
+                    if (Grid.GetColumn(item) == 1)
+                    {
+                        ComboBox cb = item as ComboBox;
+                        if ((cb.SelectedItem as Player) == searchPlayer)
+                            found = true;
+                    }
+                }
+            }
+            if (found)
+            {
+                depthSelectDockPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                depthSelectDockPanel.Visibility = Visibility.Hidden;
+            }
+        }
 
         private void addTwoPlayers()
         {
@@ -205,6 +263,7 @@ namespace ProductionsGameLauncher
                     playerComboBox.Items.Add(item);
                 playerComboBox.Items.Add(guiPlayer);
                 playerComboBox.SelectedIndex = 0;
+                playerComboBox.SelectionChanged += (sender, e) => showDepthSelect();
                 Grid.SetRow(playerComboBox, i);
                 Grid.SetColumn(playerComboBox, 1);
                 twoPlayersGrid.Children.Add(playerComboBox);
@@ -258,14 +317,15 @@ namespace ProductionsGameLauncher
                     MessageBox.Show("Указано недостаточное количество игроков, необходим 1 игрок для запуска турнира.");
                     return;
                 }
-                playTournament(numberOfRounds, getTournamentPlayersFilenames());
+                playTournament(numberOfRounds, getTournamentPlayersFilenames(), getTournamentPlayersParameters());
                 //playTournamentLinear(numberOfRounds, getTournamentPlayersFilenames());
 
             }
             else
             {
                 List<string> filenames = getTwoPlayersFilenames();
-                GameCompiler gc = new ExeSerializationGameCompiler(gameSettings,filenames);
+                List<string> parameters = getTwoPlayersParameters();
+                GameCompiler gc = new ExeSerializationGameCompiler(gameSettings, filenames, parameters);
                 LookGame look = new LookGame(gc);
                 this.Hide();
                 look.ShowDialog();
@@ -282,6 +342,7 @@ namespace ProductionsGameLauncher
             helpButton.IsEnabled = false;
             startGameButton.IsEnabled = false;
             resultButton.IsEnabled = false;
+            depthSelectComboBox.IsEnabled = false;
         }
 
         //Вариант проигрываения партий турнира по-очереди
@@ -314,6 +375,7 @@ namespace ProductionsGameLauncher
                                 new ExeSerializationGameCompiler(
                                     gameSettings,
                                     new string[] { playersFilenames[firstIndex], playersFilenames[secondIndex] },
+                                    null,//TODO implemetd paremeters
                                     filename + round + "-" + firstIndex + "-" + secondIndex + ".txt"
                                 );
                             resultFilenames.Add(gc.LogFilename);
@@ -339,11 +401,12 @@ namespace ProductionsGameLauncher
         }
 
         List<Thread> activeThreads;
+        int maxActiveThreads = 10;
         //Вариант проигрывания игр турнира параллельно, работает в несколько раз быстрее чем линейный вариант, но больше затраты времени
-        public void playTournament(int numberOfRounds, List<string> playersFilenames)
+        public void playTournament(int numberOfRounds, List<string> playersFilenames, List<string> parameters)
         {
             //TODO change it if CPU usage is too big.
-            const int maxActiveThreads = 10;
+            
             activeThreads = new List<Thread>();
             int finishedThreads = 0;
             List<string> resultFilenames = new List<string>();
@@ -371,14 +434,7 @@ namespace ProductionsGameLauncher
                     while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
                     {
                         string currFilename = filename + round + "-" + firstIndex + "-" + secondIndex + ".txt";
-                        GameStart gameStart = new GameStart(gameSettings, currFilename, playersFilenames[firstIndex], playersFilenames[secondIndex]);
-                        //ExeSerializationGameCompiler gc =
-                        //    new ExeSerializationGameCompiler(
-                        //        gameSettings,
-                        //        new string[] { playersFilenames[firstIndex], playersFilenames[secondIndex] },          
-                        //    );
-                        //resultFilenames.Add(gc.LogFilename);
-                        //Thread newGCThread = new Thread(new ThreadStart(gc.play));
+                        GameStart gameStart = new GameStart(gameSettings, currFilename, playersFilenames[firstIndex], playersFilenames[secondIndex], parameters[firstIndex], parameters[secondIndex]);
                         resultFilenames.Add(currFilename);
                         Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
 
@@ -442,6 +498,20 @@ namespace ProductionsGameLauncher
             return filenames;
         }
 
+        private List<string> getTournamentPlayersParameters()
+        {
+            List<string> parameters = new List<string>();
+            foreach (UIElement item in TournamentPlayersGrid.Children)
+            {
+                if (Grid.GetColumn(item) == 1)
+                {
+                    ComboBox cb = item as ComboBox;
+                    parameters.Add((cb.SelectedItem as Player).Parameter);
+                }
+            }
+            return parameters;
+        }
+
         private List<string> getTwoPlayersFilenames()
         {
             List<string> filenames = new List<string>();
@@ -454,6 +524,20 @@ namespace ProductionsGameLauncher
                 }
             }
             return filenames;
+        }
+
+        private List<string> getTwoPlayersParameters()
+        {
+            List<string> parameters = new List<string>();
+            foreach (UIElement item in twoPlayersGrid.Children)
+            {
+                if (Grid.GetColumn(item) == 1)
+                {
+                    ComboBox cb = item as ComboBox;
+                    parameters.Add((cb.SelectedItem as Player).Parameter);
+                }
+            }
+            return parameters;
         }
 
         private void roundsNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -520,14 +604,17 @@ namespace ProductionsGameLauncher
         string logFilename;
         string player1Filename;
         string player2Filename;
+        string player1Parameter;
+        string player2Parameter;
 
-
-        public GameStart(GameSettings gameSettings, string logFilename, string player1Filename, string player2Filename)
+        public GameStart(GameSettings gameSettings, string logFilename, string player1Filename, string player2Filename, string player1Parameter, string player2Parameter)
         {
             this.gameSettings = gameSettings;
             this.logFilename = logFilename;
             this.player1Filename = player1Filename;
             this.player2Filename = player2Filename;
+            this.player1Parameter = player1Parameter;
+            this.player2Parameter = player2Parameter;
         }
 
 
@@ -537,6 +624,7 @@ namespace ProductionsGameLauncher
                 new ExeSerializationGameCompiler(
                     gameSettings,
                     new string[] { player1Filename, player2Filename },
+                    new string[] { player1Parameter, player2Parameter },
                     logFilename
                 );
             gc.play();

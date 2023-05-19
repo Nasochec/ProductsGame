@@ -18,13 +18,20 @@ namespace OneMoveStrategy
     {
         //TODO change it if this strategy works too long, or you want to make strategy better
         //Максимальная глубина перебора
-        const int maxDeep = 4;
+        static int maxDeep = 4;
         /// <summary>
         /// Идея стратегии - поскольку сделать перебор вариантов слишком затруднительно по времени, то возникла идея перебирать ходы с небольшой глубиной и выбрирать из получаемых выводов, вывод с лучшей метрикой, а после снова применять тот же перебор пока остаются доступные ходы.
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args"> Передаётся глубина перебора - по-умолчанию установлена 4, не может быть отрицательным и не может быть больше 8.</param>
         static void Main(string[] args)
         {
+            if (args.Length != 0)
+            {//считываем параметры
+                int t = -1;
+                if (int.TryParse(args[0], out t) && t >= 1 && t <= 8)
+                    maxDeep = t;
+            }
+
             Bank bank;
             GameSettings gameSettings;
             int playerNumber;
@@ -52,7 +59,7 @@ namespace OneMoveStrategy
             double[][] prodsMetric;
             StrategyUtilitiesClass.countMetric(prods, gameSettings, out netMetric, out prodsMetric);
 
-            
+
             List<double> wordsMetric = new List<double>();
             StringBuilder rez = new StringBuilder();
             for (int moveIndex = 0; moveIndex < gameSettings.NumberOfMoves; moveIndex++)
