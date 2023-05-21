@@ -19,6 +19,7 @@ namespace ProductionsGameLauncher
         public List<string> playersFilenames = new List<string>();
         public List<string> shortPlayersFilanames = new List<string>();
         public List<int> playersScores = new List<int>();
+        public int winner { get; private set; }
 
         public GameResult(string filename)
         {
@@ -63,6 +64,12 @@ namespace ProductionsGameLauncher
                     }
                 }
                 fs.Close();
+                if (playersScores[0] > playersScores[1])
+                    winner = 0;
+                else if (playersScores[1] > playersScores[0])
+                    winner = 1;
+                else
+                    winner = 2;
             }
             catch (Exception ex)
             {

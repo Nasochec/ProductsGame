@@ -22,6 +22,7 @@
         <TextBlock Grid.Column="1" Margin="10,10,10,10" TextWrapping="Wrap" Text="Выбаные файлы:"/>
         <TextBlock Margin="10,10,10,10" TextWrapping="Wrap" Text="Таблица с результатами" />
         <Button x:Name="sookSelectedGameButton" Grid.Column="1" Content="Просмотр выбранной" HorizontalAlignment="Left" Margin="10,10,0,10" Grid.Row="2" Width="139" Click="sookSelectedGameButton_Click"/>
+        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="630,0,0,0" VerticalAlignment="Center" Click="Button_Click"/>
 
     </Grid>
 </Window>

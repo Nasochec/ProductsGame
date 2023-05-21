@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StrategyUtilities
 {
-    public class StrategyUtilitiesClass
+    public static class StrategyUtilitiesClass
     {
         /// <summary>
         /// Ищет есть ли нетерминал в упрошённом выводе.
@@ -18,7 +18,7 @@ namespace StrategyUtilities
         /// <returns></returns>
         public static bool isHaveLetter(SimplifiedWord word, char c)
         {
-            return word.neterminalsCount.ContainsKey(c) && word.neterminalsCount[c] > 0;
+            return word.neterminalsCount.ContainsKey(c) && word.getNeterminal(c) > 0;
         }
 
         /// <summary>
@@ -147,6 +147,48 @@ namespace StrategyUtilities
             }
             return rightSum;
         }
+        /// <summary>
+        /// Находит метрику оценки продукций. 
+        /// Предполагается что чем больше её значение тем за меньшее количество ходов можно получить терминальную строку.
+        /// </summary>
+        /// <param name="productions"></param>
+        /// <param name="settings"></param>
+        /// <param name="netMetric"></param>
+        /// <param name="prodMetric"></param>
+        public static void countStupidMetric(List<SimplifiedProductionGroup> productions,
+            out int[] netMetric,
+            out int[][] prodMetric
+            )
+        {
+            netMetric = new int[productions.Count];
+            prodMetric = new int[productions.Count][];
+            int productionsCount = productions.Count;
 
+            for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
+                prodMetric[prodIndex] = new int[productions[prodIndex].RightSize];
+
+            for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
+            {
+                for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
+                {
+                    var right = productions[prodIndex].rights[rightIndex];
+
+                    int rightSum = countWordStupidMetric(right);
+                    prodMetric[prodIndex][rightIndex] = rightSum;
+                    netMetric[prodIndex] = Math.Min(netMetric[prodIndex], rightSum);
+                }
+            }
+
+        }
+
+        public static int countWordStupidMetric(SimplifiedWord word)
+        {
+            int rightSum = 0;
+            foreach (var neterminal in word.neterminalsCount)
+            {
+                rightSum += neterminal.Value;
+            }
+            return rightSum;
+        }
     }
 }

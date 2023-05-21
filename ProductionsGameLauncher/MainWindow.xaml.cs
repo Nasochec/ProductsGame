@@ -63,17 +63,17 @@ namespace ProductionsGameLauncher
                         "B->abacabade"
                     }),
                 new Grammatic("long chain",new string[] {
-                        "S->A",
-                        "A->B",
-                        "B->C",
-                        "C->D",
+                        "S->Arab",
+                        "A->Bernulli",
+                        "B->Ceoul",
+                        "C->Deli",
                         "D->Exal",
-                        "E->F",
-                        "F->J",
+                        "E->Farid",
+                        "F->Jamal",
                         "J->KKefteme|Cabaka",
-                        "K->L",
-                        "L->H",
-                        "H->hallula"
+                        "K->Lorka",
+                        "L->Horse",
+                        "H->hallo"
                     })
                 });
             searchPlayer = new Player("Переборная стратегия.", @"./SearchStrategy.exe");
@@ -84,13 +84,13 @@ namespace ProductionsGameLauncher
                     searchPlayer
                 });
             guiPlayer = new Player("Графический интерфейс", @"./GUIStrategy.exe");
-            for (int i = 1; i <= 8; i++)
+            for (int i = 1; i <= 7; i++)
                 depthSelectComboBox.Items.Add(i);
             depthSelectComboBox.SelectedValue = 4;
             depthSelectComboBox.SelectionChanged += (sender, e) => { searchPlayer.setParameter(depthSelectComboBox.SelectedValue.ToString()); };
 
             for (int i = 1; i <= 4; i++)
-                parallelComboBox.Items.Add((i*5));
+                parallelComboBox.Items.Add((i * 5));
             parallelComboBox.SelectedValue = 10;
             parallelComboBox.SelectionChanged += (sender, e) => { maxActiveThreads = (int)parallelComboBox.SelectedItem; };
             addTwoPlayers();
@@ -291,6 +291,7 @@ namespace ProductionsGameLauncher
             if (!int.TryParse(movesNumberTextBox.Text, out movesNumber) || movesNumber <= 0)
             {
                 MessageBox.Show("Указано неверное количество ходов.");
+                return;
             }
             gameSettings = new GameSettings(true, 2, movesNumber, grammatic.getProductionGroups(), rs);
 
@@ -406,7 +407,7 @@ namespace ProductionsGameLauncher
         public void playTournament(int numberOfRounds, List<string> playersFilenames, List<string> parameters)
         {
             //TODO change it if CPU usage is too big.
-            
+
             activeThreads = new List<Thread>();
             int finishedThreads = 0;
             List<string> resultFilenames = new List<string>();
@@ -437,7 +438,6 @@ namespace ProductionsGameLauncher
                         GameStart gameStart = new GameStart(gameSettings, currFilename, playersFilenames[firstIndex], playersFilenames[secondIndex], parameters[firstIndex], parameters[secondIndex]);
                         resultFilenames.Add(currFilename);
                         Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
-
                         newGCThread.Start();
                         activeThreads.Add(newGCThread);
                         secondIndex++;

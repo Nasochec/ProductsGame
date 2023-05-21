@@ -26,6 +26,11 @@ namespace ProductionsGameCore
             moves.Add(new PrimaryMove(wordNumber, groupNumber, productionNumber));
         }
 
+        public void addMove(PrimaryMove move)
+        {
+            moves.Add(move);
+        }
+
         public void popMove() {
             moves.RemoveAt(moves.Count - 1);
         }

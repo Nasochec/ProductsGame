@@ -36,7 +36,7 @@ namespace ProductionsGameCore
 
         public void removeProduction(int productionIndex)
         {
-            removeProduction(productionIndex,1);
+            removeProduction(productionIndex, 1);
         }
 
         public void removeProduction(int productionIndex, int count)

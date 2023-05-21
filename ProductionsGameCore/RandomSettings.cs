@@ -13,13 +13,12 @@ namespace ProductionsGameCore
     {
         private int totalPossibility;
         private List<int> possibilityList;
-        public Nullable<int> Seed { get; private set; }
 
         public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList)
         {
             this.totalPossibility = totalPossibility;
             this.possibilityList = possibilityList.ToList();
-            int sum = 0;//Проверка что введено сумма вероятностей равна знаменателю
+            int sum = 0;//Проверка что введенная сумма вероятностей равна знаменателю
             foreach (int possibility in possibilityList)
             {
                 sum += possibility;
@@ -28,13 +27,6 @@ namespace ProductionsGameCore
             }
             if (sum != totalPossibility)
                 throw new ArgumentException("Сумма вероятностей должна быть равна totalPossibility.");
-            Seed = null;
-        }
-
-        public RandomSettings(int totalPossibility, IEnumerable<int> possibilityList, int seed) 
-            : this(totalPossibility,possibilityList)
-        {
-            Seed = seed;
         }
 
 

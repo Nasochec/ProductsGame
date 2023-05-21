@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUIStrrategy", "GUIStrrateg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomStrategy", "RandomStrategy\RandomStrategy.csproj", "{EFCB29B7-4F33-42F7-AB51-CD9AA7903BAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneMoveStrategy", "OneMoveStrategy\OneMoveStrategy.csproj", "{5737C059-C757-4AA2-85F7-02DE77F6C5EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchStrategy", "OneMoveStrategy\SearchStrategy.csproj", "{5737C059-C757-4AA2-85F7-02DE77F6C5EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrategyUtilities", "StrategyUtilities\StrategyUtilities.csproj", "{5ABF5ED6-4613-4D1C-8E70-B2269100B6B7}"
 EndProject
