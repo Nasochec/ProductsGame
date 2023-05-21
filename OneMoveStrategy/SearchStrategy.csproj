@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5737C059-C757-4AA2-85F7-02DE77F6C5EE}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>OneMoveStrategy</RootNamespace>
-    <AssemblyName>OneMoveStrategy</AssemblyName>
+    <RootNamespace>SearchStrategy</RootNamespace>
+    <AssemblyName>SearchStrategy</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="SearchStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

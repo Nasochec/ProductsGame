@@ -17,7 +17,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
-                <RowDefinition/>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="1*"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
@@ -25,15 +26,15 @@
             <TextBlock x:Name="GrammaticTextBlock" TextWrapping="Wrap" Text="Не выбрана" Margin="10,10,10,10" Grid.Column="1" Grid.ColumnSpan="2"/>
             <Button x:Name="GrammaticChoseButton" Grid.Column="3" Content="Выбрать" Margin="10,10,10,10" Click="GrammaticChoseButton_Click"/>
 
-            <Button x:Name="startGameButton" Grid.Column="3" Content="Начать" Margin="10,10,10,10" Grid.Row="4" Click="StartGameButton_Click"/>
-            <Button x:Name="helpButton" Grid.Column="3" Content="Помошь" Margin="10,10,10,10" Grid.Row="1"/>
+            <Button x:Name="startGameButton" Grid.Column="3" Content="Начать" Margin="10,10,10,10" Grid.Row="5" Click="StartGameButton_Click"/>
+            <Button Visibility="Hidden" x:Name="helpButton" Grid.Column="3" Content="Помошь" Margin="10,10,10,10" Grid.Row="1"/>
             <CheckBox x:Name="tournamentCheckBox" Grid.Column="2" Content="Туринир" Margin="10,10,10,10" Grid.Row="1" Checked="tournamentCheckBox_Checked" Unchecked="tournamentCheckBox_Unchecked"/>
-            <Button x:Name="resultButton" Grid.Column="3" Content="К просмотру результатов" Margin="10,10,10,10" Grid.Row="3" Click="resultButton_Click"/>
+            <Button x:Name="resultButton" Grid.Column="3" Content="К просмотру результатов" Margin="10,10,10,10" Grid.Row="4" Click="resultButton_Click"/>
             <TextBox x:Name="movesNumberTextBox" Grid.Row="1" TextWrapping="Wrap" Text="" Grid.Column="1" Margin="10,10,10,10" PreviewTextInput="movesNumberTextBox_PreviewTextInput"/>
             <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="Количество ходов:" Margin="10,10,10,10"/>
-            <ProgressBar x:Name="tournamentProgressBar" Grid.Column="1" Grid.Row="4" Margin="10,10,10,10" Visibility="Hidden"/>
+            <ProgressBar x:Name="tournamentProgressBar" Grid.Column="1" Grid.Row="5" Margin="10,10,10,10" Visibility="Hidden"/>
 
-            <Grid x:Name="tournamentViewGrid" Grid.Row="2" Grid.ColumnSpan="3" Visibility="Hidden" Grid.RowSpan="2">
+            <Grid x:Name="tournamentViewGrid" Grid.Row="2" Grid.ColumnSpan="3" Visibility="Hidden" Grid.RowSpan="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="129*"/>
@@ -54,8 +55,12 @@
                         <ColumnDefinition Width="80"/>
                     </Grid.ColumnDefinitions>
                 </Grid>
+                <DockPanel Grid.Row="1" VerticalAlignment="Top" Margin="0,40,0,0" Height="80">
+                    <TextBlock DockPanel.Dock="Top" Margin="5,5,5,5" TextWrapping="Wrap" Text="Параллельно испольняется:"/>
+                    <ComboBox x:Name="parallelComboBox" DockPanel.Dock="Bottom"  Margin="5,5,5,5"/>
+                </DockPanel>
             </Grid>
-            <Grid x:Name="viewGrid" Grid.Row="2" Grid.ColumnSpan="3" Grid.RowSpan="3" Visibility="Visible">
+            <Grid x:Name="viewGrid" Grid.Row="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Visibility="Visible">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="644*"/>
@@ -74,7 +79,11 @@
 
 
             </Grid>
-            
+            <DockPanel x:Name="depthSelectDockPanel" Grid.Column="3" LastChildFill="False" Grid.Row="2">
+                <ComboBox x:Name="depthSelectComboBox" DockPanel.Dock="Bottom" Margin="5,5,5,5" Height="22"/>
+                <TextBlock DockPanel.Dock="Top" Margin="5,5,5,5" TextWrapping="Wrap" Text="Глубина перебора:"/>
+            </DockPanel>
+
         </Grid>
 
     </Grid>

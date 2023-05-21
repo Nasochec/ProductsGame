@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace ProductionsGameLauncher
 {
@@ -47,11 +48,15 @@ namespace ProductionsGameLauncher
         int[,] secondPlayerScore;
         int[,] gamesCount;
 
+        int[,] firstPlayerWin;
+        int[,] secondPlayerWin;
+
         //в firstPlayerMeanScores[i,j] - среднее арифметическое очков игрока i, в игре где игрок i - ходит первым, а j - вторым
         //в secondPlayerMeanScores[i,j] - среднее арифметическое очков игрока j, в игре где игрок i - ходит первым, а j - вторым
         double[,] firstPlayerMeanScore;
         double[,] secondPlayerMeanScore;
 
+        //TODo hide button!!!!
 
         public GameResultsWindow()
         {
@@ -107,6 +112,8 @@ namespace ProductionsGameLauncher
             int playersCount = playersToInt.Count;
             firstPlayerScore = new int[playersCount, playersCount];
             secondPlayerScore = new int[playersCount, playersCount];
+            firstPlayerWin = new int[playersCount, playersCount];
+            secondPlayerWin = new int[playersCount, playersCount];
             gamesCount = new int[playersCount, playersCount];
             foreach (var rez in results)
             {
@@ -115,6 +122,11 @@ namespace ProductionsGameLauncher
                 ++gamesCount[f, s];
                 firstPlayerScore[f, s] += rez.playersScores[0];
                 secondPlayerScore[f, s] += rez.playersScores[1];
+                if(rez.winner==0)
+                    firstPlayerWin[f, s]++;
+                else if (rez.winner==1)
+                    secondPlayerWin[f, s]++;
+
             }
             firstPlayerMeanScore = new double[playersCount, playersCount];
             secondPlayerMeanScore = new double[playersCount, playersCount];
@@ -136,6 +148,8 @@ namespace ProductionsGameLauncher
             dt.Columns.Add(new DataColumn("К-во игр", typeof(int)));
             dt.Columns.Add(new DataColumn("Средние очки первого", typeof(double)));
             dt.Columns.Add(new DataColumn("Средние очки второго", typeof(double)));
+            dt.Columns.Add(new DataColumn("Побед первого", typeof(double)));
+            dt.Columns.Add(new DataColumn("Побед второго", typeof(double)));
             dt.Columns.Add(new DataColumn("Сумма очков первого", typeof(int)));
             dt.Columns.Add(new DataColumn("Сумма очков втрого", typeof(int)));
             //TODO можно добавить всякие статистически параметы типо дисперисии и т.д.
@@ -150,8 +164,10 @@ namespace ProductionsGameLauncher
                         row[1] = gamesCount[i, j];
                         row[2] = firstPlayerMeanScore[i, j];
                         row[3] = secondPlayerMeanScore[i, j];
-                        row[4] = firstPlayerScore[i, j];
-                        row[5] = secondPlayerScore[i, j];
+                        row[4] = firstPlayerWin[i, j];
+                        row[5] = secondPlayerWin[i, j];
+                        row[6] = firstPlayerScore[i, j];
+                        row[7] = secondPlayerScore[i, j];
                         dt.Rows.Add(row);
                     }
                 }
@@ -162,6 +178,49 @@ namespace ProductionsGameLauncher
             resultsDataGrid.CanUserDeleteRows = false;
             resultsDataGrid.CanUserReorderColumns = false;
             resultsDataGrid.CanUserResizeRows = false;
+        }
+
+        private void writeToFile() {
+            StreamWriter sf = new StreamWriter("./out.txt");
+            int[] trueIndexes = new int[4];
+            trueIndexes[0] = find(" ./RandomStrategy.exe");
+            trueIndexes[1] = find(" ./StupidShortWordsStrategy.exe");
+            trueIndexes[2] = find(" ./ShortWordsStrategy.exe");
+            trueIndexes[3] = find(" ./SearchStrategy.exe");
+            for (int i = 0; i < 4; i++)
+            {
+                
+                for (int j = 0; j < 4; j++)
+                {
+                    sf.Write(" & ");
+                    sf.Write((int)firstPlayerMeanScore[trueIndexes[i], trueIndexes[j]]);
+                    sf.Write("/");
+                    sf.Write((int)secondPlayerMeanScore[trueIndexes[i], trueIndexes[j]]);
+                }
+                sf.WriteLine("\\\\");
+                sf.WriteLine("\\hline");
+            }
+
+            sf.WriteLine("\\hline"); sf.WriteLine("\\hline"); sf.WriteLine("\\hline");
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    sf.Write(" & ");
+                    sf.Write(firstPlayerWin[trueIndexes[i], trueIndexes[j]]);
+                    sf.Write("/");
+                    sf.Write(secondPlayerWin[trueIndexes[i], trueIndexes[j]]);
+                }
+                sf.WriteLine("\\\\");
+                sf.WriteLine("\\hline");
+            }
+            sf.Close();
+        }
+
+        private int find(string s) {
+            foreach (var v in playersToInt)
+                if (v.Key == s) return v.Value;
+            return -1;
         }
 
         private void addFilesButton_Click(object sender, RoutedEventArgs e)
@@ -210,6 +269,11 @@ namespace ProductionsGameLauncher
             GameResult rez = SelectedFilesListBox.SelectedItem as GameResult;
             LookGame lg = new LookGame(rez.filename);
             lg.ShowDialog();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            writeToFile();
         }
     }
 }

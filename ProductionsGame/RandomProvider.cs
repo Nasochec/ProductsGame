@@ -17,10 +17,8 @@ namespace ProductionsGame
         public RandomProvider(RandomSettings randomSettings)
         {
             RandomSettings = randomSettings;
-            if (randomSettings.Seed != null)
-                Seed = randomSettings.Seed.Value;
-            else //создаём случайный сид для будуещей генерации случайных чисел, добавив некую защиту от повторений при многопоточности
-                Seed = (int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId;
+            //создаём случайный сид для будуещей генерации случайных чисел, добавив некую защиту от повторений при многопоточности
+            Seed = (int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId;
             random = new Random(Seed);
         }
 

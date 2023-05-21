@@ -71,12 +71,12 @@ namespace ProductionsGameCore
             }
         }
 
-        public static GameSettings ReadFromStream(Stream s)
+        public static GameSettings ReadFromStream(Stream stream)
         {
             XElement XGameSettings = null;
             try
             {
-                XGameSettings = XElement.Load(s);
+                XGameSettings = XElement.Load(stream);
             }
             catch
             {
@@ -101,31 +101,25 @@ namespace ProductionsGameCore
             //Считываем иформацию о вероятностях групп продукций
             XElement XRandomSettings = XGameSettings.Element("RandomSettings");
             int totalPossibility = int.Parse(XRandomSettings.Attribute("TotalPossibility").Value);
-            int? seed = null;
-            if (XRandomSettings.Attribute("Seed") != null)
-                seed = int.Parse(XRandomSettings.Attribute("Seed").Value);
             List<int> possibilities = new List<int>();
             foreach (var XPossibility in XRandomSettings.Element("Possibilities").Elements())
                 possibilities.Add(int.Parse(XPossibility.Value));
             RandomSettings randomSettings;
-            if (seed != null)
-                randomSettings = new RandomSettings(totalPossibility, possibilities, seed.Value);
-            else
-                randomSettings = new RandomSettings(totalPossibility, possibilities);
+            randomSettings = new RandomSettings(totalPossibility, possibilities);
             return new GameSettings(isBankShare, numberOfPlayers, numberOfMoves, productions, randomSettings);
         }
 
-        public void WriteToFile(string filename, bool saveSeed = true)
+        public void WriteToFile(string filename)
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var purchaseOrderFilepath = Path.Combine(currentDirectory, filename);
             using (StreamWriter fs = new StreamWriter(purchaseOrderFilepath))
             {
-                WriteToStream(fs, saveSeed);
+                WriteToStream(fs);
             }
         }
 
-        public void WriteToStream(StreamWriter stream, bool saveSeed = true)
+        public void WriteToStream(StreamWriter stream)
         {
 
             XElement XEGameSettings = new XElement("GameSettings");
@@ -147,8 +141,6 @@ namespace ProductionsGameCore
             }
             {//Добавляем данные о вероятностях групп продукций
                 XElement XRandomSettings = new XElement("RandomSettings");
-                if (saveSeed && RandomSettings.Seed != null)
-                    XRandomSettings.Add(new XAttribute("Seed", RandomSettings.Seed.Value));
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
                 for (int i = 0; i < ProductionsCount; ++i)

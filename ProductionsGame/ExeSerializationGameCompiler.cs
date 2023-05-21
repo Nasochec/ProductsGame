@@ -13,16 +13,26 @@ namespace ProductionsGame
     public class ExeSerializationGameCompiler : GameCompiler
     {
 
-        public ExeSerializationGameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames)
+        public ExeSerializationGameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames, IEnumerable<string> parameters)
             : base(gameSettings)
         {
             if (playersFilenames.Count() != gameSettings.NumberOfPlayers)
                 throw new ArgumentException("Количество игроков должно быть равно количеству игроков указанному в конфигурации игры.");
             var playerFilenameEnumerator = playersFilenames.GetEnumerator();
+            IEnumerator<string> parametersEnumerator = null;
+            if (parameters != null)
+                parametersEnumerator = parameters.GetEnumerator();
             for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
             {
                 playerFilenameEnumerator.MoveNext();
-                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current));
+                if (parametersEnumerator != null)
+                {
+                    parametersEnumerator.MoveNext();
+                    players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current,parametersEnumerator.Current));
+                }
+                else
+                    players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current));
+
             }
             log.WriteLine();
             int index = 0;
@@ -33,16 +43,26 @@ namespace ProductionsGame
             }
         }
 
-        public ExeSerializationGameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames, string logFilename)
+        public ExeSerializationGameCompiler(GameSettings gameSettings, IEnumerable<string> playersFilenames, IEnumerable<string> parameters, string logFilename)
             : base(gameSettings, logFilename)
         {
             if (playersFilenames.Count() != gameSettings.NumberOfPlayers)
                 throw new ArgumentException("Количество игроков должно быть равно количеству игроков указанному в конфигурации игры.");
             var playerFilenameEnumerator = playersFilenames.GetEnumerator();
+            IEnumerator<string> parametersEnumerator = null;
+            if (parameters != null)
+                parametersEnumerator = parameters.GetEnumerator();
             for (int playerNumber = 0; playerNumber < gameSettings.NumberOfPlayers; ++playerNumber)
             {
                 playerFilenameEnumerator.MoveNext();
-                players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current));
+                if (parametersEnumerator != null)
+                {
+                    parametersEnumerator.MoveNext();
+                    players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current, parametersEnumerator.Current));
+                }
+                else
+                    players.Add(new ExeSerializationPlayerAdapter(playerNumber, this, log, playerFilenameEnumerator.Current));
+
             }
             log.WriteLine();
             int index = 0;
