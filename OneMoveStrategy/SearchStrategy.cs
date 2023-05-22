@@ -19,10 +19,7 @@ namespace SearchStrategy
         //TODO change it if this strategy works too long, or you want to make strategy better
         //max deep of search
         static int maxDeep = 4;
-        /// <summary>
-        /// Идея стратегии - поскольку сделать перебор вариантов слишком затруднительно по времени, то возникла идея перебирать ходы с небольшой глубиной и выбрирать из получаемых выводов, вывод с лучшей метрикой, а после снова применять тот же перебор пока остаются доступные ходы.
-        /// </summary>
-        /// <param name="args"> Передаётся глубина перебора - по-умолчанию установлена 4, не может быть отрицательным и не может быть больше 8.</param>
+      
         static void Main(string[] args)
         {
             if (args.Length != 0)

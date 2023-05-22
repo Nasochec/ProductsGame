@@ -22,10 +22,10 @@ namespace ProductionsGameCore
         public ProductionGroup(char left, List<string> right)
         {
             if (!(left >= 'A' && left <= 'Z'))
-                throw new ArgumentException("В левой части продукции должен стоять нетерминал - заглавная английская буква(от A до Z).");
+                throw new ArgumentException("Letter in left part of prosuction must be capital english letter.");
             this.Left = left;
             if (right.Count == 0)
-                throw new ArgumentException("В каждой группе продукций должна быть как минимум одна продукция.");
+                throw new ArgumentException("In each production group must at least one production.");
             right.ForEach(x => this.right.Add(x));
         }
 
