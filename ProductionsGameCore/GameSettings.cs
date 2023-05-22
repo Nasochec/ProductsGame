@@ -30,10 +30,10 @@ namespace ProductionsGameCore
         {
             IsBankShare = isBankShare;
             if (numberOfMoves <= 0)
-                throw new ArgumentException("Количествол ходов должно быть неотрицательным числом.");
+                throw new ArgumentException("Number of moves must be non-nagative number.");
             NumberOfMoves = numberOfMoves;
             if (numberOfPlayers <= 0)
-                throw new ArgumentException("Количествол игороков должно быть неотрицательным числом.");
+                throw new ArgumentException("Number of players must be non-nagative number.");
             NumberOfPlayers = numberOfPlayers;
             this.productions = productions.ToList();
             RandomSettings = randomSettings;
@@ -54,7 +54,7 @@ namespace ProductionsGameCore
             if (index >= 0 && index < ProductionsCount)
                 return productions[index];
             throw new IndexOutOfRangeException(
-                String.Format("Индекс {0} был вне границ [0,{1}).", index, ProductionsCount)
+                String.Format("Index {0} was outside of [0,{1}).", index, ProductionsCount)
                 );
         }
 
@@ -80,14 +80,12 @@ namespace ProductionsGameCore
             }
             catch
             {
-                throw new IOException("Входной поток в неверном формате: неудалось считать xml данные.");
+                throw new IOException("Input in wrong format.");
             }
-            //Считываем простые свойства
             bool isBankShare = XGameSettings.Attribute("IsBankShare").Value.Equals("true");
             int numberOfPlayers = int.Parse(XGameSettings.Attribute("NumberOfPlayers").Value);
             int numberOfMoves = int.Parse(XGameSettings.Attribute("NumberOfMoves").Value);
 
-            //считываем иформацию о группах продукций
             XElement XProductions = XGameSettings.Element("Productions");
             List<ProductionGroup> productions = new List<ProductionGroup>();
             foreach (var XProduction in XProductions.Elements())
@@ -98,7 +96,6 @@ namespace ProductionsGameCore
                     rights.Add(XRight.Value);
                 productions.Add(new ProductionGroup(left, rights));
             }
-            //Считываем иформацию о вероятностях групп продукций
             XElement XRandomSettings = XGameSettings.Element("RandomSettings");
             int totalPossibility = int.Parse(XRandomSettings.Attribute("TotalPossibility").Value);
             List<int> possibilities = new List<int>();
@@ -126,20 +123,20 @@ namespace ProductionsGameCore
             XEGameSettings.Add(new XAttribute("IsBankShare", IsBankShare));
             XEGameSettings.Add(new XAttribute("NumberOfPlayers", NumberOfPlayers));
             XEGameSettings.Add(new XAttribute("NumberOfMoves", NumberOfMoves));
-            { //Добавляем данные о группах продукций
+            { 
                 XElement XProductions = new XElement("Productions");
                 foreach (var production in productions)
                 {
                     XElement Xprod = new XElement("Production");
                     Xprod.Add(new XAttribute("Left", production.Left));
-                    //Xprod.Add(new XAttribute("RightSize", production.RightSize));//TODO delete?
+                    
                     for (int i = 0; i < production.RightSize; ++i)
                         Xprod.Add(new XElement("Right", production.getRightAt(i)));
                     XProductions.Add(Xprod);
                 }
                 XEGameSettings.Add(XProductions);
             }
-            {//Добавляем данные о вероятностях групп продукций
+            {
                 XElement XRandomSettings = new XElement("RandomSettings");
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");

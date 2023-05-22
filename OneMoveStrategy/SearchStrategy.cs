@@ -17,7 +17,7 @@ namespace SearchStrategy
     internal class SearchStrategy
     {
         //TODO change it if this strategy works too long, or you want to make strategy better
-        //Максимальная глубина перебора
+        //max deep of search
         static int maxDeep = 4;
         /// <summary>
         /// Идея стратегии - поскольку сделать перебор вариантов слишком затруднительно по времени, то возникла идея перебирать ходы с небольшой глубиной и выбрирать из получаемых выводов, вывод с лучшей метрикой, а после снова применять тот же перебор пока остаются доступные ходы.
@@ -26,7 +26,7 @@ namespace SearchStrategy
         static void Main(string[] args)
         {
             if (args.Length != 0)
-            {//считываем параметры
+            {//reading maxDeep from parameters
                 int t = -1;
                 if (int.TryParse(args[0], out t) && t >= 1 && t <= 7)
                     maxDeep = t;
@@ -41,20 +41,20 @@ namespace SearchStrategy
             BinaryFormatter formatter = new BinaryFormatter();
             Stream inputStream = Console.OpenStandardInput();
 
-            //Считываем данные постоянные на протяжении всей игры.
+            //reading constant values
+
             gameSettings = (GameSettings)formatter.Deserialize(inputStream);
             playerNumber = (int)formatter.Deserialize(inputStream);
 
             List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
 
-            //Преобразууем продукции к упрощенному виду, чтобы алгоритм работал быстрее.
+            //get the simplified form of productions
             List<SimplifiedProductionGroup> prods = new List<SimplifiedProductionGroup>();
-
             for (int i = 0; i < gameSettings.ProductionsCount; ++i)
                 prods.Add(new SimplifiedProductionGroup(gameSettings.getProductionGroup(i)));
 
 
-            //Высчитываем метрику оценки продукций. При выборе продукции будем брать ту, у которой значение метрикик больше.
+            //count metric of broductions
             double[] netMetric;
             double[][] prodsMetric;
             StrategyUtilitiesClass.countMetric(prods, gameSettings, out netMetric, out prodsMetric);
@@ -64,13 +64,12 @@ namespace SearchStrategy
             StringBuilder rez = new StringBuilder();
             for (int moveIndex = 0; moveIndex < gameSettings.NumberOfMoves; moveIndex++)
             {
-                //считывам данные на каждом шагу
                 moveNumber = (int)formatter.Deserialize(inputStream);
                 bank = (Bank)formatter.Deserialize(inputStream);
                 words = (List<List<string>>)formatter.Deserialize(inputStream);
                 productionGroupNumber = (int)formatter.Deserialize(inputStream);
 
-                //преобразуем выводы к упрощенному виду, чтобы алогритм работал быстрее.
+                //get simplified form of words
                 simpleWords.Clear();
                 foreach (var word in words[playerNumber])
                 {
@@ -79,12 +78,11 @@ namespace SearchStrategy
 
                 rez.Clear();
 
-                //Посчитаем метрику всех выводов, потом будем её обновлять по ходу алгоритма.
+                //count metric of all words
                 wordsMetric.Clear();
                 for (int i = 0; i < simpleWords.Count; ++i)
                     wordsMetric.Add(StrategyUtilitiesClass.countWordMetric(simpleWords[i], gameSettings.RandomSettings, netMetric, prods));
 
-                //Сначала мы обязаны применить именно выпавшую продукцию
                 Move mov = findFirstMove(prods, simpleWords, wordsMetric, gameSettings.RandomSettings, bank, productionGroupNumber, netMetric);
                 if (mov != null && mov.MovesCount != 0)
                     rez.Append(mov.ToString());
@@ -168,7 +166,8 @@ namespace SearchStrategy
                             oldWord.addNeterminal(neterminal.Key, neterminal.Value);
 
                         currentMove.addMove(wordIndex, prodIndex, rightIndex);
-                        searchMove(oldWord, wordIndex, bank, prods, rs, netMetric, out bMove, out bMetric, out bTerminals, currentMove, deep + 1);
+                        searchMove(oldWord, wordIndex, bank, prods, rs, netMetric, 
+                            out bMove, out bMetric, out bTerminals, currentMove, deep + 1);
                         if (bestMetric == -1 || bMetric > bestMetric || bMetric == bestMetric && bTerminals > bestTerminals)
                         {
                             bestMetric = bMetric;
@@ -203,7 +202,7 @@ namespace SearchStrategy
         {
 
             var prod = prods[productionGroupNumber];
-            //находим допустимые выводу
+            //fond allowed words
             List<int> allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left).ToList();
 
             int maxIndex;
@@ -211,7 +210,7 @@ namespace SearchStrategy
             {
                 double maxMetric = -1;
                 maxIndex = 0;
-                //находим вывод с максимальной метрикой
+                //find word with minimum metric
                 foreach (var index in allowedWords)
                 {
                     if (wordsMetric[index] > maxMetric)
@@ -221,25 +220,22 @@ namespace SearchStrategy
                         word = simpleWords[index];
                     }
                 }
-                //если можно создать новый вывод
+                //if can create new word
                 if (prod.Left == 'S' &&
                     maxMetric < StrategyUtilitiesClass.countWordMetric(new SimplifiedWord("S"), rs, netMetric, prods))
                 {
                     maxIndex = -1;
                     word = new SimplifiedWord("S");
-                    //simpleWords.Add(word);
                 }
                 else if (maxMetric == -1)
-                {//Ни к одному выводу применить продукцию невозможно
                     return null;
-                }
             }
             Move move = new Move();
             string bestMove = "", tmpMove;
             double bestMetric = -1, tmpMetric, bestTerminals = 0, tmpTerminals;
-            //новый индекс вывода, если этот вывод создайтся на этом ходу (продукция S->) 
+            //if we can create new word (production S->) 
             int newIndex = (maxIndex == -1 ? simpleWords.Count : maxIndex);
-            //Переберём варианты начальной продукции и выберем ту у которой метрика вывода получаемого с помощью findMove больше
+            //senumerate all productions what we can apply to the word
             word.addNeterminal(prod.Left, -1);
             for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
             {
@@ -288,22 +284,20 @@ namespace SearchStrategy
         {
             string bestMove;
             double bestMetric, bestTerminals;
-            //найдём выводы к которым можно применить какие-либо продукции из банка
             List<int> allowedIndexes = new List<int>();
             for (int i = 0; i < simpleWords.Count; i++)
             {
                 for (int prodIndex = 0; prodIndex < prods.Count; ++prodIndex)
                 {
                     var prod = prods[prodIndex];
-                    //Если в банке есть продукция применимая к выводу, сохнаняем индекс вывода.
                     if (simpleWords[i].getNeterminal(prod.Left) > 0 && bank.getProductionCount(prodIndex) > 0)
                         allowedIndexes.Add(i);
                 }
             }
-            if (allowedIndexes.Count == 0)//Выводов к которым можно применить продукции не осталось.
+            if (allowedIndexes.Count == 0)//no words found
                 return null;
             int wordNumber = -1;
-            //Выберем тот вывод, у которого самая большая метрика.
+            //select word with best metric
             {
                 double maxMetric = -1;
                 for (int i = 0; i < allowedIndexes.Count; ++i)
@@ -321,7 +315,7 @@ namespace SearchStrategy
                 }
                 wordNumber = allowedIndexes[wordNumber];
             }
-            //находим лучший вывод
+            //find best move
             searchMove(simpleWords[wordNumber],
                 wordNumber,
                 bank,

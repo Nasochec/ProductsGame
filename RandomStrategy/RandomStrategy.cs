@@ -27,10 +27,10 @@ namespace RandomStrategy
             BinaryFormatter formatter = new BinaryFormatter();
             Stream inputStream = Console.OpenStandardInput();
 
-            //зададим начальное значения генератора случайных чисел
+            //initialise start value for random
             Random random = new Random((int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId);
 
-            //Считываем данные постоянные на протяжении всей игры.
+            //reading constant values
             settings = (GameSettings)formatter.Deserialize(inputStream);
             playerNumber = (int)formatter.Deserialize(inputStream);
 
@@ -50,12 +50,12 @@ namespace RandomStrategy
                 while (true)
                 {
                     PrimaryMove primaryMove;
-                    if (move.MovesCount == 0)//надо совершить первый ход.
+                    if (move.MovesCount == 0)//make first move
                         primaryMove = findFirstMove(random, words[playerNumber], prods, productionGroupNumber);
-                    else//выбираем продукцию из банка
+                    else//make move from bank
                         primaryMove = findMove(random, words[playerNumber], prods, bank);
 
-                    //теперь совершим этот ход
+                    //make this move
                     if (primaryMove != null)
                     {
                         if (move.MovesCount != 0)
@@ -71,21 +71,20 @@ namespace RandomStrategy
             return;
         }
 
-        static PrimaryMove findFirstMove(Random random, List<string> words, List<ProductionGroup> prods,int productionGroupNumber)
+        static PrimaryMove findFirstMove(Random random, List<string> words, List<ProductionGroup> prods, int productionGroupNumber)
         {
             List<int> allowedWords = new List<int>();
 
             var prod = prods[productionGroupNumber];
-            //находим выводы допустимые для продукции
             allowedWords = StrategyUtilitiesClass.findMatches(words, prod.Left);
-            if (prod.Left == 'S')//если можно создать новый вывод
+            if (prod.Left == 'S')//if can create new word
                 allowedWords.Add(-1);
 
             if (allowedWords.Count == 0)
-                return null;//нет выводов к которым можно применить первую продукцию
+                return null;//not found production
 
             int productionNumber = random.Next(prod.RightSize);
-            int wordnumber = random.Next(allowedWords.Count);//выбираем вывод
+            int wordnumber = random.Next(allowedWords.Count);//select word
             wordnumber = allowedWords[wordnumber];
 
             return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);
@@ -95,26 +94,25 @@ namespace RandomStrategy
         {
             List<List<int>> allowedWords = new List<List<int>>();
             int productionGroupNumber;
-            foreach (var pr in prods)//находим выводы допустимые для каждой продукции
+            foreach (var pr in prods)//find words allowed for productions
             {
                 allowedWords.Add(StrategyUtilitiesClass.findMatches(words, pr.Left));
-                if (pr.Left == 'S')//если можно создать новый вывод
+                if (pr.Left == 'S')//if can create new word
                     allowedWords.Last().Add(-1);
             }
 
-            //выбираем продукцию из банка
             List<int> allowedGroupIndexes = new List<int>();
             for (int i = 0; i < prods.Count; ++i)
                 if (allowedWords[i].Count > 0 && bank.getProductionCount(i) > 0)
                     allowedGroupIndexes.Add(i);
             if (allowedGroupIndexes.Count == 0)
-                return null;//не нашлось продукций доступных к применению
+                return null;//not found production
             productionGroupNumber = allowedGroupIndexes[random.Next(allowedGroupIndexes.Count)];
 
             ProductionGroup prod = prods[productionGroupNumber];
-            int productionNumber = random.Next(prod.RightSize);//выбираем номер продукции в группе
+            int productionNumber = random.Next(prod.RightSize);
 
-            int wordnumber = random.Next(allowedWords[productionGroupNumber].Count);//выбираем вывод
+            int wordnumber = random.Next(allowedWords[productionGroupNumber].Count);//select word
 
             wordnumber = allowedWords[productionGroupNumber][wordnumber];
             return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);

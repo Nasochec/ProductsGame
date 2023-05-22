@@ -18,15 +18,15 @@ namespace ProductionsGameCore
         {
             this.totalPossibility = totalPossibility;
             this.possibilityList = possibilityList.ToList();
-            int sum = 0;//Проверка что введенная сумма вероятностей равна знаменателю
+            int sum = 0;
             foreach (int possibility in possibilityList)
             {
                 sum += possibility;
                 if (possibility <= 0)
-                    throw new ArgumentException("Вероятность должна быть неотрицательным числом.");
+                    throw new ArgumentException("Probabolity must be non-negative number.");
             }
             if (sum != totalPossibility)
-                throw new ArgumentException("Сумма вероятностей должна быть равна totalPossibility.");
+                throw new ArgumentException("Sum of probabilities must be equal to totalPossibility.");
         }
 
 
