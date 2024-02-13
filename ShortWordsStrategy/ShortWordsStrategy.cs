@@ -26,25 +26,25 @@ namespace ShortWordsStrategy
             BinaryFormatter formatter = new BinaryFormatter();
             Stream inputStream = Console.OpenStandardInput();
 
-            //Считываем данные постоянные на протяжении всей игры.
+            //reading constant values
             gameSettings = (GameSettings)formatter.Deserialize(inputStream);
             playerNumber = (int)formatter.Deserialize(inputStream);
 
 
             List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
 
-            //Преобразууем продукции к упрощенному виду, чтобы алгоритм работал быстрее.
+            //get the simplified form of productions
             List<SimplifiedProductionGroup> prods = new List<SimplifiedProductionGroup>();
             for (int i = 0; i < gameSettings.ProductionsCount; ++i)
                 prods.Add(new SimplifiedProductionGroup(gameSettings.getProductionGroup(i)));
 
 
-            //Высчитываем метрику оценки продукций. При выборе продукции будем брать ту, у которой значение метрикик больше.
+            //count metric of broductions
             double[] netMetric;
             double[][] prodsMetric;
             StrategyUtilitiesClass.countMetric(prods, gameSettings, out netMetric, out prodsMetric);
 
-            //Найдём для каждой группы продукций лучшую продукцию.
+            //find best production in group
             int[] bestProd;
             bestProd = new int[netMetric.Length];
             for (int i = 0; i < bestProd.Length; ++i)
@@ -71,7 +71,7 @@ namespace ShortWordsStrategy
 
                 Move move = new Move();
 
-                //преобразуем выводы к упрощенному виду, чтобы алогритм работал быстрее.
+                //get simplified form of words
                 simpleWords.Clear();
                 foreach (var word in words[playerNumber])
                     simpleWords.Add(new SimplifiedWord(word));
@@ -87,9 +87,9 @@ namespace ShortWordsStrategy
                         primaryMove = findMove(prods, simpleWords, gameSettings.RandomSettings, bank, netMetric, bestProd);
                     if (primaryMove != null)
                     {
-                        if (move.MovesCount != 0)//удаляем продукцию из банка если надо
+                        if (move.MovesCount != 0)//delete production from bank
                             bank.removeProduction(primaryMove.ProductionGroupNumber);
-                        //теперь совершим этот ход
+                        //make this move
                         move.addMove(primaryMove);
                         applyMove(primaryMove, simpleWords, prods);
                     }
@@ -105,14 +105,14 @@ namespace ShortWordsStrategy
         {
             int prosuctionGroupNumber;
             List<List<int>> allowedWords = new List<List<int>>();
-            foreach (var pr in prods)//находим выводы допустимые для каждой продукции
+            foreach (var pr in prods)//find words allowed for productions
             {
                 allowedWords.Add(StrategyUtilitiesClass.findMatches(simpleWords, pr.Left));
-                if (pr.Left == 'S')//если можно создать новый вывод
+                if (pr.Left == 'S')//if can create new word
                     allowedWords.Last().Add(-1);
             }
 
-            //выбираем продукцию из банка
+            //select production from bank
             {
                 prosuctionGroupNumber = -1;
                 double maxMetric = -1;
@@ -124,13 +124,13 @@ namespace ShortWordsStrategy
                             prosuctionGroupNumber = i;
                         }
                 if (prosuctionGroupNumber == -1)
-                    return null;//не нашлось продукций доступных к применению
+                    return null;//not found production
             }
 
             SimplifiedProductionGroup prod = prods[prosuctionGroupNumber];
-            int productionNumber = bestProd[prosuctionGroupNumber];//выбираем номер продукции в группе
+            int productionNumber = bestProd[prosuctionGroupNumber];
             int wordNumber = -1;
-            //Выберем тот вывод, у кторого самая большая метрика
+            //select worfd with better metric
             {
                 double maxMetric = -1;
                 for (int i = 0; i < allowedWords[prosuctionGroupNumber].Count; ++i)
@@ -143,7 +143,7 @@ namespace ShortWordsStrategy
                     double metric = StrategyUtilitiesClass.countWordMetric(word,
                         rs,
                         netMetric,
-                        prods);//для оптимизации, возможно стоит хранить метрики слов и обновлять их по ходу алгоритма
+                        prods);
                     if (metric > maxMetric)
                     {
                         maxMetric = metric;
@@ -162,16 +162,16 @@ namespace ShortWordsStrategy
             List<int> allowedWords = new List<int>();
 
             allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left);
-            if (prod.Left == 'S')//если можно создать новый вывод
+            if (prod.Left == 'S')//if can create new word
                 allowedWords.Add(-1);
 
             if (allowedWords.Count == 0)
                 return null;
             groupNumber = productionGroupNumber;
 
-            int productionNumber = bestProd[groupNumber];//выбираем номер продукции в группе
+            int productionNumber = bestProd[groupNumber];
             int wordNumber = -1;
-            //Выберем тот вывод, у кторого самая большая метрика
+            //select word with better metric
             {
                 double maxMetric = -1;
                 for (int i = 0; i < allowedWords.Count; ++i)

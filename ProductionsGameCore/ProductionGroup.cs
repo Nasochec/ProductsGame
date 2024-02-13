@@ -22,10 +22,10 @@ namespace ProductionsGameCore
         public ProductionGroup(char left, List<string> right)
         {
             if (!(left >= 'A' && left <= 'Z'))
-                throw new ArgumentException("В левой части продукции должен стоять нетерминал - заглавная английская буква(от A до Z).");
+                throw new ArgumentException("Letter in left part of prosuction must be capital english letter.");
             this.Left = left;
             if (right.Count == 0)
-                throw new ArgumentException("В каждой группе продукций должна быть как минимум одна продукция.");
+                throw new ArgumentException("In each production group must at least one production.");
             right.ForEach(x => this.right.Add(x));
         }
 
@@ -54,7 +54,7 @@ namespace ProductionsGameCore
             if (index >= 0 && index < RightSize)
                 return right[index];
             throw new IndexOutOfRangeException(
-                String.Format("Индекс {0} был вне границ [0,{1}).", index, RightSize)
+                String.Format("Index {0} was outside of [0,{1}).", index, RightSize)
                 );
         }
 
@@ -91,34 +91,32 @@ namespace ProductionsGameCore
             List<string> right = new List<string>();
             for (int i = 0; i < s.Length; ++i)
             {
-                if (s[i] == '|')//нашли разделитель продукции
+                if (s[i] == '|')
                 {
                     if (left == null)
-                        throw new ArgumentException("Не указана левая чать продукции.");
+                        throw new ArgumentException("Left part of production is not specified.");
                     right.Add(sb.ToString());
                     sb.Clear();
                     continue;
                 }
-                if (s[i] == '-' && i + 1 < s.Length && s[i + 1] == '>')//Еслии встретилась стрелочка ->
+                if (s[i] == '-' && i + 1 < s.Length && s[i + 1] == '>')//found ->
                 {
-                    if (left == null)//Если левая часть ещё не найдена
-                        if (sb.Length == 1 && sb[0] >= 'A' && sb[0] <= 'Z')//проверка корректности левой части
+                    if (left == null)
+                        if (sb.Length == 1 && sb[0] >= 'A' && sb[0] <= 'Z')//check that Neterminal in left
                         {
                             left = sb[0];
                             sb.Clear();
-                            i++;//Пропустить символ >
+                            i++;//skip >
                             continue;
                         }
                         else
-                            throw new ArgumentException("Левой частью продукции может выступать только один нетерминал - заглавная английская буква.");
-                    //else//если левая чать уже найдена, то эта стрелочка - часть продукции
-                    //    sb.Append(s[i]);
+                            throw new ArgumentException("Left part of production must be capital engliah letter.");
                 }
                 sb.Append(s[i]);
             }
             right.Add(sb.ToString());
             if (left == null)
-                throw new ArgumentException("Не указана левая чать продукции.");
+                throw new ArgumentException("Left part of production is not specified.");
             return new ProductionGroup(left.Value, right);
         }
     }

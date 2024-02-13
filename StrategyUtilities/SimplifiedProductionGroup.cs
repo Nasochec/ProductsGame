@@ -1,16 +1,8 @@
 ﻿using ProductionsGameCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StrategyUtilities
 {
-
-    /// <summary>
-    /// Упрощённые группы продукций, где правая часть продукции упрощается до количества в ней терминалов и множества содержащихся в ней нетерминалов.
-    /// </summary>
     public class SimplifiedProductionGroup
     {
         public char Left { get; private set; }

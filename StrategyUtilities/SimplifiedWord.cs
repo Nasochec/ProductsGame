@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace StrategyUtilities
 {
-
-    /// <summary>
-    /// Упрощённое понимание вывоода, не как строку, а как количество терминалов и множество нетерминальных симаолов, встречающихся в выводе.
-    /// </summary>
     public class SimplifiedWord
     {
         public int terminals { get; set; }

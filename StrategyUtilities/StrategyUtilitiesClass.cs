@@ -10,23 +10,11 @@ namespace StrategyUtilities
 {
     public static class StrategyUtilitiesClass
     {
-        /// <summary>
-        /// Ищет есть ли нетерминал в упрошённом выводе.
-        /// </summary>
-        /// <param name="word"></param>
-        /// <param name="c"></param>
-        /// <returns></returns>
         public static bool isHaveLetter(SimplifiedWord word, char c)
         {
             return word.neterminalsCount.ContainsKey(c) && word.getNeterminal(c) > 0;
         }
 
-        /// <summary>
-        /// Возвращает список индексов упрощённых выводов, в котрых присутствует указанный нетерминал.
-        /// </summary>
-        /// <param name="words"></param>
-        /// <param name="c"></param>
-        /// <returns></returns>
         public static List<int> findMatches(IEnumerable<SimplifiedWord> words, char c)
         {
             List<int> indexes = new List<int>();
@@ -39,23 +27,11 @@ namespace StrategyUtilities
             return indexes;
         }
 
-        /// <summary>
-        /// ищет первое вхождение символа в выводе. Если не найдено возвращает -1.
-        /// </summary>
-        /// <param name="word"></param>
-        /// <param name="c"></param>
-        /// <returns></returns>
         public static int isHaveLetter(string word, char c)
         {
             return word.IndexOf(c);
         }
 
-        /// <summary>
-        /// Возвращает список индексов выводов, в котрых присутствует указанный символ.
-        /// </summary>
-        /// <param name="words"></param>
-        /// <param name="c"></param>
-        /// <returns></returns>
         public static List<int> findMatches(IEnumerable<string> words, char c)
         {
             List<int> indexes = new List<int>();
@@ -69,14 +45,6 @@ namespace StrategyUtilities
         }
 
 
-        /// <summary>
-        /// Находит метрику оценки продукций. 
-        /// Предполагается что чем больше её значение тем за меньшее количество ходов можно получить терминальную строку.
-        /// </summary>
-        /// <param name="productions"></param>
-        /// <param name="settings"></param>
-        /// <param name="netMetric"></param>
-        /// <param name="prodMetric"></param>
         public static void countMetric(List<SimplifiedProductionGroup> productions,
             GameSettings settings,
             out double[] netMetric,
@@ -88,7 +56,7 @@ namespace StrategyUtilities
             int productionsCount = productions.Count;
             const double eps = 0.00001;
 
-            //начальная инициализация
+            //initialization
             for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
             {
                 netMetric[prodIndex] = -1;
@@ -96,15 +64,15 @@ namespace StrategyUtilities
                 for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
                 {
                     var right = productions[prodIndex].rights[rightIndex];
-                    if (right.neterminalsCount.Count == 0)//терминальная строка оценивается в 1
+                    if (right.neterminalsCount.Count == 0)
                         netMetric[prodIndex] = prodMetric[prodIndex][rightIndex] = 1;
                     else
-                        prodMetric[prodIndex][rightIndex] = -1;//ещё не посчитанная метрика обозначается -1
+                        prodMetric[prodIndex][rightIndex] = -1;//not aclculated -1
                 }
             }
             RandomSettings rs = settings.RandomSettings;
             bool found = true;
-            while (found)//остановимся когда добьёмся указанной точнсти 
+            while (found)//stop when exceed needed accuracy
             {
                 found = false;
                 for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
@@ -113,7 +81,7 @@ namespace StrategyUtilities
                     {
                         var right = productions[prodIndex].rights[rightIndex];
                         if (right.neterminalsCount.Count != 0)
-                        {//если в продукции есть нетерминалы - пересчитываем её
+                        {//if production contains neterminal - calculating
                             double rightSum = countWordMetric(right, rs, netMetric, productions);
                             if (Math.Abs(prodMetric[prodIndex][rightIndex] - rightSum) >= eps)
                             {
@@ -127,7 +95,9 @@ namespace StrategyUtilities
             }
         }
 
-        public static double countWordMetric(SimplifiedWord word, RandomSettings rs, double[] netMetric,
+        public static double countWordMetric(SimplifiedWord word,
+            RandomSettings rs, 
+            double[] netMetric,
             List<SimplifiedProductionGroup> productions)
         {
             int productionsCount = productions.Count;
@@ -147,14 +117,7 @@ namespace StrategyUtilities
             }
             return rightSum;
         }
-        /// <summary>
-        /// Находит метрику оценки продукций. 
-        /// Предполагается что чем больше её значение тем за меньшее количество ходов можно получить терминальную строку.
-        /// </summary>
-        /// <param name="productions"></param>
-        /// <param name="settings"></param>
-        /// <param name="netMetric"></param>
-        /// <param name="prodMetric"></param>
+
         public static void countStupidMetric(List<SimplifiedProductionGroup> productions,
             out int[] netMetric,
             out int[][] prodMetric
