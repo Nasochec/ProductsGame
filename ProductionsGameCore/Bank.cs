@@ -19,6 +19,11 @@ namespace ProductionsGameCore
                 productionsBank.Add(0);
         }
 
+        public Bank(IEnumerable<int> productions)
+        {
+            productionsBank = productions.ToList();
+        }
+
         public Bank(SerializationInfo info, StreamingContext context)
         {
             productionsBank = (List<int>)info.GetValue("productionsBank", typeof(List<int>));

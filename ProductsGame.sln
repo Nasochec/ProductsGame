@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StupidShortWordsStrategy", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionsGame", "ProductionsGame\ProductionsGame.csproj", "{D6278432-0D8E-4EB8-BB0F-C0329F7490FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Strategies", "Strategies\Strategies.csproj", "{9E7640A9-E733-4ED5-9AE7-54196C81254D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{D6278432-0D8E-4EB8-BB0F-C0329F7490FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6278432-0D8E-4EB8-BB0F-C0329F7490FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6278432-0D8E-4EB8-BB0F-C0329F7490FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E7640A9-E733-4ED5-9AE7-54196C81254D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E7640A9-E733-4ED5-9AE7-54196C81254D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E7640A9-E733-4ED5-9AE7-54196C81254D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E7640A9-E733-4ED5-9AE7-54196C81254D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

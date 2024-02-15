@@ -153,6 +153,10 @@
       <Project>{a65fc203-81ba-4796-968f-ff10db0c26f5}</Project>
       <Name>ShortWordsStrategy</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Strategies\Strategies.csproj">
+      <Project>{9e7640a9-e733-4ed5-9ae7-54196c81254d}</Project>
+      <Name>Strategies</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
       <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
       <Name>StrategyUtilities</Name>

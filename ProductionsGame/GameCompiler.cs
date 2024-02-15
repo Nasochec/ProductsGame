@@ -24,27 +24,39 @@ namespace ProductionsGame
         public int moveNumber { get; private set; } = 0;
         public int playerNumber { get; private set; } = 0;
 
-        public GameCompiler(GameSettings gameSettings)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
-                Directory.CreateDirectory(@"./logs/");
-            sb.Append(@"./logs/");
-            sb.Append(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-"));
-            sb.Append(Thread.CurrentThread.ManagedThreadId);
-            sb.Append(".txt");
-            this.LogFilename = sb.ToString();
-            log = new StreamWriter(this.LogFilename);
-            log.AutoFlush = false;
-            this.gameSettings = gameSettings;
-            bank = new Bank(gameSettings.ProductionsCount);
-            randomProvider = new RandomProvider(gameSettings.RandomSettings);
-            gameSettings.WriteToStream(log);
-        }
+        //public GameCompiler(GameSettings gameSettings)
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    if (!Directory.Exists(@"./logs/"))//Создаём директорию для записи туда результатов
+        //        Directory.CreateDirectory(@"./logs/");
+        //    sb.Append(@"./logs/");
+        //    sb.Append(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-"));
+        //    sb.Append(Thread.CurrentThread.ManagedThreadId);
+        //    sb.Append(".txt");
+        //    this.LogFilename = sb.ToString();
+        //    log = new StreamWriter(this.LogFilename);
+        //    log.AutoFlush = false;
+        //    this.gameSettings = gameSettings;
+        //    bank = new Bank(gameSettings.ProductionsCount);
+        //    randomProvider = new RandomProvider(gameSettings.RandomSettings);
+        //    gameSettings.WriteToStream(log);
+        //}
 
-        public GameCompiler(GameSettings gameSettings, string logFilename)
+        public GameCompiler(GameSettings gameSettings, string logFilename = null)
         {
-            this.LogFilename = logFilename;
+            if (logFilename != null)
+                this.LogFilename = logFilename;
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                if (!Directory.Exists(@"./logs/"))//Создаём директорию для записи туда результатов
+                    Directory.CreateDirectory(@"./logs/");
+                sb.Append(@"./logs/");
+                sb.Append(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-"));
+                sb.Append(Thread.CurrentThread.ManagedThreadId);
+                sb.Append(".txt");
+                this.LogFilename = sb.ToString();
+            }
             log = new StreamWriter(this.LogFilename);
             log.AutoFlush = false;
             this.gameSettings = gameSettings;
