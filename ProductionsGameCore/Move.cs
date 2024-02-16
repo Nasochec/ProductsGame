@@ -26,6 +26,11 @@ namespace ProductionsGameCore
             moves.Add(move);
         }
 
+        public void addMove(Move move)
+        {
+            moves.AddRange(move.getMoves());
+        }
+
         public void popMove() {
             moves.RemoveAt(moves.Count - 1);
         }

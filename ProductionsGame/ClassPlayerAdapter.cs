@@ -15,17 +15,17 @@ namespace ProductionsGame
         public string Name { get; private set; }
         private Strategy strategy {get;set;}
 
-        public ClassPlayerAdapter(int number, GameCompiler gameCompiler, StreamWriter log, string Name,Strategy strategy)
+        public ClassPlayerAdapter(int number, GameCompiler gameCompiler, StreamWriter log,Strategy strategy)
             :base(number, gameCompiler, log) 
         {
-            this.Name = Name;
+            this.Name = strategy.Name;
             this.strategy = strategy;
             strategy.firstInit(Settings, PlayerNumber);
         }
 
         protected override Move CalculateMove(int productionGroupNumber)
         {
-            return strategy.makeMove(productionGroupNumber);
+            return strategy.makeMove(productionGroupNumber,MoveNumber,GameCompiler.getPlayersWords(),new Bank(Bank.getProductions()));
         }
     }
 }

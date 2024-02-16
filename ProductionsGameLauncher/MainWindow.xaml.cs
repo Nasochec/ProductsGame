@@ -19,6 +19,7 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using System.ComponentModel;
+using Strategies;
 
 namespace ProductionsGameLauncher
 {
@@ -324,9 +325,13 @@ namespace ProductionsGameLauncher
             }
             else
             {
-                List<string> filenames = getTwoPlayersFilenames();
-                List<string> parameters = getTwoPlayersParameters();
-                GameCompiler gc = new ExeSerializationGameCompiler(gameSettings, filenames, parameters);
+                //List<string> filenames = getTwoPlayersFilenames();
+                //List<string> parameters = getTwoPlayersParameters();
+                //GameCompiler gc = new ExeSerializationGameCompiler(gameSettings, filenames, parameters);
+                GameCompiler gc = new ClassGameCompiler(gameSettings,new Strategy[]
+                {new Strategies.SearchStrategy(),new Strategies.ShortWordsStrategy()});
+
+
                 LookGame look = new LookGame(gc);
                 this.Hide();
                 look.ShowDialog();

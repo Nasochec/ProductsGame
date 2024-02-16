@@ -10,16 +10,19 @@ using System.Threading.Tasks;
 
 namespace Strategies
 {
-    public class RandomStrategy: Strategy
+    public class RandomStrategy : Strategy
     {
         private Random random;
 
 
-        RandomStrategy():base() {
+        public RandomStrategy() : base("Random Strategy")
+        {
             random = new Random((int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId);
         }
 
-        public override Move makeMove(int productionNumber)
+        protected override void beforeStart() { }
+
+        public override Move makeMove(int productionNumber, int MoveNumber, List<List<string>> words, Bank bank)
         {
             Move move = new Move();
 
@@ -31,15 +34,15 @@ namespace Strategies
                 if (move.MovesCount == 0)//make first move
                     primaryMove = findFirstMove(random, words[PlayerNumber], prods, productionNumber);
                 else//make move from bank
-                    primaryMove = findMove(random, words[PlayerNumber], prods, Bank);
+                    primaryMove = findMove(random, words[PlayerNumber], prods, bank);
 
                 //make this move
                 if (primaryMove != null)
                 {
                     if (move.MovesCount != 0)
-                        Bank.removeProduction(primaryMove.ProductionGroupNumber);
+                        bank.removeProduction(primaryMove.ProductionGroupNumber);
                     move.addMove(primaryMove);
-                    applyMove(primaryMove, words[PlayerNumber], prods);
+                    StrategyUtilitiesClass.applyMove(primaryMove, words[PlayerNumber], prods);
                 }
                 else
                     break;
@@ -93,25 +96,6 @@ namespace Strategies
 
             wordnumber = allowedWords[productionGroupNumber][wordnumber];
             return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);
-        }
-
-        static void applyMove(PrimaryMove move, List<string> words, List<ProductionGroup> prods)
-        {
-            ProductionGroup prod = prods[move.ProductionGroupNumber];
-            if (move.WordNumber != -1)
-            {
-                string word = words[move.WordNumber];
-                int letterIndex = StrategyUtilitiesClass.isHaveLetter(word, prod.Left);
-                string newWord = word.Substring(0, letterIndex) +
-                         prod.getRightAt(move.ProductionNumber) +
-                         word.Substring(letterIndex + 1, word.Length - letterIndex - 1);
-                words[move.WordNumber] = newWord;
-            }
-            else
-            {
-                string newWord = prod.getRightAt(move.ProductionNumber);
-                words.Add(newWord);
-            }
         }
     }
 }

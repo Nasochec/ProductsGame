@@ -153,5 +153,55 @@ namespace StrategyUtilities
             }
             return rightSum;
         }
+
+        public static void applyMove(PrimaryMove move, List<string> words, List<ProductionGroup> prods)
+        {
+            ProductionGroup prod = prods[move.ProductionGroupNumber];
+            if (move.WordNumber != -1)
+            {
+                string word = words[move.WordNumber];
+                int letterIndex = StrategyUtilitiesClass.isHaveLetter(word, prod.Left);
+                string newWord = word.Substring(0, letterIndex) +
+                         prod.getRightAt(move.ProductionNumber) +
+                         word.Substring(letterIndex + 1, word.Length - letterIndex - 1);
+                words[move.WordNumber] = newWord;
+            }
+            else
+            {
+                string newWord = prod.getRightAt(move.ProductionNumber);
+                words.Add(newWord);
+            }
+        }
+
+        public static void applyMove(Move move, Bank bank, SimplifiedWord word, List<SimplifiedProductionGroup> prods)
+        {
+            foreach (var m in move.getMoves())
+            {
+                bank.removeProduction(m.ProductionGroupNumber);
+                var prod = prods[m.ProductionGroupNumber];
+                word.addNeterminal(prod.Left, -1);
+                word.terminals += prod.rights[m.ProductionNumber].terminals;
+                foreach (var neterminal in prod.rights[m.ProductionNumber].neterminalsCount)
+                    word.addNeterminal(neterminal.Key, -neterminal.Value);
+            }
+        }
+
+        public static void applyMove(PrimaryMove move, List<SimplifiedWord> simpleWords, List<SimplifiedProductionGroup> prods)
+        {
+            var prod = prods[move.ProductionGroupNumber];
+            if (move.WordNumber != -1)
+            {
+                SimplifiedWord word = simpleWords[move.WordNumber];
+                word.addNeterminal(prod.Left, -1);
+                word.terminals += prod.rights[move.ProductionNumber].terminals;
+                foreach (var neterminal in prod.rights[move.ProductionNumber].neterminalsCount)
+                    word.addNeterminal(neterminal.Key, neterminal.Value);
+            }
+            else
+            {
+                SimplifiedWord word = new SimplifiedWord(prod.rights[move.ProductionNumber]);
+                simpleWords.Add(word);
+            }
+        }
     }
 }
