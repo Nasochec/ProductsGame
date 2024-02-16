@@ -52,5 +52,9 @@ namespace ProductionsGame
         /// <param name="productionNumber"></param>
         public abstract Move makeMove(int productionNumber,int MoveNumber, List<List<string>> words, Bank bank);
 
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

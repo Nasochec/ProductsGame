@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProductionsGame;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,23 +10,18 @@ namespace ProductionsGameLauncher
 {
     public class Player
     {
+        public delegate Strategy getPlayer();
         public string Name { get; private set; }
-        public string Filename { get; private set; }
-        public string Parameter { get; private set; }
+        private getPlayer player;
 
-        public Player(string name, string filename, string parameter = null)
+        public Player(string name, getPlayer player)
         {
             Name = name;
-            Filename = filename;
-            if (!File.Exists(filename))
-            {
-                throw new Exception("Указанный файл отсутствует: " + filename + ".");
-            }
-            Parameter = parameter;
+            this.player = player;
         }
 
-        public void setParameter(string parameter) { 
-            Parameter = parameter;
+        public Strategy get() {
+            return player();
         }
 
         public override string ToString()
