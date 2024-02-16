@@ -55,7 +55,6 @@
     <Compile Include="InputForm.xaml.cs">
       <DependentUpon>InputForm.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StrategicPrimaryMove.cs" />
   </ItemGroup>
