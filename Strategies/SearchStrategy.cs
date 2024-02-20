@@ -12,18 +12,26 @@ namespace Strategies
 {
     public class SearchStrategy : Strategy
     {
-        //TODO add parameters for strategies for deep of search and for wieghts of combined strategy
+        //TODO add parameters for strategies for depth of search and for wieghts of combined strategy
 
         //TODO change it if this strategy works too long, or you want to make strategy better
-        //max deep of search
-        static int maxDeep = 4;
+        //max depth of search
+        int maxDepth = 4;
         List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
         double[] netMetric;
         double[][] prodsMetric;
         List<SimplifiedProductionGroup> simplifiedProds = new List<SimplifiedProductionGroup>();
         List<double> wordsMetric = new List<double>();
 
-        public SearchStrategy() : base("Search Strategy") { }
+        /// <summary>
+        /// Gets parameter depth - septh of recursion in search.
+        /// </summary>
+        /// <param name="prameters"></param>
+        public SearchStrategy(Parameters prameters) : base("Search Strategy") {
+            var param = prameters.getParameter("depth");
+            if(param !=null && param.Value>=0)
+                maxDepth = param.Value;
+        }
 
         protected override void beforeStart()
         {
@@ -81,7 +89,7 @@ namespace Strategies
             return move;
         }
 
-        static void searchMove(SimplifiedWord oldWord,
+        void searchMove(SimplifiedWord oldWord,
             int wordIndex,
             Bank bank,
             List<SimplifiedProductionGroup> prods,
@@ -91,14 +99,14 @@ namespace Strategies
             out double bestMetric,
             out double bestTerminals,
             Move currentMove = null,
-            int deep = 0)
+            int depth = 0)
         {
 
             bestMove = "";
             bestMetric = -1;
             bestTerminals = 0;
             bool found = false;
-            if (deep < maxDeep)
+            if (depth < maxDepth)
             {
                 if (currentMove == null)
                     currentMove = new Move();
@@ -123,7 +131,7 @@ namespace Strategies
 
                         currentMove.addMove(wordIndex, prodIndex, rightIndex);
                         searchMove(oldWord, wordIndex, bank, prods, rs, netMetric,
-                            out bMove, out bMetric, out bTerminals, currentMove, deep + 1);
+                            out bMove, out bMetric, out bTerminals, currentMove, depth + 1);
                         if (bestMetric == -1 || bMetric > bestMetric || bMetric == bestMetric && bTerminals > bestTerminals)
                         {
                             bestMetric = bMetric;
@@ -148,7 +156,7 @@ namespace Strategies
             }
         }
 
-        static Move findFirstMove(List<SimplifiedProductionGroup> prods,
+        Move findFirstMove(List<SimplifiedProductionGroup> prods,
             List<SimplifiedWord> simpleWords,
             List<double> wordsMetric,
             RandomSettings rs,
@@ -231,7 +239,7 @@ namespace Strategies
             return move;
         }
 
-        static Move findMove(List<SimplifiedProductionGroup> prods,
+        Move findMove(List<SimplifiedProductionGroup> prods,
             List<SimplifiedWord> simpleWords,
             List<double> wordsMetric,
             RandomSettings rs,

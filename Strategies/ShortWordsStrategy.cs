@@ -73,7 +73,7 @@ namespace Strategies
             return move;
         }
 
-        static PrimaryMove findMove(List<SimplifiedProductionGroup> prods, List<SimplifiedWord> simpleWords, RandomSettings rs, Bank bank, double[] netMetric, int[] bestProd)
+        PrimaryMove findMove(List<SimplifiedProductionGroup> prods, List<SimplifiedWord> simpleWords, RandomSettings rs, Bank bank, double[] netMetric, int[] bestProd)
         {
             int prosuctionGroupNumber;
             List<List<int>> allowedWords = new List<List<int>>();
@@ -127,7 +127,7 @@ namespace Strategies
             return new PrimaryMove(wordNumber, prosuctionGroupNumber, productionNumber);
         }
 
-        static PrimaryMove findFirstMove(List<SimplifiedProductionGroup> prods, List<SimplifiedWord> simpleWords, RandomSettings rs, Bank bank, double[] netMetric, int[] bestProd, int productionGroupNumber)
+        PrimaryMove findFirstMove(List<SimplifiedProductionGroup> prods, List<SimplifiedWord> simpleWords, RandomSettings rs, Bank bank, double[] netMetric, int[] bestProd, int productionGroupNumber)
         {
             int groupNumber;
             var prod = prods[productionGroupNumber];

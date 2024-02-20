@@ -21,6 +21,7 @@ using System.Net;
 using System.ComponentModel;
 using Strategies;
 using GUIStrategy;
+using System.Security.Cryptography;
 
 namespace ProductionsGameLauncher
 {
@@ -79,12 +80,18 @@ namespace ProductionsGameLauncher
 
             //TODO Дописать сюда если хотите добавить свою стратегию
             players = new List<Player>();
-            players.Add(new Player("Случайная стратегия", () => new RandomStrategy()));
-            players.Add(new Player("Глупая стратегия коротких слов", () => new StupidShortWordsStrategy()));
-            players.Add(new Player("Стратегия коротких слов", () => new ShortWordsStrategy()));
-            players.Add(new Player("Переборная стратегия", () => new SearchStrategy()));
+            players.Add(new Player("Случайная стратегия", (param) => new RandomStrategy()));
+            players.Add(new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()));
+            players.Add(new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()));
 
-            guiPlayer = new Player("Графический интерфейс", () => new GUIStrategyClass());
+            Parameters searchParameters = new Parameters();
+            searchParameters.addParameter("depth","Глубина перебора", 4);
+            players.Add(new Player("Переборная стратегия",
+                (param) => new SearchStrategy(param),
+                searchParameters)
+                );
+
+            guiPlayer = new Player("Графический интерфейс", (param) => new GUIStrategyClass());
 
             for (int i = 1; i <= 7; i++)
                 depthSelectComboBox.Items.Add(i);
@@ -159,20 +166,20 @@ namespace ProductionsGameLauncher
             Grid.SetRow(label, row);
             TournamentPlayersGrid.Children.Add(label);
 
-            ComboBox playerFilenameChoseButton = new ComboBox();
-            playerFilenameChoseButton.Height = 40;
+            ComboBox playerComboBox = new ComboBox();
+            playerComboBox.Height = 40;
             foreach (var player in avaliablePlayers)
-                playerFilenameChoseButton.Items.Add(player);
-            playerFilenameChoseButton.SelectedIndex = 0;
-            playerFilenameChoseButton.SelectionChanged += (sender, e) =>
+                playerComboBox.Items.Add(player);
+            playerComboBox.SelectedIndex = 0;
+            playerComboBox.SelectionChanged += (sender, e) =>
             {
                 int rowNum = Grid.GetRow((UIElement)sender);
                 recalculatePlayers(rowNum);
                 //showDepthSelect();
             };
-            Grid.SetRow(playerFilenameChoseButton, row);
-            Grid.SetColumn(playerFilenameChoseButton, 1);
-            TournamentPlayersGrid.Children.Add(playerFilenameChoseButton);
+            Grid.SetRow(playerComboBox, row);
+            Grid.SetColumn(playerComboBox, 1);
+            TournamentPlayersGrid.Children.Add(playerComboBox);
 
             Button playerDeleteButton = new Button();
             playerDeleteButton.Content = "Удалить";
@@ -206,47 +213,7 @@ namespace ProductionsGameLauncher
             //showDepthSelect();
 
         }
-
-        //Отображает на экране возможность выбора глубины перебора переборной стратегии.
-        //private void showDepthSelect()
-        //{
-        //    return;
-        //    //если турнир
-        //    //bool found = false;
-        //    //if (tournamentCheckBox.IsChecked.Value)
-        //    //{
-        //    //    foreach (UIElement item in TournamentPlayersGrid.Children)
-        //    //    {
-        //    //        if (Grid.GetColumn(item) == 1)
-        //    //        {
-        //    //            ComboBox cb = item as ComboBox;
-        //    //            if ((cb.SelectedItem as Strategy) == searchPlayer)
-        //    //                found = true;
-        //    //        }
-        //    //    }
-        //    //}
-        //    //else
-        //    //{
-        //    //    foreach (UIElement item in twoPlayersGrid.Children)
-        //    //    {
-        //    //        if (Grid.GetColumn(item) == 1)
-        //    //        {
-        //    //            ComboBox cb = item as ComboBox;
-        //    //            if ((cb.SelectedItem as Player) == searchPlayer)
-        //    //                found = true;
-        //    //        }
-        //    //    }
-        //    //}
-        //    //if (found)
-        //    //{
-        //    //    depthSelectDockPanel.Visibility = Visibility.Visible;
-        //    //}
-        //    //else
-        //    //{
-        //    //    depthSelectDockPanel.Visibility = Visibility.Hidden;
-        //    //}
-        //}
-
+ 
         private void addTwoPlayers()
         {
             for (int i = 0; i < 2; i++)
@@ -270,8 +237,32 @@ namespace ProductionsGameLauncher
                 Grid.SetRow(playerComboBox, i);
                 Grid.SetColumn(playerComboBox, 1);
                 twoPlayersGrid.Children.Add(playerComboBox);
+                //var button = getParametersButton()
+
+                Button button = new Button();
+                button.Content = "Настроить";
+                button.Click += (sender, e) =>
+                {
+                    Player p = null;
+                    int row = Grid.GetRow(sender as Button);
+                    foreach (UIElement item in twoPlayersGrid.Children)
+                        if (Grid.GetRow(item) == row  && Grid.GetColumn(item) == 1)
+                            p = (item as ComboBox).SelectedItem as Player;
+                    if (p == null) return;
+                    if (p.Parameters == null)return;
+                    ParametersWindow win = new ParametersWindow(p.Parameters);
+                    win.ShowDialog();
+                };
+                Grid.SetRow(button, i);
+                Grid.SetColumn(button, 2);
+                twoPlayersGrid.Children.Add(button);
+                //return button;
             }
         }
+
+        //private Button getParametersButton(Parameters parameters) { 
+            
+        //}
 
         private void GrammaticChoseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -319,7 +310,7 @@ namespace ProductionsGameLauncher
                 //List<string> parameters = getTwoPlayersParameters();
                 //GameCompiler gc = new ExeSerializationGameCompiler(gameSettings, filenames, parameters);
                 List<Strategy> strategies = new List<Strategy>();
-                foreach(var player in players)
+                foreach (var player in players)
                     strategies.Add(player.get());
                 GameCompiler gc = new ClassGameCompiler(gameSettings, strategies);
 
@@ -476,6 +467,81 @@ namespace ProductionsGameLauncher
             worker.RunWorkerAsync();
         }
 
+        //private void addPlayer(Grid grid, bool forTournament) {
+
+        //    int row = grid.RowDefinitions.Count;
+        //    List<Player> avaliablePlayers = findAvaliablePlayers(row);
+        //    if (avaliablePlayers.Count <= 1)
+        //        addPlayerButton.IsEnabled = false;
+
+        //    RowDefinition rowDefinition = new RowDefinition();
+        //    rowDefinition.Height = new GridLength(40);
+        //    grid.RowDefinitions.Add(rowDefinition);
+        //    TextBlock label = new TextBlock();
+        //    label.Text = "Игрок " + (row + 1);
+        //    label.TextWrapping = TextWrapping.Wrap;
+        //    Grid.SetRow(label, row);
+        //    grid.Children.Add(label);
+
+        //    ComboBox playerComboBox = new ComboBox();
+        //    playerComboBox.Height = 40;
+        //    foreach (var player in avaliablePlayers)
+        //        playerComboBox.Items.Add(player);
+        //    playerComboBox.SelectedIndex = 0;
+        //    playerComboBox.SelectionChanged += (sender, e) =>
+        //    {
+        //        int rowNum = Grid.GetRow((UIElement)sender);
+        //        recalculatePlayers(rowNum);
+        //        //showDepthSelect();
+        //    };
+        //    Grid.SetRow(playerComboBox, row);
+        //    Grid.SetColumn(playerComboBox, 1);
+        //    grid.Children.Add(playerComboBox);
+
+        //    Button playerDeleteButton = new Button();
+        //    playerDeleteButton.Content = "Удалить";
+        //    playerDeleteButton.Height = 40;
+        //    playerDeleteButton.Click += (sender, e) =>
+        //    {
+        //        addPlayerButton.IsEnabled = true;
+        //        List<UIElement> forDelete = new List<UIElement>();
+        //        int rowNum = Grid.GetRow((UIElement)sender);
+        //        foreach (UIElement item in grid.Children)
+        //        {
+        //            int t = Grid.GetRow(item);
+        //            if (t == rowNum)
+        //                forDelete.Add(item);
+        //            else if (t > rowNum)
+        //            {
+        //                Grid.SetRow(item, t - 1);
+        //                if (Grid.GetColumn(item) == 0)
+        //                    (item as TextBlock).Text = "Игрок " + t;
+        //            }
+        //        }
+        //        foreach (UIElement item in forDelete)
+        //            grid.Children.Remove(item);
+        //        grid.RowDefinitions.RemoveAt(rowNum);
+        //        recalculatePlayers(rowNum - 1);
+        //        //showDepthSelect();
+        //    };
+        //    Grid.SetRow(playerDeleteButton, row);
+        //    Grid.SetColumn(playerDeleteButton, 2);
+        //    grid.Children.Add(playerDeleteButton);
+        //}
+
+        private List<Player> getPlayers(Grid grid) {
+            List<Player> players = new List<Player>();
+            foreach (UIElement item in grid.Children)
+            {
+                if (Grid.GetColumn(item) == 1)
+                {
+                    ComboBox cb = item as ComboBox;
+                    players.Add(cb.SelectedItem as Player);
+                }
+            }
+            return players;
+        }
+
         private List<Player> getTournamentPlayers()
         {
             List<Player> players = new List<Player>();
@@ -490,20 +556,6 @@ namespace ProductionsGameLauncher
             return players;
         }
 
-        //private List<string> getTournamentPlayersParameters()
-        //{
-        //    List<string> parameters = new List<string>();
-        //    foreach (UIElement item in TournamentPlayersGrid.Children)
-        //    {
-        //        if (Grid.GetColumn(item) == 1)
-        //        {
-        //            ComboBox cb = item as ComboBox;
-        //            parameters.Add((cb.SelectedItem as Player).Parameter);
-        //        }
-        //    }
-        //    return parameters;
-        //}
-
         private List<Player> getTwoPlayers()
         {
             List<Player> players = new List<Player>();
@@ -517,20 +569,6 @@ namespace ProductionsGameLauncher
             }
             return players;
         }
-
-        //private List<string> getTwoPlayersParameters()
-        //{
-        //    List<string> parameters = new List<string>();
-        //    foreach (UIElement item in twoPlayersGrid.Children)
-        //    {
-        //        if (Grid.GetColumn(item) == 1)
-        //        {
-        //            ComboBox cb = item as ComboBox;
-        //            parameters.Add((cb.SelectedItem as Player).Parameter);
-        //        }
-        //    }
-        //    return parameters;
-        //}
 
         private void roundsNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -601,15 +639,15 @@ namespace ProductionsGameLauncher
         {
             this.gameSettings = gameSettings;
             this.logFilename = logFilename;
-            this.player1= player1;
+            this.player1 = player1;
             this.player2 = player2;
-            
+
         }
 
 
         public void start()
         {
-            ClassGameCompiler gc = new ClassGameCompiler(gameSettings, new Strategy[] { player1, player2 },logFilename);
+            ClassGameCompiler gc = new ClassGameCompiler(gameSettings, new Strategy[] { player1, player2 }, logFilename);
             gc.play();
         }
     }

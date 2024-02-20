@@ -51,7 +51,7 @@ namespace Strategies
         }
 
 
-        static PrimaryMove findFirstMove(Random random, List<string> words, List<ProductionGroup> prods, int productionGroupNumber)
+        PrimaryMove findFirstMove(Random random, List<string> words, List<ProductionGroup> prods, int productionGroupNumber)
         {
             List<int> allowedWords = new List<int>();
 
@@ -70,7 +70,7 @@ namespace Strategies
             return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);
         }
 
-        static PrimaryMove findMove(Random random, List<string> words, List<ProductionGroup> prods, Bank bank)
+        PrimaryMove findMove(Random random, List<string> words, List<ProductionGroup> prods, Bank bank)
         {
             List<List<int>> allowedWords = new List<List<int>>();
             int productionGroupNumber;

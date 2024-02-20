@@ -58,6 +58,8 @@
     <Compile Include="ClassGameCompiler.cs" />
     <Compile Include="ClassPlayerAdapter.cs" />
     <Compile Include="GameCompiler.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="Parameters.cs" />
     <Compile Include="RandomProvider.cs" />
     <Compile Include="ExeSerializationPlayerAdapter.cs" />
     <Compile Include="ExeSerializationGameCompiler.cs" />
