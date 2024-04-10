@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace ProductionsGameCore
 {
-    [Serializable]
-    public class Bank : ISerializable
+    public class Bank
     {
         List<int> productionsBank;
 
@@ -22,11 +21,6 @@ namespace ProductionsGameCore
         public Bank(IEnumerable<int> productions)
         {
             productionsBank = productions.ToList();
-        }
-
-        public Bank(SerializationInfo info, StreamingContext context)
-        {
-            productionsBank = (List<int>)info.GetValue("productionsBank", typeof(List<int>));
         }
 
         public void addProduction(int productionIndex)
@@ -59,11 +53,6 @@ namespace ProductionsGameCore
         public int getProductionCount(int productionIndex)
         {
             return productionsBank[productionIndex];
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("productionsBank", productionsBank, typeof(List<int>));
         }
 
         public override string ToString()

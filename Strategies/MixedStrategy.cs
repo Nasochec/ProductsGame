@@ -45,20 +45,28 @@ namespace Strategies
             strats.Add(new SearchStrategy(parameters));
             strats.Add(new ShortWordsStrategy());
             random = new Random((int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId);
+            this.GameSettingsChanged += beforeStart;
+
         }
 
-        protected override void beforeStart()
+        protected void beforeStart(object sender,EventArgs e)
         {
             foreach(var strat in strats)
-                strat.firstInit(Settings, PlayerNumber);
+                strat.setGameSettings(GameSettings);
         }
-        public override Move makeMove(int productionNumber, int MoveNumber, List<List<string>> words, Bank bank)
+
+        public override Move makeMove(int playerNumber,
+            int MoveNumber,
+            int productionNumber,
+            List<List<string>> words,
+            List<List<SimplifiedWord>> simplifiedWords,
+            Bank bank)
         {
             int rez = random.Next(sum);
             for (int i = 0; i < strats.Count; ++i) {
                 rez -= probs[i];
                 if (rez < 0)
-                    return strats[i].makeMove(productionNumber, MoveNumber, words, bank);
+                    return strats[i].makeMove(playerNumber,MoveNumber,productionNumber,words,simplifiedWords,bank);
             }
             return new Move();
         }

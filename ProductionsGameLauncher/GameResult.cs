@@ -1,4 +1,5 @@
-﻿using ProductionsGameCore;
+﻿using ProductionsGame;
+using ProductionsGameCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ namespace ProductionsGameLauncher
     /// <summary>
     /// Класс, используемый чтобы из файлов с резальтатами игр получить данные об составе игроков и их очках.
     /// </summary>
-    internal class GameResult
+    internal class FileGameResult
     {
         public string filename { get; private set; }
         public GameSettings gameSettings { get; private set; }
@@ -21,7 +22,7 @@ namespace ProductionsGameLauncher
         public List<int> playersScores = new List<int>();
         public int winner { get; private set; }
 
-        public GameResult(string filename)
+        public FileGameResult(string filename)
         {
             try
             {
@@ -85,6 +86,44 @@ namespace ProductionsGameLauncher
                 sb.Append(shortPlayersFilanames[0]);
                 sb.Append(" vs ");
                 sb.Append(shortPlayersFilanames[1]);
+                sb.Append(":");
+                sb.Append(playersScores[0]);
+                sb.Append('-');
+                sb.Append(playersScores[1]);
+                return sb.ToString();
+            }
+            else return "Неверный формат файла.";
+        }
+    }
+    /// <summary>
+    /// Класс, используемый чтобы из файлов с резальтатами игр получить данные об составе игроков и их очках.
+    /// </summary>
+    internal class GameResult
+    {
+        //public string filename { get; private set; }
+        //public GameSettings gameSettings { get; private set; }
+        public List<string> playersNames = new List<string>();
+        //public List<string> shortPlayersFilanames = new List<string>();
+        public List<int> playersScores = new List<int>();
+        public int winner { get; private set; }
+
+        public GameResult(Game game)
+        {
+            if (!game.Finished)
+                throw new ArgumentException("Game is't finished.");
+            playersNames = game.getPlayers();
+            playersScores = game.getScores();
+            winner = game.getWinner();
+        }
+
+        public override string ToString()
+        {
+            if (playersNames.Count == 2 && playersScores.Count == 2)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(playersNames[0]);
+                sb.Append(" vs ");
+                sb.Append(playersNames[1]);
                 sb.Append(":");
                 sb.Append(playersScores[0]);
                 sb.Append('-');

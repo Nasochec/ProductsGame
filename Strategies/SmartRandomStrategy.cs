@@ -11,22 +11,21 @@ namespace Strategies
 {
     public class SmartRandomStrategy:RandomStrategy
     {
-        List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
-        List<SimplifiedProductionGroup> simplifiedProds = new List<SimplifiedProductionGroup>();
         double[] netMetric;
         double[][] prodsMetric;
         //int[] bestProd;
 
         public SmartRandomStrategy():base() {
             Name = "Smart Random Strategy";
+            this.GameSettingsChanged += beforeStart;
         }
 
-        protected override void beforeStart() {
+        protected void beforeStart(object sender,EventArgs e) {
             //get the simplified form of productions
 
-            for (int i = 0; i < Settings.ProductionsCount; ++i)
-                simplifiedProds.Add(new SimplifiedProductionGroup(Settings.getProductionGroup(i)));
-            StrategyUtilitiesClass.countMetric(simplifiedProds, Settings, out netMetric, out prodsMetric);
+            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
+                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
+            StrategyUtilitiesClass.countMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
         }
 
         private int getRand(IEnumerable<double> weights) {
@@ -48,9 +47,9 @@ namespace Strategies
 
         protected override PrimaryMove findFirstMove(List<string> words, int productionGroupNumber)
         {
-            List<int> allowedWords = new List<int>();
+            List<int> allowedWords;
 
-            var prod = prods[productionGroupNumber];
+            var prod = productions[productionGroupNumber];
             allowedWords = StrategyUtilitiesClass.findMatches(words, prod.Left);
             if (prod.Left == 'S')//if can create new word
                 allowedWords.Add(-1);
@@ -59,13 +58,11 @@ namespace Strategies
                 return null;//not found production
 
             int productionNumber = getRand(prodsMetric[productionGroupNumber]);
-            List<double> wordsMetrics=new List<double>();
+            List<double> wordsMetrics = new List<double>();
             foreach (int wordIndex in allowedWords)
             {
                 var word = (wordIndex == -1) ? "S" : words[wordIndex];
-                    
-                //var sw = ;
-                wordsMetrics.Add(StrategyUtilitiesClass.countWordMetric(new SimplifiedWord(word), rs, netMetric, simplifiedProds));
+                wordsMetrics.Add(StrategyUtilitiesClass.countWordMetric(new SimplifiedWord(word), rs, netMetric, simplifiedProductions));
             }
             int wordnumber = getRand(wordsMetrics);//select word
                 //random.Next(allowedWords.Count);
@@ -78,7 +75,7 @@ namespace Strategies
         {
             List<List<int>> allowedWords = new List<List<int>>();
             int productionGroupNumber;
-            foreach (var pr in prods)//find words allowed for productions
+            foreach (var pr in productions)//find words allowed for productions
             {
                 allowedWords.Add(StrategyUtilitiesClass.findMatches(words, pr.Left));
                 if (pr.Left == 'S')//if can create new word
@@ -87,7 +84,7 @@ namespace Strategies
 
             List<int> allowedGroupIndexes = new List<int>();
             List<double> allowedGroupMetrics = new List<double>();
-            for (int i = 0; i < prods.Count; ++i)
+            for (int i = 0; i < productions.Count; ++i)
                 if (allowedWords[i].Count > 0 && bank.getProductionCount(i) > 0)
                 {
                     allowedGroupIndexes.Add(i);
@@ -102,7 +99,7 @@ namespace Strategies
             List<double> wordsMetrics = new List<double>();
             foreach (int wordIndex in allowedWords[productionGroupNumber])
             {
-                wordsMetrics.Add(StrategyUtilitiesClass.countWordMetric(new SimplifiedWord(words[wordIndex]), rs, netMetric, simplifiedProds));
+                wordsMetrics.Add(StrategyUtilitiesClass.countWordMetric(new SimplifiedWord(words[wordIndex]), rs, netMetric, simplifiedProductions));
             }
             int wordnumber = getRand(wordsMetrics);//select word
 

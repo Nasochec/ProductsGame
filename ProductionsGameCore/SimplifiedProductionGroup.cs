@@ -1,7 +1,6 @@
-﻿using ProductionsGameCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace StrategyUtilities
+namespace ProductionsGameCore
 {
     public class SimplifiedProductionGroup
     {
@@ -20,6 +19,11 @@ namespace StrategyUtilities
         public int getRightTerminalsAt(int index)
         {
             return rights[index].terminals;
+        }
+
+        public IEnumerable<SimplifiedWord> getRights()
+        {
+            return rights;
         }
     }
 }

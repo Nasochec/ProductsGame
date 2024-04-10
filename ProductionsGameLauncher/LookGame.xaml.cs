@@ -26,7 +26,7 @@ namespace ProductionsGameLauncher
         TextBlock[] playersScores = new TextBlock[2];
 
 
-        public LookGame(GameCompiler gc)
+        public LookGame(Game gc)
         {
             InitializeComponent();
             gameHistory = new CompilerGameHistory(gc);
@@ -43,6 +43,7 @@ namespace ProductionsGameLauncher
             fillProductionsTextBlock();
             fillPlayersInfo();
         }
+
         //TODO добавить подсчёт текущих очков, добавить сообщение что игра завершена, отображени текущего хода
         private void fillProductionsTextBlock()
         {

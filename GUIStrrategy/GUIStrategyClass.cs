@@ -14,31 +14,32 @@ namespace GUIStrategy
     {
         public GUIStrategyClass():base("GUI stategy") { }
 
-        protected override void beforeStart()
-        {
-            if (Settings.NumberOfPlayers != 2) 
-                throw new Exception("For using GUI strategy, set number of players in settings to 2.");
-        }
 
-        public override Move makeMove(int productionNumber, int MoveNumber, List<List<string>> words, Bank bank)
+        public override Move makeMove(int playerNumber,
+            int MoveNumber,
+            int productionNumber,
+            List<List<string>> words,
+            List<List<SimplifiedWord>> simplifiedWords,
+            Bank bank)
         {
             Move move = new Move();
 
-            Thread newWindowThread = new Thread(new ThreadStart(() =>
-            {
+            //TODO maybe uncomment threads
+            //Thread newWindowThread = new Thread(new ThreadStart(() =>
+            //{
                 // create and show the window
-                InputForm form = new InputForm(Settings, PlayerNumber, MoveNumber, bank, words, productionNumber, ref move);
+                InputForm form = new InputForm(GameSettings, playerNumber, MoveNumber, bank, words, productionNumber, ref move);
                 form.ShowDialog();
-            }));
+            //}));
 
-            // set the apartment state  
-            newWindowThread.SetApartmentState(ApartmentState.STA);
+            //// set the apartment state  
+            //newWindowThread.SetApartmentState(ApartmentState.STA);
 
-            // start the thread  
-            newWindowThread.Start();
+            //// start the thread  
+            //newWindowThread.Start();
 
-            //newWindowThread.Abort();
-            newWindowThread.Join();
+            ////newWindowThread.Abort();
+            //newWindowThread.Join();
 
             return move;
         }

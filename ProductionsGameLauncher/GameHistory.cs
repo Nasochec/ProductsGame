@@ -33,10 +33,12 @@ namespace ProductionsGameLauncher
         {
             return currentBank.getProductions();
         }
+
         public IEnumerable<PrimaryMove> getMove()
         {
             return currentMove.getMoves();
         }
+
         public IEnumerable<StrategicPrimaryMove> getStrategicMove()
         {
             return currentStrategicMove;
@@ -46,8 +48,9 @@ namespace ProductionsGameLauncher
         {
             return !(currentMoveNumber >= GameSettings.NumberOfMoves ||
                     currentMoveNumber == GameSettings.NumberOfMoves - 1 &&
-                    currentPlayer >= GameSettings.NumberOfPlayers - 1);
+                    currentPlayer > 2);//TODO suspect
         }
+
         public bool hasPrevMove()
         {
             return currentMoveNumber >= 0;
@@ -111,7 +114,7 @@ namespace ProductionsGameLauncher
                     };
                 for (int move = 0; move < GameSettings.NumberOfMoves; ++move)
                 {
-                    for (int i = 0; i < GameSettings.NumberOfPlayers; ++i)
+                    for (int i = 0; i < 2; ++i)
                     {
                         s = fs.ReadLine();
                         playerProductionGroups[i].Add(int.Parse(s.Split(':').Last()));
@@ -151,7 +154,7 @@ namespace ProductionsGameLauncher
             else
             {
                 currentPlayer++;
-                if (currentPlayer >= GameSettings.NumberOfPlayers)
+                if (currentPlayer >= 2)
                 {
                     currentPlayer = 0;
                     currentMoveNumber++;
@@ -199,7 +202,7 @@ namespace ProductionsGameLauncher
             if (currentPlayer < 0)
             {
                 currentMoveNumber--;
-                currentPlayer = GameSettings.NumberOfPlayers - 1;
+                currentPlayer = 1;
                 if (currentMoveNumber == -1)
                 {
                     currentPlayer = -1;
@@ -217,7 +220,7 @@ namespace ProductionsGameLauncher
 
     internal class CompilerGameHistory : GameHistory
     {
-        GameCompiler gc;
+        Game gc;
         private List<int>[] playerProductionGroups = new List<int>[2] {
                 new List<int>(),new List<int>()
             };
@@ -226,12 +229,12 @@ namespace ProductionsGameLauncher
             };
 
 
-        public CompilerGameHistory(GameCompiler gc)
+        public CompilerGameHistory(Game gc)
         {
             this.gc = gc;
             if (gc.Active || gc.Finished)
                 throw new ArgumentException("Игра не должна быть уже запущенной.");
-            GameSettings = gc.GetGameSettings();
+            GameSettings = gc.GameSettings;
             currentBank = new Bank(GameSettings.ProductionsCount);
             currentMove = null;
             currentMoveNumber = -1;
@@ -252,19 +255,19 @@ namespace ProductionsGameLauncher
             else
             {
                 currentPlayer++;
-                if (currentPlayer >= GameSettings.NumberOfPlayers)
+                if (currentPlayer >= 2)
                 {
                     currentPlayer = 0;
                     currentMoveNumber++;
                 }
             }
-            if (gc.moveNumber < currentMoveNumber ||
-                gc.moveNumber == currentMoveNumber && gc.playerNumber <= currentPlayer)
+            if (gc.MoveNumber < currentMoveNumber ||
+                gc.MoveNumber == currentMoveNumber && gc.ActivePlayer <= currentPlayer)
             {//Если этот ход ещё не был сыгран
-                int r = gc.moveNumber;
-                int p = gc.playerNumber;
+                int r = gc.MoveNumber;
+                int p = gc.ActivePlayer;
                 Move move = gc.playOneMove();
-                var bank = gc.getBank();
+                var bank = gc.Bank;
                 playerMoves[p].Add(StrategicPrimaryMove.fromMove(playerWords[p], move.getMoves(), GameSettings.GetProductions()));
                 if (move.MovesCount > 0)
                 {//если шаг был совершён, то узнаем выпавшую продукцию из него
@@ -319,7 +322,7 @@ namespace ProductionsGameLauncher
             if (currentPlayer < 0)
             {
                 currentMoveNumber--;
-                currentPlayer = GameSettings.NumberOfPlayers - 1;
+                currentPlayer = 1;
                 if (currentMoveNumber == -1)
                 {
                     currentPlayer = -1;

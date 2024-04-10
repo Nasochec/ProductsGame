@@ -312,7 +312,7 @@ namespace ProductionsGameLauncher
                 MessageBox.Show("Указано неверное количество ходов.");
                 return;
             }
-            gameSettings = new GameSettings(true, 2, movesNumber, grammatic.getProductionGroups(), rs);
+            gameSettings = new GameSettings(movesNumber, grammatic.getProductionGroups(), rs);
 
 
             if (tournamentCheckBox.IsChecked.Value)
@@ -329,8 +329,8 @@ namespace ProductionsGameLauncher
                     MessageBox.Show("Указано недостаточное количество игроков, необходим 1 игрок для запуска турнира.");
                     return;
                 }
-                playTournament(numberOfRounds, getTournamentPlayers());
-                //playTournamentLinear(numberOfRounds, getTournamentPlayersFilenames());
+                //playTournament(numberOfRounds, getTournamentPlayers());
+                playTournamentLinear(numberOfRounds, getTournamentPlayers());
 
             }
             else
@@ -341,7 +341,7 @@ namespace ProductionsGameLauncher
                 List<Strategy> strategies = new List<Strategy>();
                 foreach (var player in players)
                     strategies.Add(player.get());
-                GameCompiler gc = new ClassGameCompiler(gameSettings, strategies);
+                Game gc = new Game(gameSettings, strategies);
 
                 LookGame look = new LookGame(gc);
                 this.Hide();
@@ -373,6 +373,14 @@ namespace ProductionsGameLauncher
             int playersNumber = players.Count;
             int allRounds = playersNumber * playersNumber * numberOfRounds;
 
+            List<Strategy> strats = new List<Strategy>();
+            foreach (var player in players)
+            {
+                strats.Add(player.get());
+                strats.Last().setGameSettings(gameSettings);
+            }
+            
+
             if (!Directory.Exists(@"./logs/"))//Создаём директорию для записи туда результатов
                 Directory.CreateDirectory(@"./logs/");
             string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
@@ -388,11 +396,10 @@ namespace ProductionsGameLauncher
                     for (int firstIndex = 0; firstIndex < playersNumber; ++firstIndex)
                         for (int secondIndex = 0; secondIndex < playersNumber; ++secondIndex)
                         {
-                            ClassGameCompiler gc = new ClassGameCompiler(gameSettings,
-                                new Strategy[] { players[firstIndex].get(), players[secondIndex].get() },
-                                filename + round + "-" + firstIndex + "-" + secondIndex + ".txt");
-                            resultFilenames.Add(gc.LogFilename);
-                            gc.play();
+                            Game game = new Game(gameSettings,
+                                new Strategy[] { strats[firstIndex], strats[secondIndex] });
+                            game.play();
+
                             ++finishedRounds;
                             worker.ReportProgress(finishedRounds * 100 / allRounds);
                         }
@@ -416,85 +423,85 @@ namespace ProductionsGameLauncher
         List<Thread> activeThreads;
         int maxActiveThreads = 10;
         //Вариант проигрывания игр турнира параллельно, работает в несколько раз быстрее чем линейный вариант, но больше затраты времени
-        public void playTournament(int numberOfRounds, List<Player> players)
-        {
-            //TODO change it if CPU usage is too big.
+        //public void playTournament(int numberOfRounds, List<Player> players)
+        //{
+        //    //TODO change it if CPU usage is too big.
 
-            activeThreads = new List<Thread>();
-            int finishedThreads = 0;
-            List<string> resultFilenames = new List<string>();
-            makeInactiveButtons();
-            tournamentProgressBar.Visibility = Visibility.Visible;
+        //    activeThreads = new List<Thread>();
+        //    int finishedThreads = 0;
+        //    List<string> resultFilenames = new List<string>();
+        //    makeInactiveButtons();
+        //    tournamentProgressBar.Visibility = Visibility.Visible;
 
-            int round = 0;
-            int firstIndex = 0, secondIndex = 0;
-            int playersNumber = players.Count;
-            int allRounds = playersNumber * playersNumber * numberOfRounds;
+        //    int round = 0;
+        //    int firstIndex = 0, secondIndex = 0;
+        //    int playersNumber = players.Count;
+        //    int allRounds = playersNumber * playersNumber * numberOfRounds;
 
-            if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
-                Directory.CreateDirectory(@"./logs/");
-            string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
-            if (!Directory.Exists(filename))
-                Directory.CreateDirectory(filename);
-            worker = new BackgroundWorker();
-            worker.WorkerReportsProgress = true;
-            worker.WorkerSupportsCancellation = true;
-            worker.DoWork += (sender, e) =>
-            {
-                while (round < numberOfRounds || activeThreads.Count != 0)
-                {
-                    //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
-                    while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
-                    {
-                        string currFilename = filename + round + "-" + firstIndex + "-" + secondIndex + ".txt";
-                        GameStart gameStart = new GameStart(gameSettings, currFilename, players[firstIndex].get(), players[secondIndex].get());
-                        resultFilenames.Add(currFilename);
-                        Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
-                        newGCThread.Start();
-                        activeThreads.Add(newGCThread);
-                        secondIndex++;
-                        if (secondIndex >= playersNumber)
-                        {
-                            firstIndex++;
-                            secondIndex = 0;
-                            if (firstIndex >= playersNumber)
-                            {
-                                round++;
-                                firstIndex = 0;
-                                secondIndex = 0;
-                            }
-                            continue;
-                        }
-                    }
-                    //освобождаем потоки/дожидаемся окончания работы всех потоков.
-                    for (int i = 0; i < activeThreads.Count;)
-                    {
-                        Thread thread = activeThreads[i];
-                        if (!thread.IsAlive)
-                        {
-                            activeThreads.RemoveAt(i);
-                            ++finishedThreads;
-                            worker.ReportProgress(finishedThreads * 100 / allRounds);
-                            continue;
-                        }
-                        ++i;
-                    }
-                    Thread.Sleep(500);
-                }
-            };
-            worker.ProgressChanged += (sender, e) =>
-            {
-                tournamentProgressBar.Value = e.ProgressPercentage;
-            };
-            worker.RunWorkerCompleted += (sender, e) =>
-            {
-                GameResultsWindow gameResultsWidow = new GameResultsWindow(resultFilenames);
-                this.Hide();
-                this.Close();
-                gameResultsWidow.ShowDialog();
-            };
-            worker.RunWorkerAsync();
-        }
+        //    if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
+        //        Directory.CreateDirectory(@"./logs/");
+        //    string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
+        //    if (!Directory.Exists(filename))
+        //        Directory.CreateDirectory(filename);
+        //    worker = new BackgroundWorker();
+        //    worker.WorkerReportsProgress = true;
+        //    worker.WorkerSupportsCancellation = true;
+        //    worker.DoWork += (sender, e) =>
+        //    {
+        //        while (round < numberOfRounds || activeThreads.Count != 0)
+        //        {
+        //            //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
+        //            while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
+        //            {
+        //                string currFilename = filename + round + "-" + firstIndex + "-" + secondIndex + ".txt";
+        //                GameStart gameStart = new GameStart(gameSettings, currFilename, players[firstIndex].get(), players[secondIndex].get());
+        //                resultFilenames.Add(currFilename);
+        //                Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
+        //                newGCThread.Start();
+        //                activeThreads.Add(newGCThread);
+        //                secondIndex++;
+        //                if (secondIndex >= playersNumber)
+        //                {
+        //                    firstIndex++;
+        //                    secondIndex = 0;
+        //                    if (firstIndex >= playersNumber)
+        //                    {
+        //                        round++;
+        //                        firstIndex = 0;
+        //                        secondIndex = 0;
+        //                    }
+        //                    continue;
+        //                }
+        //            }
+        //            //освобождаем потоки/дожидаемся окончания работы всех потоков.
+        //            for (int i = 0; i < activeThreads.Count;)
+        //            {
+        //                Thread thread = activeThreads[i];
+        //                if (!thread.IsAlive)
+        //                {
+        //                    activeThreads.RemoveAt(i);
+        //                    ++finishedThreads;
+        //                    worker.ReportProgress(finishedThreads * 100 / allRounds);
+        //                    continue;
+        //                }
+        //                ++i;
+        //            }
+        //            Thread.Sleep(500);
+        //        }
+        //    };
+        //    worker.ProgressChanged += (sender, e) =>
+        //    {
+        //        tournamentProgressBar.Value = e.ProgressPercentage;
+        //    };
+        //    worker.RunWorkerCompleted += (sender, e) =>
+        //    {
+        //        GameResultsWindow gameResultsWidow = new GameResultsWindow(resultFilenames);
+        //        this.Hide();
+        //        this.Close();
+        //        gameResultsWidow.ShowDialog();
+        //    };
+        //    worker.RunWorkerAsync();
+        //}
 
         //private void addPlayer(Grid grid, bool forTournament) {
 
@@ -676,7 +683,7 @@ namespace ProductionsGameLauncher
 
         public void start()
         {
-            ClassGameCompiler gc = new ClassGameCompiler(gameSettings, new Strategy[] { player1, player2 }, logFilename);
+            Game gc = new Game(gameSettings, new Strategy[] { player1, player2 });
             gc.play();
         }
     }

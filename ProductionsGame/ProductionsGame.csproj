@@ -55,16 +55,13 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassGameCompiler.cs" />
-    <Compile Include="ClassPlayerAdapter.cs" />
-    <Compile Include="GameCompiler.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="RandomProvider.cs" />
     <Compile Include="Strategy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PlayerAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -12,42 +12,34 @@ using System.Xml.Serialization;
 
 namespace ProductionsGameCore
 {
-    [Serializable]
-    public class GameSettings : ISerializable
+    public class GameSettings
     {
         public List<ProductionGroup> productions = new List<ProductionGroup>();
         public RandomSettings RandomSettings { get; private set; }
-        public bool IsBankShare { get; private set; }
-        public int NumberOfPlayers { get; private set; }
         public int NumberOfMoves { get; private set; }
         public int ProductionsCount { get { return productions.Count; } }
 
-        public GameSettings(bool isBankShare,
-            int numberOfPlayers,
-            int numberOfMoves,
+        public GameSettings(int numberOfMoves,
             IEnumerable<ProductionGroup> productions,
             RandomSettings randomSettings)
         {
-            IsBankShare = isBankShare;
             if (numberOfMoves <= 0)
                 throw new ArgumentException("Number of moves must be non-nagative number.");
             NumberOfMoves = numberOfMoves;
-            if (numberOfPlayers <= 0)
-                throw new ArgumentException("Number of players must be non-nagative number.");
-            NumberOfPlayers = numberOfPlayers;
             this.productions = productions.ToList();
             RandomSettings = randomSettings;
         }
 
-        public GameSettings(SerializationInfo info, StreamingContext context)
+        public GameSettings(int numberOfMoves,
+            Grammatic grammatic,
+            RandomSettings randomSettings)
         {
-            IsBankShare = (bool)info.GetValue("isBankShare", typeof(bool));
-            NumberOfMoves = (int)info.GetValue("numberOfMoves", typeof(int));
-            NumberOfPlayers = (int)info.GetValue("numberOfPlayers", typeof(int));
-            productions = (List<ProductionGroup>)info.GetValue("productions", typeof(List<ProductionGroup>));
-            RandomSettings = (RandomSettings)info.GetValue("randomSettings", typeof(RandomSettings));
+            if (numberOfMoves <= 0)
+                throw new ArgumentException("Number of moves must be non-nagative number.");
+            NumberOfMoves = numberOfMoves;
+            this.productions = grammatic.getProductions().ToList();
+            RandomSettings = randomSettings;
         }
-
 
         public ProductionGroup getProductionGroup(int index)
         {
@@ -82,8 +74,6 @@ namespace ProductionsGameCore
             {
                 throw new IOException("Input in wrong format.");
             }
-            bool isBankShare = XGameSettings.Attribute("IsBankShare").Value.Equals("true");
-            int numberOfPlayers = int.Parse(XGameSettings.Attribute("NumberOfPlayers").Value);
             int numberOfMoves = int.Parse(XGameSettings.Attribute("NumberOfMoves").Value);
 
             XElement XProductions = XGameSettings.Element("Productions");
@@ -103,7 +93,7 @@ namespace ProductionsGameCore
                 possibilities.Add(int.Parse(XPossibility.Value));
             RandomSettings randomSettings;
             randomSettings = new RandomSettings(totalPossibility, possibilities);
-            return new GameSettings(isBankShare, numberOfPlayers, numberOfMoves, productions, randomSettings);
+            return new GameSettings(numberOfMoves, productions, randomSettings);
         }
 
         public void WriteToFile(string filename)
@@ -120,16 +110,14 @@ namespace ProductionsGameCore
         {
 
             XElement XEGameSettings = new XElement("GameSettings");
-            XEGameSettings.Add(new XAttribute("IsBankShare", IsBankShare));
-            XEGameSettings.Add(new XAttribute("NumberOfPlayers", NumberOfPlayers));
             XEGameSettings.Add(new XAttribute("NumberOfMoves", NumberOfMoves));
-            { 
+            {
                 XElement XProductions = new XElement("Productions");
                 foreach (var production in productions)
                 {
                     XElement Xprod = new XElement("Production");
                     Xprod.Add(new XAttribute("Left", production.Left));
-                    
+
                     for (int i = 0; i < production.RightSize; ++i)
                         Xprod.Add(new XElement("Right", production.getRightAt(i)));
                     XProductions.Add(Xprod);
@@ -158,8 +146,6 @@ namespace ProductionsGameCore
 
         /// <summary>
         /// format :
-        /// [isBankShare]
-        /// [numberOfPlayers]
         /// [numberOfMoves]
         /// [numberOfProdustion]
         /// produstions in next [numberOFProdution] lines 1 production in one line
@@ -167,10 +153,7 @@ namespace ProductionsGameCore
         /// <returns></returns>
         public override string ToString()
         {
-            throw new NotImplementedException();
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(IsBankShare ? "1" : "0");
-            sb.AppendLine(NumberOfPlayers.ToString());
             sb.AppendLine(NumberOfMoves.ToString());
             sb.AppendLine(ProductionsCount.ToString());
             foreach (ProductionGroup pr in productions)
@@ -178,15 +161,6 @@ namespace ProductionsGameCore
                 sb.AppendLine(pr.ToString());
             }
             return sb.ToString();
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("isBankShare", IsBankShare, typeof(bool));
-            info.AddValue("numberOfMoves", NumberOfMoves, typeof(int));
-            info.AddValue("numberOfPlayers", NumberOfPlayers, typeof(int));
-            info.AddValue("productions", productions, typeof(List<ProductionGroup>));
-            info.AddValue("randomSettings", RandomSettings, typeof(RandomSettings));
         }
     }
 }

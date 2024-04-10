@@ -12,9 +12,10 @@ namespace ProductionsGame
     public abstract class Strategy
     {
         public string Name { get; protected set; }
-        public int PlayerNumber { get; private set; }
-        protected GameSettings Settings { get; private set; }
-        protected List<ProductionGroup> prods;
+        //public int PlayerNumber { get; private set; }
+        protected GameSettings GameSettings { get; private set; }
+        protected List<ProductionGroup> productions;
+        protected List<SimplifiedProductionGroup> simplifiedProductions;
         protected RandomSettings rs;
         private bool initialized = false;
 
@@ -23,40 +24,36 @@ namespace ProductionsGame
             Name = name;
         }
 
-        static Parameters getParameters() { 
+        static Parameters getParameters()
+        {
             return new Parameters();
         }
 
-        /// <summary>
-        /// Используется для начальной инициализации.
-        /// </summary>
-        public void firstInit(GameSettings gameSettings, int playerNumber)
+        public void setGameSettings(GameSettings gameSettings)
         {
-            if (!initialized)
-            {
-                this.Settings = gameSettings;
-                this.PlayerNumber = playerNumber;
-                this.initialized = true;
-                //this.Bank = new Bank(this.Settings.ProductionsCount);
-                //this.words = new List<List<string>>();
-                //for (int player = 0; player < this.Settings.NumberOfPlayers; ++player)
-                //    this.words.Add(new List<string>());
-                prods = this.Settings.GetProductions().ToList();
-                this.rs = this.Settings.RandomSettings;
-                beforeStart();
-            }
+            GameSettings = gameSettings;
+            productions = this.GameSettings.GetProductions().ToList();
+            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
+                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
+            this.rs = this.GameSettings.RandomSettings;
+            GameSettingsChanged.Invoke(this, null);
         }
 
         /// <summary>
-        /// Переопределить чтобы выполнить действие которое надо выполнить 1 раз перед запуском программы.
+        /// Subscribe this if it is necessary to perform some actions when game settigs change (count metric, etc.).
         /// </summary>
-        protected abstract void beforeStart();
+        protected event EventHandler GameSettingsChanged;
 
         /// <summary>
         /// Метод который надо переопределить чтобы сделать свою стратегию.
         /// </summary>
         /// <param name="productionNumber"></param>
-        public abstract Move makeMove(int productionNumber,int MoveNumber, List<List<string>> words, Bank bank);
+        public abstract Move makeMove(int playerNumber,
+            int MoveNumber,
+            int productionNumber,
+            List<List<string>> words,
+            List<List<SimplifiedWord>> simplifiedWords,
+            Bank bank);
 
         public override string ToString()
         {

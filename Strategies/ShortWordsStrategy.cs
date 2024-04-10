@@ -11,21 +11,21 @@ namespace Strategies
 {
     public class ShortWordsStrategy : Strategy
     {
-        List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
-        List<SimplifiedProductionGroup> simplifiedProds = new List<SimplifiedProductionGroup>();
         double[] netMetric;
         double[][] prodsMetric;
         int[] bestProd;
 
-        public ShortWordsStrategy():base("Short Words Strategy") { }
+        public ShortWordsStrategy():base("Short Words Strategy") { 
+            this.GameSettingsChanged += beforeStart;
+        }
 
-        protected override void beforeStart()
+        protected void beforeStart(object sender, EventArgs e)
         {
             //get the simplified form of productions
            
-            for (int i = 0; i < Settings.ProductionsCount; ++i)
-                simplifiedProds.Add(new SimplifiedProductionGroup(Settings.getProductionGroup(i)));
-            StrategyUtilitiesClass.countMetric(simplifiedProds, Settings, out netMetric, out prodsMetric);
+            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
+                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
+            StrategyUtilitiesClass.countMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
             bestProd = new int[netMetric.Length];
             for (int i = 0; i < bestProd.Length; ++i)
             {
@@ -34,7 +34,7 @@ namespace Strategies
                 {
                     if (maxMetric == -1 || prodsMetric[i][j] > maxMetric ||
                         prodsMetric[i][j] == maxMetric &&
-                        simplifiedProds[i].rights[j].terminals > simplifiedProds[i].rights[bestProd[j]].terminals)
+                        simplifiedProductions[i].rights[j].terminals > simplifiedProductions[i].rights[bestProd[j]].terminals)
                     {
                         maxMetric = prodsMetric[i][j];
                         bestProd[i] = j;
@@ -43,20 +43,24 @@ namespace Strategies
             }
         }
 
-        public override Move makeMove(int productionNumber, int MoveNumber, List<List<string>> words, Bank bank)
+        public override Move makeMove(int playerNumber,
+            int MoveNumber,
+            int productionNumber,
+            List<List<string>> words,
+            List<List<SimplifiedWord>> simplifiedWords,
+            Bank bank)
         {
+            
             Move move = new Move();
 
             //get simplified form of words
-            simpleWords.Clear();
-            foreach (var word in words[PlayerNumber])
-                simpleWords.Add(new SimplifiedWord(word));
+            List<SimplifiedWord> simpleWords = simplifiedWords[playerNumber];
 
             while (true)
             {
                 PrimaryMove primaryMove;
                 if (move.MovesCount == 0)
-                    primaryMove = findFirstMove(simpleWords, bank, productionNumber);
+                    primaryMove = findFirstMove(simpleWords, productionNumber);
                 else
                     primaryMove = findMove( simpleWords,  bank);
                 if (primaryMove != null)
@@ -65,7 +69,7 @@ namespace Strategies
                         bank.removeProduction(primaryMove.ProductionGroupNumber);
                     //make this move
                     move.addMove(primaryMove);
-                    StrategyUtilitiesClass.applyMove(primaryMove, simpleWords, simplifiedProds);
+                    StrategyUtilitiesClass.applyMove(primaryMove, simpleWords, simplifiedProductions);
                 }
                 else
                     break;
@@ -77,7 +81,7 @@ namespace Strategies
         {
             int prosuctionGroupNumber;
             List<List<int>> allowedWords = new List<List<int>>();
-            foreach (var pr in simplifiedProds)//find words allowed for productions
+            foreach (var pr in simplifiedProductions)//find words allowed for productions
             {
                 allowedWords.Add(StrategyUtilitiesClass.findMatches(simpleWords, pr.Left));
                 if (pr.Left == 'S')//if can create new word
@@ -88,7 +92,7 @@ namespace Strategies
             {
                 prosuctionGroupNumber = -1;
                 double maxMetric = -1;
-                for (int i = 0; i < simplifiedProds.Count; ++i)
+                for (int i = 0; i < simplifiedProductions.Count; ++i)
                     if (allowedWords[i].Count > 0 && bank.getProductionCount(i) > 0)
                         if (netMetric[i] > maxMetric)
                         {
@@ -99,7 +103,7 @@ namespace Strategies
                     return null;//not found production
             }
 
-            SimplifiedProductionGroup prod = simplifiedProds[prosuctionGroupNumber];
+            SimplifiedProductionGroup prod = simplifiedProductions[prosuctionGroupNumber];
             int productionNumber = bestProd[prosuctionGroupNumber];
             int wordNumber = -1;
             //select worfd with better metric
@@ -109,13 +113,13 @@ namespace Strategies
                 {
                     SimplifiedWord word;
                     if (allowedWords[prosuctionGroupNumber][i] == -1)
-                        word = new SimplifiedWord("" + simplifiedProds[prosuctionGroupNumber].Left);
+                        word = new SimplifiedWord("" + simplifiedProductions[prosuctionGroupNumber].Left);
                     else
                         word = simpleWords[allowedWords[prosuctionGroupNumber][i]];
                     double metric = StrategyUtilitiesClass.countWordMetric(word,
                         rs,
                         netMetric,
-                        simplifiedProds);
+                        simplifiedProductions);
                     if (metric > maxMetric)
                     {
                         maxMetric = metric;
@@ -127,10 +131,10 @@ namespace Strategies
             return new PrimaryMove(wordNumber, prosuctionGroupNumber, productionNumber);
         }
 
-        PrimaryMove findFirstMove(List<SimplifiedWord> simpleWords,Bank bank, int productionGroupNumber)
+        PrimaryMove findFirstMove(List<SimplifiedWord> simpleWords, int productionGroupNumber)
         {
             int groupNumber;
-            var prod = simplifiedProds[productionGroupNumber];
+            var prod = simplifiedProductions[productionGroupNumber];
             List<int> allowedWords = new List<int>();
 
             allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left);
@@ -150,13 +154,13 @@ namespace Strategies
                 {
                     SimplifiedWord word;
                     if (allowedWords[i] == -1)
-                        word = new SimplifiedWord("" + simplifiedProds[groupNumber].Left);
+                        word = new SimplifiedWord("" + simplifiedProductions[groupNumber].Left);
                     else
                         word = simpleWords[allowedWords[i]];
                     double metric = StrategyUtilitiesClass.countWordMetric(word,
                         rs,
                         netMetric,
-                        simplifiedProds);
+                        simplifiedProductions);
                     if (metric > maxMetric)
                     {
                         maxMetric = metric;

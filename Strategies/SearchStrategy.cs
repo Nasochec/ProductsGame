@@ -4,9 +4,11 @@ using StrategyUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 
 namespace Strategies
 {
@@ -17,12 +19,9 @@ namespace Strategies
         //TODO change it if this strategy works too long, or you want to make strategy better
         //max depth of search
         int maxDepth = 4;
-        List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
         double[] netMetric;
         double[][] prodsMetric;
-       
-        List<SimplifiedProductionGroup> simplifiedProds = new List<SimplifiedProductionGroup>();
-        List<double> wordsMetric = new List<double>();
+
 
         /// <summary>
         /// Gets parameter depth - septh of recursion in search.
@@ -33,36 +32,31 @@ namespace Strategies
             var param = parameters.getParameter("depth");
             if (param != null && param.Value >= 0)
                 maxDepth = param.Value;
+            this.GameSettingsChanged += beforeStart;
         }
 
-        protected override void beforeStart()
+        protected void beforeStart(object sender, EventArgs e) 
         {
-
-            //get the simplified form of productions
-
-            for (int i = 0; i < Settings.ProductionsCount; ++i)
-                simplifiedProds.Add(new SimplifiedProductionGroup(Settings.getProductionGroup(i)));
-
             //count metric of broductions
-
-            StrategyUtilitiesClass.countMetric(simplifiedProds, Settings, out netMetric, out prodsMetric);
+            StrategyUtilitiesClass.countMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
         }
 
-        public override Move makeMove(int productionNumber, int MoveNumber, List<List<string>> words, Bank bank)
+        public override Move makeMove(int playerNumber,
+            int MoveNumber,
+            int productionNumber,
+            List<List<string>> words,
+            List<List<SimplifiedWord>> simplifiedWords,
+            Bank bank)
         {
-            //get simplified form of words
-            simpleWords.Clear();
-            foreach (var word in words[PlayerNumber])
-            {
-                simpleWords.Add(new SimplifiedWord(word));
-            }
 
             Move move = new Move();
-
+            
+            List<double> wordsMetric =new List<double>();
             //count metric of all words
+            var simpleWords = simplifiedWords[playerNumber];
             wordsMetric.Clear();
-            for (int i = 0; i < simpleWords.Count; ++i)
-                wordsMetric.Add(StrategyUtilitiesClass.countWordMetric(simpleWords[i], Settings.RandomSettings, netMetric, simplifiedProds));
+            for (int i = 0; i < simplifiedWords.Count; ++i)
+                wordsMetric.Add(StrategyUtilitiesClass.countWordMetric(simpleWords[i], GameSettings.RandomSettings, netMetric, simplifiedProductions));
 
             Move mov = findFirstMove(simpleWords, wordsMetric, bank, productionNumber);
             if (mov != null && mov.MovesCount != 0)
@@ -106,21 +100,21 @@ namespace Strategies
                 string bMove;
                 double bMetric, bTerminals;
                 SimplifiedProductionGroup prod;
-                for (int prodIndex = 0; prodIndex < simplifiedProds.Count; ++prodIndex)
+                for (int prodIndex = 0; prodIndex < simplifiedProductions.Count; ++prodIndex)
                 {
                     if (bank.getProductionCount(prodIndex) <= 0) continue;
 
-                    prod = simplifiedProds[prodIndex];
-                    if (oldWord.getNeterminal(prod.Left) <= 0) continue;
+                    prod = simplifiedProductions[prodIndex];
+                    if (oldWord.getNonterminal(prod.Left) <= 0) continue;
                     found = true;
                     bank.removeProduction(prodIndex);
-                    oldWord.addNeterminal(prod.Left, -1);
+                    oldWord.addNonterminal(prod.Left, -1);
                     for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
                     {
 
                         oldWord.terminals += prod.rights[rightIndex].terminals;
-                        foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
-                            oldWord.addNeterminal(neterminal.Key, neterminal.Value);
+                        foreach (var neterminal in prod.rights[rightIndex].nonterminals)
+                            oldWord.addNonterminal(neterminal.Key, neterminal.Value);
 
                         currentMove.addMove(wordIndex, prodIndex, rightIndex);
                         searchMove(oldWord, wordIndex, bank,
@@ -134,16 +128,16 @@ namespace Strategies
                         currentMove.popMove();
 
                         oldWord.terminals -= prod.rights[rightIndex].terminals;
-                        foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
-                            oldWord.addNeterminal(neterminal.Key, -neterminal.Value);
+                        foreach (var neterminal in prod.rights[rightIndex].nonterminals)
+                            oldWord.addNonterminal(neterminal.Key, -neterminal.Value);
                     }
-                    oldWord.addNeterminal(prod.Left, 1);
+                    oldWord.addNonterminal(prod.Left, 1);
                     bank.addProduction(prodIndex);
                 }
             }
             if (!found)
             {
-                bestMetric = StrategyUtilitiesClass.countWordMetric(oldWord, rs, netMetric, simplifiedProds);
+                bestMetric = StrategyUtilitiesClass.countWordMetric(oldWord, rs, netMetric, simplifiedProductions);
                 bestMove = currentMove.ToString();
                 bestTerminals = oldWord.terminals;
             }
@@ -154,7 +148,7 @@ namespace Strategies
             )
         {
 
-            var prod = simplifiedProds[productionGroupNumber];
+            var prod = simplifiedProductions[productionGroupNumber];
             //fond allowed words
             List<int> allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left).ToList();
 
@@ -175,7 +169,7 @@ namespace Strategies
                 }
                 //if can create new word
                 if (prod.Left == 'S' &&
-                    maxMetric < StrategyUtilitiesClass.countWordMetric(new SimplifiedWord("S"), rs, netMetric, simplifiedProds))
+                    maxMetric < StrategyUtilitiesClass.countWordMetric(new SimplifiedWord("S"), rs, netMetric, simplifiedProductions))
                 {
                     maxIndex = -1;
                     word = new SimplifiedWord("S");
@@ -189,12 +183,12 @@ namespace Strategies
             //if we can create new word (production S->) 
             int newIndex = (maxIndex == -1 ? simpleWords.Count : maxIndex);
             //senumerate all productions what we can apply to the word
-            word.addNeterminal(prod.Left, -1);
+            word.addNonterminal(prod.Left, -1);
             for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
             {
                 word.terminals += prod.rights[rightIndex].terminals;
-                foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
-                    word.addNeterminal(neterminal.Key, neterminal.Value);
+                foreach (var neterminal in prod.rights[rightIndex].nonterminals)
+                    word.addNonterminal(neterminal.Key, neterminal.Value);
 
                 move.addMove(maxIndex, productionGroupNumber, rightIndex);
                 searchMove(word,
@@ -214,14 +208,14 @@ namespace Strategies
                 move.popMove();
 
                 word.terminals -= prod.rights[rightIndex].terminals;
-                foreach (var neterminal in prod.rights[rightIndex].neterminalsCount)
-                    word.addNeterminal(neterminal.Key, -neterminal.Value);
+                foreach (var neterminal in prod.rights[rightIndex].nonterminals)
+                    word.addNonterminal(neterminal.Key, -neterminal.Value);
             }
-            word.addNeterminal(prod.Left, 1);
+            word.addNonterminal(prod.Left, 1);
 
             move = Move.FromString(bestMove);
             bank.addProduction(productionGroupNumber);
-            StrategyUtilitiesClass.applyMove(move, bank, word, simplifiedProds);
+            StrategyUtilitiesClass.applyMove(move, bank, word, simplifiedProductions);
             return move;
         }
 
@@ -235,10 +229,10 @@ namespace Strategies
             List<int> allowedIndexes = new List<int>();
             for (int i = 0; i < simpleWords.Count; i++)
             {
-                for (int prodIndex = 0; prodIndex < simplifiedProds.Count; ++prodIndex)
+                for (int prodIndex = 0; prodIndex < simplifiedProductions.Count; ++prodIndex)
                 {
-                    var prod = simplifiedProds[prodIndex];
-                    if (simpleWords[i].getNeterminal(prod.Left) > 0 && bank.getProductionCount(prodIndex) > 0)
+                    var prod = simplifiedProductions[prodIndex];
+                    if (simpleWords[i].getNonterminal(prod.Left) > 0 && bank.getProductionCount(prodIndex) > 0)
                         allowedIndexes.Add(i);
                 }
             }
@@ -254,7 +248,7 @@ namespace Strategies
                     double metric = StrategyUtilitiesClass.countWordMetric(word,
                         rs,
                         netMetric,
-                        simplifiedProds);
+                        simplifiedProductions);
                     if (metric > maxMetric && metric != 1)
                     {
                         maxMetric = metric;
@@ -272,7 +266,7 @@ namespace Strategies
                 out bestTerminals);
             Move move1 = Move.FromString(bestMove);
             wordsMetric[wordNumber] = bestMetric;
-            StrategyUtilitiesClass.applyMove(move1, bank, simpleWords[wordNumber], simplifiedProds);
+            StrategyUtilitiesClass.applyMove(move1, bank, simpleWords[wordNumber], simplifiedProductions);
             return move1;
         }
     }

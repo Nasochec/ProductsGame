@@ -29,8 +29,7 @@ namespace ProductionsGameLauncher
     public partial class GameResultsWindow : Window
     {
         //файлы стратегий игроков
-        List<string> playersFilenames;
-        List<string> shortPlayersFilenames;
+        List<string> playersNames;
 
         //файлы результатов раундов игркоков
         //List<string> resultFilenames = new List<string>();
@@ -66,46 +65,44 @@ namespace ProductionsGameLauncher
             SelectedFilesListBox.ItemsSource = results;
         }
 
-        public GameResultsWindow(List<string> resultFilenames)
-        {
-            InitializeComponent();
-            this.results = new ObservableCollection<GameResult>();
-            addResults(resultFilenames);
-            fillGameResults();
-            fillDataGrid();
-            SelectedFilesListBox.SelectionMode = SelectionMode.Single;
-            SelectedFilesListBox.ItemsSource = this.results;
-        }
+        //public GameResultsWindow(List<string> resultFilenames)
+        //{
+        //    InitializeComponent();
+        //    this.results = new ObservableCollection<GameResult>();
+        //    addResults(resultFilenames);
+        //    fillGameResults();
+        //    fillDataGrid();
+        //    SelectedFilesListBox.SelectionMode = SelectionMode.Single;
+        //    SelectedFilesListBox.ItemsSource = this.results;
+        //}
 
-        private void addResults(IEnumerable<string> filenames)
-        {
-            foreach (var fname in filenames)
-                addResults(fname);
-        }
+        //private void addResults(IEnumerable<string> filenames)
+        //{
+        //    foreach (var fname in filenames)
+        //        addResults(fname);
+        //}
 
-        private void addResults(string filename)
+        private void addResults(Game game)
         {
-            results.Add(new GameResult(filename));
+            results.Add(new GameResult(game));
         }
 
         public void fillGameResults()
         {
             List<GameResult> results = new List<GameResult>();
             playersToInt = new Dictionary<string, int>();
-            playersFilenames = new List<string>();
-            shortPlayersFilenames = new List<string>();
+            playersNames = new List<string>();
             foreach (var s in this.results)
             {
                 GameResult rez = s;
-                if (rez.playersScores.Count != 2 || rez.playersFilenames.Count != 2)
+                if (rez.playersScores.Count != 2 || rez.playersNames.Count != 2)
                     continue;
                 results.Add(rez);
                 for (int i = 0; i < 2; ++i)//находим всех игроков встречавшихся в логирующих файла
-                    if (!playersToInt.ContainsKey(rez.playersFilenames[i]))
+                    if (!playersToInt.ContainsKey(rez.playersNames[i]))
                     {
-                        playersToInt.Add(rez.playersFilenames[i], playersToInt.Count);
-                        playersFilenames.Add(rez.playersFilenames[i]);
-                        shortPlayersFilenames.Add(rez.shortPlayersFilanames[i]);
+                        playersToInt.Add(rez.playersNames[i], playersToInt.Count);
+                        playersNames.Add(rez.playersNames[i]);
                     }
             }
 
@@ -117,8 +114,8 @@ namespace ProductionsGameLauncher
             gamesCount = new int[playersCount, playersCount];
             foreach (var rez in results)
             {
-                int f = playersToInt[rez.playersFilenames[0]];
-                int s = playersToInt[rez.playersFilenames[1]];
+                int f = playersToInt[rez.playersNames[0]];
+                int s = playersToInt[rez.playersNames[1]];
                 ++gamesCount[f, s];
                 firstPlayerScore[f, s] += rez.playersScores[0];
                 secondPlayerScore[f, s] += rez.playersScores[1];
@@ -160,7 +157,7 @@ namespace ProductionsGameLauncher
                     if (gamesCount[i, j] != 0)
                     {
                         row = dt.NewRow();
-                        row[0] = shortPlayersFilenames[i] + " vs. " + shortPlayersFilenames[j];
+                        row[0] = playersNames[i] + " vs. " + playersNames[j];
                         row[1] = gamesCount[i, j];
                         row[2] = firstPlayerMeanScore[i, j];
                         row[3] = secondPlayerMeanScore[i, j];
@@ -223,18 +220,18 @@ namespace ProductionsGameLauncher
             return -1;
         }
 
-        private void addFilesButton_Click(object sender, RoutedEventArgs e)
-        {
-            IEnumerable<string> selectedFiles = showChoseFilesDialog("Text document (.txt)|*.txt");
-            foreach (var item in selectedFiles)
-                addResults(item);
-            if (selectedFiles.Count() != 0)
-            {
-                fillGameResults();
-                fillDataGrid();
-            }
+        //private void addFilesButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    IEnumerable<string> selectedFiles = showChoseFilesDialog("Text document (.txt)|*.txt");
+        //    foreach (var item in selectedFiles)
+        //        addResults(item);
+        //    if (selectedFiles.Count() != 0)
+        //    {
+        //        fillGameResults();
+        //        fillDataGrid();
+        //    }
 
-        }
+        //}
 
 
         private IEnumerable<string> showChoseFilesDialog(string filter)
@@ -260,16 +257,16 @@ namespace ProductionsGameLauncher
             return fname;
         }
 
-        private void sookSelectedGameButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (SelectedFilesListBox.SelectedItem == null) {
-                MessageBox.Show("Не один файл не выбран!");
-                return;
-            }
-            GameResult rez = SelectedFilesListBox.SelectedItem as GameResult;
-            LookGame lg = new LookGame(rez.filename);
-            lg.ShowDialog();
-        }
+        //private void sookSelectedGameButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (SelectedFilesListBox.SelectedItem == null) {
+        //        MessageBox.Show("Не один файл не выбран!");
+        //        return;
+        //    }
+        //    GameResult rez = SelectedFilesListBox.SelectedItem as GameResult;
+        //    LookGame lg = new LookGame(rez.filename);
+        //    lg.ShowDialog();
+        //}
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
