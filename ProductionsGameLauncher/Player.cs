@@ -22,6 +22,11 @@ namespace ProductionsGameLauncher
             this.Parameters = parameters;
         }
 
+        //public Player(Player player) { 
+        //    Name = player.Name;
+        //    this.player = player.player;
+        //    this.Parameters = new Parameters(player.Parameters);
+        //}
 
         public Strategy get() {
             return player(Parameters);

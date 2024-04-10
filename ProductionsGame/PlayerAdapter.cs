@@ -161,6 +161,7 @@ namespace ProductionsGame
             {
                 log.WriteLine("ERROR");
                 log.WriteLine("Программа заранее завершила работу из-за игрока" + PlayerNumber + ":" + ex.Message);
+                log.WriteLine(ex.StackTrace);
                 log.WriteLine("Конфигурация, на которой произошла ошибка: ");
                 Finished = true;
             }

@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9E92B2E2-2E12-4440-8A2D-AA3E7F81B837}"
 	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
 		resources\task.png = resources\task.png
 		tasks.txt = tasks.txt
 	EndProjectSection

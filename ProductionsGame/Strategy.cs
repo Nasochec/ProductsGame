@@ -11,15 +11,20 @@ namespace ProductionsGame
 {
     public abstract class Strategy
     {
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
         public int PlayerNumber { get; private set; }
         protected GameSettings Settings { get; private set; }
         protected List<ProductionGroup> prods;
+        protected RandomSettings rs;
         private bool initialized = false;
 
         protected Strategy(string name)
         {
             Name = name;
+        }
+
+        static Parameters getParameters() { 
+            return new Parameters();
         }
 
         /// <summary>
@@ -37,6 +42,7 @@ namespace ProductionsGame
                 //for (int player = 0; player < this.Settings.NumberOfPlayers; ++player)
                 //    this.words.Add(new List<string>());
                 prods = this.Settings.GetProductions().ToList();
+                this.rs = this.Settings.RandomSettings;
                 beforeStart();
             }
         }

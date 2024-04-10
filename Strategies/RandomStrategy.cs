@@ -12,7 +12,7 @@ namespace Strategies
 {
     public class RandomStrategy : Strategy
     {
-        private Random random;
+        protected Random random;
 
 
         public RandomStrategy() : base("Random Strategy")
@@ -32,9 +32,9 @@ namespace Strategies
             {
                 PrimaryMove primaryMove;
                 if (move.MovesCount == 0)//make first move
-                    primaryMove = findFirstMove(random, words[PlayerNumber], prods, productionNumber);
+                    primaryMove = findFirstMove(words[PlayerNumber], productionNumber);
                 else//make move from bank
-                    primaryMove = findMove(random, words[PlayerNumber], prods, bank);
+                    primaryMove = findMove(words[PlayerNumber], bank);
 
                 //make this move
                 if (primaryMove != null)
@@ -51,7 +51,7 @@ namespace Strategies
         }
 
 
-        PrimaryMove findFirstMove(Random random, List<string> words, List<ProductionGroup> prods, int productionGroupNumber)
+        protected virtual PrimaryMove findFirstMove(List<string> words, int productionGroupNumber)
         {
             List<int> allowedWords = new List<int>();
 
@@ -70,7 +70,7 @@ namespace Strategies
             return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);
         }
 
-        PrimaryMove findMove(Random random, List<string> words, List<ProductionGroup> prods, Bank bank)
+        protected virtual PrimaryMove findMove(List<string> words, Bank bank)
         {
             List<List<int>> allowedWords = new List<List<int>>();
             int productionGroupNumber;

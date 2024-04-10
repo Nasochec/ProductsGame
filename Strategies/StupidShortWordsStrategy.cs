@@ -56,9 +56,9 @@ namespace Strategies
             {
                 PrimaryMove primaryMove;
                 if (move.MovesCount == 0)//make first move
-                    primaryMove = findFirstMove(simplifiedProds, simpleWords, bank, netMetric, bestProd, productionNumber);
+                    primaryMove = findFirstMove(simpleWords, bank, productionNumber);
                 else//make move from bank
-                    primaryMove = findMove(simplifiedProds, simpleWords, bank, netMetric, bestProd);
+                    primaryMove = findMove(simpleWords, bank);
 
                 if (primaryMove != null)
                 {
@@ -74,11 +74,11 @@ namespace Strategies
             return move;
         }
 
-        PrimaryMove findMove(List<SimplifiedProductionGroup> prods, List<SimplifiedWord> simpleWords, Bank bank, int[] netMetric, int[] bestProd)
+        PrimaryMove findMove(List<SimplifiedWord> simpleWords, Bank bank)
         {
             int groupNumber;
             List<List<int>> allowedWords = new List<List<int>>();
-            foreach (var pr in prods)//find words allowed for productions
+            foreach (var pr in simplifiedProds)//find words allowed for productions
             {
                 allowedWords.Add(StrategyUtilitiesClass.findMatches(simpleWords, pr.Left));
                 if (pr.Left == 'S')//if can create new word
@@ -89,7 +89,7 @@ namespace Strategies
             {//find production with better metric
                 groupNumber = -1;
                 int minMetric = int.MaxValue;
-                for (int i = 0; i < prods.Count; ++i)
+                for (int i = 0; i < simplifiedProds.Count; ++i)
                     if (allowedWords[i].Count > 0 && bank.getProductionCount(i) > 0)
                         if (netMetric[i] < minMetric)
                         {
@@ -100,7 +100,7 @@ namespace Strategies
                     return null;//not found production
             }
 
-            SimplifiedProductionGroup prod = prods[groupNumber];
+            SimplifiedProductionGroup prod = simplifiedProds[groupNumber];
             int productionNumber = bestProd[groupNumber];
             int wordNumber = -1;
             //select worfd with better metric
@@ -110,7 +110,7 @@ namespace Strategies
                 {
                     SimplifiedWord word;
                     if (allowedWords[groupNumber][i] == -1)
-                        word = new SimplifiedWord("" + prods[groupNumber].Left);
+                        word = new SimplifiedWord("" + simplifiedProds[groupNumber].Left);
                     else
                         word = simpleWords[allowedWords[groupNumber][i]];
                     int metric = StrategyUtilitiesClass.countWordStupidMetric(word);
@@ -125,10 +125,10 @@ namespace Strategies
             return new PrimaryMove(wordNumber, groupNumber, productionNumber);
         }
 
-        PrimaryMove findFirstMove(List<SimplifiedProductionGroup> prods, List<SimplifiedWord> simpleWords, Bank bank, int[] netMetric, int[] bestProd, int productionGroupNumber)
+        PrimaryMove findFirstMove(List<SimplifiedWord> simpleWords, Bank bank,int productionGroupNumber)
         {
             int groupNumber;
-            var prod = prods[productionGroupNumber];
+            var prod = simplifiedProds[productionGroupNumber];
             List<int> allowedWords = new List<int>();
             allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left);
             if (prod.Left == 'S')//if can create new word
@@ -147,7 +147,7 @@ namespace Strategies
                 {
                     SimplifiedWord word;
                     if (allowedWords[i] == -1)
-                        word = new SimplifiedWord("" + prods[groupNumber].Left);
+                        word = new SimplifiedWord("" + simplifiedProds[groupNumber].Left);
                     else
                         word = simpleWords[allowedWords[i]];
                     int metric = StrategyUtilitiesClass.countWordStupidMetric(word);

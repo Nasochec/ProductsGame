@@ -2,6 +2,7 @@
 using StrategyUtilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,7 +97,7 @@ namespace StrategyUtilities
         }
 
         public static double countWordMetric(SimplifiedWord word,
-            RandomSettings rs, 
+            RandomSettings rs,
             double[] netMetric,
             List<SimplifiedProductionGroup> productions)
         {

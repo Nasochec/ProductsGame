@@ -81,8 +81,10 @@ namespace ProductionsGameLauncher
             //TODO Дописать сюда если хотите добавить свою стратегию
             players = new List<Player>();
             players.Add(new Player("Случайная стратегия", (param) => new RandomStrategy()));
+            players.Add(new Player("Умная случайная стратегия", (param) => new SmartRandomStrategy()));
             players.Add(new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()));
             players.Add(new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()));
+            
 
             Parameters searchParameters = new Parameters();
             searchParameters.addParameter("depth","Глубина перебора", 4);
@@ -91,11 +93,21 @@ namespace ProductionsGameLauncher
                 searchParameters)
                 );
 
+            Parameters mixedParameters = new Parameters();
+            mixedParameters.addParameter("depth", "Глубина перебора", 4);
+            mixedParameters.addParameter("randomProb", "Вес случайной стратегии", 1);
+            mixedParameters.addParameter("searchProb", "Вес переборной стратегии", 1);
+            mixedParameters.addParameter("shortProb", "Вес стратегии коротких слов", 1);
+            players.Add(new Player("Смешанная стратегия",
+                (param) => new MixedStrategy(param),
+                mixedParameters)
+                );
+
             guiPlayer = new Player("Графический интерфейс", (param) => new GUIStrategyClass());
 
-            for (int i = 1; i <= 7; i++)
-                depthSelectComboBox.Items.Add(i);
-            depthSelectComboBox.SelectedValue = 4;
+            //for (int i = 1; i <= 7; i++)
+            //    depthSelectComboBox.Items.Add(i);
+            //depthSelectComboBox.SelectedValue = 4;
             //depthSelectComboBox.SelectionChanged += (sender, e) => { searchPlayer.setParameter(depthSelectComboBox.SelectedValue.ToString()); };
 
             for (int i = 1; i <= 4; i++)
@@ -210,6 +222,23 @@ namespace ProductionsGameLauncher
             Grid.SetRow(playerDeleteButton, row);
             Grid.SetColumn(playerDeleteButton, 2);
             TournamentPlayersGrid.Children.Add(playerDeleteButton);
+            Button button = new Button();
+            button.Content = "Настроить";
+            button.Click += (sender, e) =>
+            {
+                Player p = null;
+                int roww = Grid.GetRow(sender as Button);
+                foreach (UIElement item in TournamentPlayersGrid.Children)
+                    if (Grid.GetRow(item) == row && Grid.GetColumn(item) == 1)
+                        p = (item as ComboBox).SelectedItem as Player;
+                if (p == null) return;
+                if (p.Parameters == null) return;
+                ParametersWindow win = new ParametersWindow(p.Parameters);
+                win.ShowDialog();
+            };
+            Grid.SetRow(button, row);
+            Grid.SetColumn(button, 3);
+            TournamentPlayersGrid.Children.Add(button);
             //showDepthSelect();
 
         }

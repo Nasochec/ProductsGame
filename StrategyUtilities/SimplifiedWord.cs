@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace StrategyUtilities
 {
@@ -43,6 +44,10 @@ namespace StrategyUtilities
             if (!neterminalsCount.ContainsKey(c))
                 neterminalsCount[c] = 0;
             return neterminalsCount[c];
+        }
+
+        public IEnumerable<KeyValuePair<char,int>> getNeterminals() {
+            return neterminalsCount.AsEnumerable();
         }
     }
 }

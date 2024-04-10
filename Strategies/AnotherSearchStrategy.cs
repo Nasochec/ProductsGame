@@ -4,35 +4,119 @@ using StrategyUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Strategies
 {
-    public class SearchStrategy : Strategy
+    public class AnotherSearchStrategy : Strategy
     {
-        //TODO add parameters for strategies for depth of search and for wieghts of combined strategy
-
-        //TODO change it if this strategy works too long, or you want to make strategy better
-        //max depth of search
         int maxDepth = 4;
         List<SimplifiedWord> simpleWords = new List<SimplifiedWord>();
+
         double[] netMetric;
         double[][] prodsMetric;
-       
+
         List<SimplifiedProductionGroup> simplifiedProds = new List<SimplifiedProductionGroup>();
         List<double> wordsMetric = new List<double>();
 
+        List<KeyValuePair<int, int>> redux = new List<KeyValuePair<int, int>>();// productions of type A->ab Nonterminal->Terminals
+        List<KeyValuePair<int, int>> recursion = new List<KeyValuePair<int, int>>();//productions of type A->*A*
+        List<KeyValuePair<int, int>> other = new List<KeyValuePair<int, int>>();
+
+        
         /// <summary>
         /// Gets parameter depth - septh of recursion in search.
         /// </summary>
         /// <param name="parameters"></param>
-        public SearchStrategy(Parameters parameters) : base("Search Strategy")
+        public AnotherSearchStrategy(Parameters parameters) : base("Another Search Strategy")
         {
             var param = parameters.getParameter("depth");
             if (param != null && param.Value >= 0)
                 maxDepth = param.Value;
+        }
+
+        static bool eq(SimplifiedWord w1, SimplifiedWord w2) {
+            var nonterminals = w1.getNeterminals();
+            foreach (var nonterminal in nonterminals) { 
+                if(w2.getNeterminal(nonterminal.Key)!= nonterminal.Value)
+                    return false;
+            }
+            return true;
+        }
+
+        static bool beq(SimplifiedWord w1, SimplifiedWord w2) {
+            var nonterminals = w1.getNeterminals();
+            foreach (var nonterminal in nonterminals)
+            {
+                if (nonterminal.Value < w2.getNeterminal(nonterminal.Key))
+                    return false;
+            }
+            return true;
+        }
+
+        public class Pair<T, U>
+        {
+            public Pair()
+            {
+            }
+
+            public Pair(T first, U second)
+            {
+                this.First = first;
+                this.Second = second;
+            }
+
+            public T First { get; set; }
+            public U Second { get; set; }
+        };
+
+        void dfs(List<SimplifiedWord> trail, List<Pair<int, int>> prodTrail) {
+            var w = new SimplifiedWord(trail.Last());
+            if (trail.Count > 1)
+            {
+                if (eq(w, trail.First()))
+                {
+                    Console.WriteLine(prodTrail.Count);
+                }
+                for (int i = 1; i < trail.Count; ++i)
+                    if (beq(w, trail[i]))
+                        return;
+            }
+
+            prodTrail.Add(new Pair<int, int>(0, 0));
+            trail.Add(w);
+            for(int i=0;i<simplifiedProds.Count;++i) {
+                if (trail.Last().getNeterminal(simplifiedProds[i].Left) < 1)//checked can be applied
+                    continue;
+                
+                w.addNeterminal(simplifiedProds[i].Left, -1);
+                prodTrail.Last().First = i;
+
+                for (int j = 0; j < simplifiedProds[i].rights.Count; ++j) {
+                    prodTrail.Last().Second = j;
+                    w.terminals += simplifiedProds[i].rights[j].terminals; 
+                    foreach (var nonterminal in simplifiedProds[i].rights[j].getNeterminals())
+                        w.addNeterminal(nonterminal.Key, nonterminal.Value);
+
+                    dfs(trail,prodTrail);
+
+                    w.terminals -= simplifiedProds[i].rights[j].terminals;
+                    foreach (var nonterminal in simplifiedProds[i].rights[j].getNeterminals())
+                        w.addNeterminal(nonterminal.Key, -nonterminal.Value);
+                }
+                w.addNeterminal(simplifiedProds[i].Left, +1);
+            }
+            prodTrail.RemoveAt(prodTrail.Count - 1);
+            trail.RemoveAt(trail.Count - 1);
+        }
+
+        protected void findCycles() { 
+            /*
+             * Ищем новые состояния, сравничаем по ко-ву нетерминалов, если текущее положение рвно или больше по всем нетерминалам (кроме начального) прерываем рассмотрение, откатываемся назад по дереву отхода
+             * Почем? - потому что нам необходимо для нахождения цикла придти к начальному терминалу, значит уже имеющиеся нетермналы надо сократить, а получая ещё больше таких нетерминалов, мы не будем приближаться, а лишь дальше уходить
+             * 
+             */
         }
 
         protected override void beforeStart()

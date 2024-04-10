@@ -12,6 +12,9 @@ namespace ProductionsGame
         List<Parameter> parameters = new List<Parameter>();
         public Parameters() { }
 
+        //public Parameters(List<Parameter>  parameters) {
+        //    this.parameters.AddRange(parameters);
+        //}
 
         public void addParameter(string id, string name, int defaultValue)
         {

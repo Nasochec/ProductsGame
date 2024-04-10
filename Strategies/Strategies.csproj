@@ -41,11 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnotherSearchStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomStrategy.cs" />
     <Compile Include="SearchStrategy.cs" />
     <Compile Include="ShortWordsStrategy.cs" />
+    <Compile Include="SmartRandomStrategy.cs" />
     <Compile Include="StupidShortWordsStrategy.cs" />
+    <Compile Include="MixedStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
