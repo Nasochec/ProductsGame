@@ -55,7 +55,7 @@ namespace Strategies
             //count metric of all words
             var simpleWords = simplifiedWords[playerNumber];
             wordsMetric.Clear();
-            for (int i = 0; i < simplifiedWords.Count; ++i)
+            for (int i = 0; i < simpleWords.Count; ++i)
                 wordsMetric.Add(StrategyUtilitiesClass.countWordMetric(simpleWords[i], GameSettings.RandomSettings, netMetric, simplifiedProductions));
 
             Move mov = findFirstMove(simpleWords, wordsMetric, bank, productionNumber);

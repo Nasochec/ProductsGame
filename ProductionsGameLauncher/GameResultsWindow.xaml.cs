@@ -34,11 +34,9 @@ namespace ProductionsGameLauncher
         //файлы результатов раундов игркоков
         //List<string> resultFilenames = new List<string>();
 
-        ObservableCollection<GameResult> results;
+        ObservableCollection<FileGameResult> results;
 
         Dictionary<string, int> playersToInt;
-
-
 
         //в firstPlayerScores[i,j] - сумма очков игрока i, в игре где игрок i - ходит первым, а j - вторым
         //в secondPlayerScores[i,j] - сумма очков игрока j, в игре где игрок i - ходит первым, а j - вторым
@@ -60,41 +58,47 @@ namespace ProductionsGameLauncher
         public GameResultsWindow()
         {
             InitializeComponent();
-            results = new ObservableCollection<GameResult>();
+            results = new ObservableCollection<FileGameResult>();
             SelectedFilesListBox.SelectionMode = SelectionMode.Single;
             SelectedFilesListBox.ItemsSource = results;
         }
 
-        //public GameResultsWindow(List<string> resultFilenames)
-        //{
-        //    InitializeComponent();
-        //    this.results = new ObservableCollection<GameResult>();
-        //    addResults(resultFilenames);
-        //    fillGameResults();
-        //    fillDataGrid();
-        //    SelectedFilesListBox.SelectionMode = SelectionMode.Single;
-        //    SelectedFilesListBox.ItemsSource = this.results;
-        //}
-
-        //private void addResults(IEnumerable<string> filenames)
-        //{
-        //    foreach (var fname in filenames)
-        //        addResults(fname);
-        //}
-
-        private void addResults(Game game)
+        public GameResultsWindow(List<string> resultFilenames)
         {
-            results.Add(new GameResult(game));
+            InitializeComponent();
+            this.results = new ObservableCollection<FileGameResult>();
+            addResults(resultFilenames);
+            fillGameResults();
+            fillDataGrid();
+            SelectedFilesListBox.SelectionMode = SelectionMode.Single;
+            SelectedFilesListBox.ItemsSource = this.results;
+        }
+
+        private void addResults(IEnumerable<string> filenames)
+        {
+            foreach (var fname in filenames)
+                addResults(fname);
+        }
+
+        //private void addResults(Game game)
+        //{
+        //    results.Add(new GameResult(game));
+        //}
+
+        private void addResults(string filename)
+        {
+            results.Add(new FileGameResult(filename));
         }
 
         public void fillGameResults()
         {
-            List<GameResult> results = new List<GameResult>();
+            List<FileGameResult> results = new List<FileGameResult>();
             playersToInt = new Dictionary<string, int>();
             playersNames = new List<string>();
+            //находим всех игроков
             foreach (var s in this.results)
             {
-                GameResult rez = s;
+                FileGameResult rez = s;
                 if (rez.playersScores.Count != 2 || rez.playersNames.Count != 2)
                     continue;
                 results.Add(rez);
@@ -119,9 +123,9 @@ namespace ProductionsGameLauncher
                 ++gamesCount[f, s];
                 firstPlayerScore[f, s] += rez.playersScores[0];
                 secondPlayerScore[f, s] += rez.playersScores[1];
-                if(rez.winner==0)
+                if(rez.winner==Game.Winner.First)
                     firstPlayerWin[f, s]++;
-                else if (rez.winner==1)
+                else if (rez.winner == Game.Winner.Second)
                     secondPlayerWin[f, s]++;
 
             }
@@ -180,6 +184,7 @@ namespace ProductionsGameLauncher
         private void writeToFile() {
             StreamWriter sf = new StreamWriter("./out.txt");
             int[] trueIndexes = new int[4];
+            //TODO change
             trueIndexes[0] = find(" ./RandomStrategy.exe");
             trueIndexes[1] = find(" ./StupidShortWordsStrategy.exe");
             trueIndexes[2] = find(" ./ShortWordsStrategy.exe");
@@ -220,18 +225,18 @@ namespace ProductionsGameLauncher
             return -1;
         }
 
-        //private void addFilesButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    IEnumerable<string> selectedFiles = showChoseFilesDialog("Text document (.txt)|*.txt");
-        //    foreach (var item in selectedFiles)
-        //        addResults(item);
-        //    if (selectedFiles.Count() != 0)
-        //    {
-        //        fillGameResults();
-        //        fillDataGrid();
-        //    }
+        private void addFilesButton_Click(object sender, RoutedEventArgs e)
+        {
+            IEnumerable<string> selectedFiles = showChoseFilesDialog("Text document (.txt)|*.txt");
+            foreach (var item in selectedFiles)
+                addResults(item);
+            if (selectedFiles.Count() != 0)
+            {
+                fillGameResults();
+                fillDataGrid();
+            }
 
-        //}
+        }
 
 
         private IEnumerable<string> showChoseFilesDialog(string filter)
@@ -257,16 +262,17 @@ namespace ProductionsGameLauncher
             return fname;
         }
 
-        //private void sookSelectedGameButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (SelectedFilesListBox.SelectedItem == null) {
-        //        MessageBox.Show("Не один файл не выбран!");
-        //        return;
-        //    }
-        //    GameResult rez = SelectedFilesListBox.SelectedItem as GameResult;
-        //    LookGame lg = new LookGame(rez.filename);
-        //    lg.ShowDialog();
-        //}
+        private void sookSelectedGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedFilesListBox.SelectedItem == null)
+            {
+                MessageBox.Show("Не один файл не выбран!");
+                return;
+            }
+            FileGameResult rez = SelectedFilesListBox.SelectedItem as FileGameResult;
+            LookGame lg = new LookGame(rez.filename);
+            lg.ShowDialog();
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

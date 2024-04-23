@@ -19,13 +19,19 @@ namespace ProductionsGameLauncher
         public GameSettings GameSettings { get; protected set; }
         public int currentMoveNumber { get; protected set; }
         public int currentPlayer { get; protected set; }
+        public List<string> playersNames { get; protected set;}
         protected List<string>[] playerWords { get; set; }
         protected Move currentMove;
         protected List<StrategicPrimaryMove> currentStrategicMove;
         protected Bank currentBank;
         public int currentProductionGroup { get; protected set; }
 
-        public abstract void moveNext();
+        public bool IsGameFailed { get; protected set; } = false;
+        public int failedMoveNumber { get; protected set; } = -1;
+        public int failedPlayer { get; protected set; } = -1;
+        string message = null;
+
+        public abstract bool moveNext();
 
         public abstract void movePrev();
 
@@ -39,6 +45,11 @@ namespace ProductionsGameLauncher
             return currentMove.getMoves();
         }
 
+        public string getErrorMessage()
+        {
+            return message;
+        }
+
         public IEnumerable<StrategicPrimaryMove> getStrategicMove()
         {
             return currentStrategicMove;
@@ -47,8 +58,10 @@ namespace ProductionsGameLauncher
         public bool hasNextMove()
         {
             return !(currentMoveNumber >= GameSettings.NumberOfMoves ||
-                    currentMoveNumber == GameSettings.NumberOfMoves - 1 &&
-                    currentPlayer > 2);//TODO suspect
+                    currentMoveNumber == GameSettings.NumberOfMoves - 1 && currentPlayer >= 1) //TODO suspect
+                    && !(IsGameFailed && (currentMoveNumber > failedMoveNumber //номер хода больше (потенциально невозиожно)
+                        || currentMoveNumber == failedMoveNumber && currentPlayer >= failedPlayer - 1//текущий ход сломан следующим игроком
+                        || currentMoveNumber == failedMoveNumber - 1 && failedPlayer == 0 && currentPlayer == 1));//сследующий ход сломан первым игроком
         }
 
         public bool hasPrevMove()
@@ -59,6 +72,40 @@ namespace ProductionsGameLauncher
         public IEnumerable<string> getPlayerWords(int index)
         {
             return playerWords[index];
+        }
+
+        protected void nextIndexes() {
+            if (currentMoveNumber == -1)
+            {
+                currentMoveNumber = 0;
+                currentPlayer = 0;
+            }
+            else
+            {
+                currentPlayer++;
+                if (currentPlayer >= 2)
+                {
+                    currentPlayer = 0;
+                    currentMoveNumber++;
+                }
+            }
+        }
+
+        protected bool prevIndexes() { 
+            currentPlayer--;
+            if (currentPlayer < 0)
+            {
+                currentMoveNumber--;
+                currentPlayer = 1;
+                if (currentMoveNumber == -1)
+                {
+                    currentPlayer = -1;
+                    currentProductionGroup = -1;
+                    currentMove = null;
+                    return true;
+                }
+            }
+            return false;
         }
 
     }
@@ -88,6 +135,12 @@ namespace ProductionsGameLauncher
 
         public FileGameHistory(string filename)
         {
+            currentMove = null;
+            currentMoveNumber = -1;
+            currentPlayer = -1;
+            playerWords = new List<string>[2] { new List<string>(), new List<string>() };
+            currentProductionGroup = -1;
+            int lastMove = -1, lastPlayer=-1;
             try
             {
                 string s;
@@ -105,10 +158,12 @@ namespace ProductionsGameLauncher
                 string confString = sb.ToString();
                 Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(confString));
                 GameSettings = GameSettings.ReadFromStream(stream);
+                currentBank = new Bank(GameSettings.ProductionsCount);
 
-                //пропускаем строки с файлами игроков.
-                fs.ReadLine();
-                fs.ReadLine();
+                //пропускаем строки с именами игроков.
+                playersNames = new List<string>();
+                playersNames.Add(fs.ReadLine().Split(':').Last());
+                playersNames.Add(fs.ReadLine().Split(':').Last());
                 List<string>[] currPlayersWords = new List<string>[2] {
                         new List<string>(),new List<string>()
                     };
@@ -117,6 +172,12 @@ namespace ProductionsGameLauncher
                     for (int i = 0; i < 2; ++i)
                     {
                         s = fs.ReadLine();
+                        if (s == "ERROR") { 
+                            IsGameFailed = true;
+                            failedMoveNumber = move;
+                            failedPlayer = i;
+                            break;
+                        }
                         playerProductionGroups[i].Add(int.Parse(s.Split(':').Last()));
                         fs.ReadLine();
                         s = fs.ReadLine();
@@ -124,42 +185,30 @@ namespace ProductionsGameLauncher
                         playerMoves[i].Add(StrategicPrimaryMove.fromMove(currPlayersWords[i], m.getMoves(), GameSettings.GetProductions()));
                         applyMove(currPlayersWords[i], playerMoves[i].Last());
                         s = fs.ReadLine();
-                        s = fs.ReadLine();
-                        s = fs.ReadLine();
+                        lastMove = move;
+                        lastPlayer = i;
                     }
+                    if (IsGameFailed)
+                        break;
                 }
                 fs.Close();
-                currentBank = new Bank(GameSettings.ProductionsCount);
-                currentMove = null;
-                currentMoveNumber = -1;
-                currentPlayer = -1;
-                playerWords = new List<string>[2] { new List<string>(), new List<string>() };
-                currentProductionGroup = -1;
+                
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("Файл результатов игры в неверном формате.");
+                IsGameFailed = true;
+                failedMoveNumber = lastMove;
+                failedPlayer = lastPlayer;
+                if(GameSettings==null)
+                    throw new ArgumentException("Файл результатов игры в неверном формате.");
             }
         }
 
-        public override void moveNext()
+        public override bool moveNext()
         {
-            if (!hasNextMove())
-                return;
-            if (currentMoveNumber == -1)
-            {
-                currentMoveNumber = 0;
-                currentPlayer = 0;
-            }
-            else
-            {
-                currentPlayer++;
-                if (currentPlayer >= 2)
-                {
-                    currentPlayer = 0;
-                    currentMoveNumber++;
-                }
-            }
+            if (!hasNextMove())//TODO make same thing with failed game
+                return true;
+            nextIndexes();
             currentProductionGroup = playerProductionGroups[currentPlayer][currentMoveNumber];
             currentBank.addProduction(currentProductionGroup);
             foreach (var move in playerMoves[currentPlayer][currentMoveNumber])
@@ -177,6 +226,7 @@ namespace ProductionsGameLauncher
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
             currentStrategicMove = playerMoves[currentPlayer][currentMoveNumber];
+            return true;
         }
 
         public override void movePrev()
@@ -198,19 +248,8 @@ namespace ProductionsGameLauncher
                 currentBank.addProduction(move.ProductionGroupNumber);
             }
             currentBank.removeProduction(currentProductionGroup);
-            currentPlayer--;
-            if (currentPlayer < 0)
-            {
-                currentMoveNumber--;
-                currentPlayer = 1;
-                if (currentMoveNumber == -1)
-                {
-                    currentPlayer = -1;
-                    currentProductionGroup = -1;
-                    currentMove = null;
-                    return;
-                }
-            }
+            if (prevIndexes())
+                return;
             currentProductionGroup = playerProductionGroups[currentPlayer][currentMoveNumber];
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
@@ -223,17 +262,18 @@ namespace ProductionsGameLauncher
         Game gc;
         private List<int>[] playerProductionGroups = new List<int>[2] {
                 new List<int>(),new List<int>()
-            };
+            };//Какие продукции выпадали по ходу игры
         private List<List<StrategicPrimaryMove>>[] playerMoves = new List<List<StrategicPrimaryMove>>[2] {
                  new List<List<StrategicPrimaryMove>>(),new List<List<StrategicPrimaryMove>>()
-            };
+            };//Ходы игроков
 
 
         public CompilerGameHistory(Game gc)
         {
             this.gc = gc;
-            if (gc.Active || gc.Finished)
+            if (gc.state != Game.State.Ready)
                 throw new ArgumentException("Игра не должна быть уже запущенной.");
+            playersNames = gc.getPlayers();
             GameSettings = gc.GameSettings;
             currentBank = new Bank(GameSettings.ProductionsCount);
             currentMove = null;
@@ -243,36 +283,29 @@ namespace ProductionsGameLauncher
             currentProductionGroup = -1;
         }
 
-        public override void moveNext()
+        public override bool moveNext()
         {
             if (!hasNextMove())
-                return;
-            if (currentMoveNumber == -1)
-            {
-                currentMoveNumber = 0;
-                currentPlayer = 0;
-            }
-            else
-            {
-                currentPlayer++;
-                if (currentPlayer >= 2)
-                {
-                    currentPlayer = 0;
-                    currentMoveNumber++;
-                }
-            }
+                return true;
+            nextIndexes();
             if (gc.MoveNumber < currentMoveNumber ||
                 gc.MoveNumber == currentMoveNumber && gc.ActivePlayer <= currentPlayer)
             {//Если этот ход ещё не был сыгран
                 int r = gc.MoveNumber;
                 int p = gc.ActivePlayer;
                 Move move = gc.playOneMove();
+                if (gc.state == Game.State.Failed)
+                {
+                    IsGameFailed = true;
+                    failedMoveNumber = r;
+                    failedPlayer = p;
+                    prevIndexes();
+                    return false;
+                }
                 var bank = gc.Bank;
                 playerMoves[p].Add(StrategicPrimaryMove.fromMove(playerWords[p], move.getMoves(), GameSettings.GetProductions()));
-                if (move.MovesCount > 0)
-                {//если шаг был совершён, то узнаем выпавшую продукцию из него
+                if (move.MovesCount > 0)//если шаг был совершён, то узнаем выпавшую продукцию из него
                     playerProductionGroups[p].Add(move.getMoves().First().ProductionGroupNumber);
-                }
                 else
                 {//а если нет, то из изменения банка
                     for (int i = 0; i < GameSettings.ProductionsCount; ++i)
@@ -297,6 +330,7 @@ namespace ProductionsGameLauncher
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);
             currentStrategicMove = playerMoves[currentPlayer][currentMoveNumber];
+            return true;
         }
 
         public override void movePrev()
@@ -318,19 +352,8 @@ namespace ProductionsGameLauncher
                 currentBank.addProduction(move.ProductionGroupNumber);
             }
             currentBank.removeProduction(currentProductionGroup);
-            currentPlayer--;
-            if (currentPlayer < 0)
-            {
-                currentMoveNumber--;
-                currentPlayer = 1;
-                if (currentMoveNumber == -1)
-                {
-                    currentPlayer = -1;
-                    currentProductionGroup = -1;
-                    currentMove = null;
-                    return;
-                }
-            }
+            if (prevIndexes())
+                return;
             currentProductionGroup = playerProductionGroups[currentPlayer][currentMoveNumber];
             currentMove = new Move();
             StrategicPrimaryMove.toMove(playerMoves[currentPlayer][currentMoveNumber], ref currentMove);

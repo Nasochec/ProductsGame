@@ -34,7 +34,7 @@
             <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="Количество ходов:" Margin="10,10,10,10"/>
             <ProgressBar x:Name="tournamentProgressBar" Grid.Column="1" Grid.Row="5" Margin="10,10,10,10" Visibility="Hidden"/>
 
-            <Grid x:Name="tournamentViewGrid" Grid.Row="2" Grid.ColumnSpan="3" Visibility="Visible" Grid.RowSpan="3">
+            <Grid x:Name="tournamentViewGrid" Grid.Row="2" Grid.ColumnSpan="3" Visibility="Hidden" Grid.RowSpan="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="129*"/>
@@ -60,7 +60,7 @@
                     <ComboBox x:Name="parallelComboBox" DockPanel.Dock="Bottom"  Margin="5,5,5,5"/>
                 </DockPanel>
             </Grid>
-            <Grid x:Name="viewGrid" Grid.Row="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Visibility="Hidden">
+            <Grid x:Name="viewGrid" Grid.Row="2" Grid.ColumnSpan="3" Grid.RowSpan="4" Visibility="Visible">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="644*"/>
@@ -80,7 +80,7 @@
 
 
             </Grid>
-            <DockPanel x:Name="depthSelectDockPanel" Grid.Column="3" LastChildFill="False" Grid.Row="2">
+            <DockPanel x:Name="depthSelectDockPanel" Grid.Column="3" LastChildFill="False" Grid.Row="2" Visibility="Hidden">
                 <ComboBox x:Name="depthSelectComboBox" DockPanel.Dock="Bottom" Margin="5,5,5,5" Height="22"/>
                 <TextBlock DockPanel.Dock="Top" Margin="5,5,5,5" TextWrapping="Wrap" Text="Глубина перебора:"/>
             </DockPanel>

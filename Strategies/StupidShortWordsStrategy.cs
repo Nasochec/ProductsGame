@@ -21,10 +21,7 @@ namespace Strategies
 
         protected void beforeStart(object sender,EventArgs e)
         {
-            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
-                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
             StrategyUtilitiesClass.countStupidMetric(simplifiedProductions, out netMetric, out prodsMetric);
-
 
             bestProd = new int[netMetric.Length];
             for (int i = 0; i < bestProd.Length; ++i)

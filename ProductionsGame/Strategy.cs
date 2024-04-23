@@ -17,11 +17,16 @@ namespace ProductionsGame
         protected List<ProductionGroup> productions;
         protected List<SimplifiedProductionGroup> simplifiedProductions;
         protected RandomSettings rs;
-        private bool initialized = false;
+
+        /// <summary>
+        /// Subscribe this if it is necessary to perform some actions when game settigs change (count metric, etc.).
+        /// </summary>
+        protected event EventHandler GameSettingsChanged = delegate { };
 
         protected Strategy(string name)
         {
             Name = name;
+            simplifiedProductions = new List<SimplifiedProductionGroup>();
         }
 
         static Parameters getParameters()
@@ -33,16 +38,14 @@ namespace ProductionsGame
         {
             GameSettings = gameSettings;
             productions = this.GameSettings.GetProductions().ToList();
+            simplifiedProductions.Clear();
             for (int i = 0; i < GameSettings.ProductionsCount; ++i)
                 simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
             this.rs = this.GameSettings.RandomSettings;
             GameSettingsChanged.Invoke(this, null);
         }
 
-        /// <summary>
-        /// Subscribe this if it is necessary to perform some actions when game settigs change (count metric, etc.).
-        /// </summary>
-        protected event EventHandler GameSettingsChanged;
+        
 
         /// <summary>
         /// Метод который надо переопределить чтобы сделать свою стратегию.

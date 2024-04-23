@@ -29,22 +29,46 @@ namespace ProductionsGameLauncher
         public LookGame(Game gc)
         {
             InitializeComponent();
-            gameHistory = new CompilerGameHistory(gc);
+            try
+            {
+                gameHistory = new CompilerGameHistory(gc);
+            }
+            catch(Exception ex) {
+                MessageBox.Show(string.Format("Возникла ошибка при попытке просмотра игры.", ex.Message));
+                this.Close();
+            }
+            firstInit();
+        }
+
+        public LookGame(string filename)
+        {
+            InitializeComponent();
+            try
+            {
+                gameHistory = new FileGameHistory(filename);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Возникла ошибка при попытке прочитать запись игры.", ex.Message));
+                this.Close();
+            }
             firstInit();
         }
 
         private void firstInit()
         {
             totalMovesTextBlock.Text = "Всего ходов:" + gameHistory.GameSettings.NumberOfMoves;
+            firstPlayerNameTextBlock.Text = String.Format("Выводы первого игрока ({0})", gameHistory.playersNames[0]);
+            secondPlayerNameTextBlock.Text = String.Format("Выводы первого игрока ({0})", gameHistory.playersNames[1]);
             playersListBoxes[0] = firstPlayerWordsListBox;
             playersListBoxes[1] = secondplayerWordsListBox;
             playersScores[0] = firstPlayerScoreTextBlock;
             playersScores[1] = secondPlayerScoreTextBlock;
             fillProductionsTextBlock();
             fillPlayersInfo();
+            fillAnotherInfo();
         }
 
-        //TODO добавить подсчёт текущих очков, добавить сообщение что игра завершена, отображени текущего хода
         private void fillProductionsTextBlock()
         {
             StringBuilder sb = new StringBuilder();
@@ -102,6 +126,26 @@ namespace ProductionsGameLauncher
 
         }
 
+        private void fillAnotherInfo() {
+            if (!gameHistory.hasNextMove())
+            {
+                forwardMoveButton.IsEnabled = false;
+                if (gameHistory.IsGameFailed)
+                    messageTextBlock.Text = String.Format("Игра окончена с ошибкой из-за {0} игрока.", gameHistory.failedPlayer);
+                else
+                    messageTextBlock.Text = String.Format("Игра успешно окончена.");
+            }
+            else
+            {
+                forwardMoveButton.IsEnabled = true;
+                messageTextBlock.Text = "";
+            }
+
+            if (!gameHistory.hasPrevMove()) backMoveButton.IsEnabled = false;
+            else backMoveButton.IsEnabled = true;
+            
+        }
+
         public int countScore(IEnumerable<string> words)
         {
             int sum = 0;
@@ -123,18 +167,13 @@ namespace ProductionsGameLauncher
             return sum;
         }
 
-        public LookGame(string filename)
-        {
-            InitializeComponent();
-            gameHistory = new FileGameHistory(filename);
-            firstInit();
-        }
-
         private void backMoveButton_Click(object sender, RoutedEventArgs e)
         {
             gameHistory.movePrev();
             fillProductionsTextBlock();
             fillPlayersInfo();
+            fillAnotherInfo();
+
         }
 
         private void forwardMoveButton_Click(object sender, RoutedEventArgs e)
@@ -142,6 +181,8 @@ namespace ProductionsGameLauncher
             gameHistory.moveNext();
             fillProductionsTextBlock();
             fillPlayersInfo();
+            fillAnotherInfo();
+
         }
     }
 }

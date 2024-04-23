@@ -108,10 +108,9 @@ namespace ProductionsGameCore
 
         public void WriteToStream(StreamWriter stream)
         {
-
             XElement XEGameSettings = new XElement("GameSettings");
             XEGameSettings.Add(new XAttribute("NumberOfMoves", NumberOfMoves));
-            {
+            {// add productions
                 XElement XProductions = new XElement("Productions");
                 foreach (var production in productions)
                 {
@@ -124,7 +123,7 @@ namespace ProductionsGameCore
                 }
                 XEGameSettings.Add(XProductions);
             }
-            {
+            {//add random settings
                 XElement XRandomSettings = new XElement("RandomSettings");
                 XRandomSettings.Add(new XAttribute("TotalPossibility", RandomSettings.getTotalPossibility()));
                 XElement XPossibilities = new XElement("Possibilities");
@@ -133,7 +132,7 @@ namespace ProductionsGameCore
                 XRandomSettings.Add(XPossibilities);
                 XEGameSettings.Add(XRandomSettings);
             }
-            {
+            {//write
                 var settings = new XmlWriterSettings();
                 settings.OmitXmlDeclaration = true;
                 settings.Indent = true;

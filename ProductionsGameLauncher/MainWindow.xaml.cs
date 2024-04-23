@@ -58,7 +58,7 @@ namespace ProductionsGameLauncher
                         "S->AB|AC",
                         "B->b",
                         "B->BBB",
-                        "C->AA|c",
+                        "C->CC|c",
                         "C->A|B|c",
                         "C->T|A",
                         "B->abacabade"
@@ -75,6 +75,19 @@ namespace ProductionsGameLauncher
                         "K->Lorka",
                         "L->Horse",
                         "H->hallo"
+                    }),
+                new Grammatic("low frequency of S",new string[] {
+                        "S->ABC",
+                        "A->aA|B",
+                        "A->bc|CA",
+                        "A->a",
+                        "B->AB|AC",
+                        "B->b",
+                        "B->BBB",
+                        "C->CC|c",
+                        "C->A|B|c",
+                        "C->T|A",
+                        "B->abacabade"
                     })
                 });
 
@@ -341,12 +354,15 @@ namespace ProductionsGameLauncher
                 List<Strategy> strategies = new List<Strategy>();
                 foreach (var player in players)
                     strategies.Add(player.get());
-                Game gc = new Game(gameSettings, strategies);
-
-                LookGame look = new LookGame(gc);
-                this.Hide();
-                look.ShowDialog();
-                this.Close();
+                foreach(var strat in strategies)
+                    strat.setGameSettings(gameSettings);
+                using (Game gc = new Game(gameSettings, strategies))
+                {
+                    LookGame look = new LookGame(gc);
+                    this.Hide();
+                    look.ShowDialog();
+                    this.Close();
+                }
             }
         }
 
@@ -363,7 +379,7 @@ namespace ProductionsGameLauncher
         }
 
         //Вариант проигрываения партий турнира по-очереди
-        public void playTournamentLinear(int numberOfRounds, List<Player> players)
+        public List<string> playTournamentLinear(int numberOfRounds, List<Player> players)
         {
             int finishedRounds = 0;
             List<string> resultFilenames = new List<string>();
@@ -377,7 +393,7 @@ namespace ProductionsGameLauncher
             foreach (var player in players)
             {
                 strats.Add(player.get());
-                strats.Last().setGameSettings(gameSettings);
+                //strats.Last().setGameSettings(gameSettings);
             }
             
 
@@ -396,9 +412,13 @@ namespace ProductionsGameLauncher
                     for (int firstIndex = 0; firstIndex < playersNumber; ++firstIndex)
                         for (int secondIndex = 0; secondIndex < playersNumber; ++secondIndex)
                         {
-                            Game game = new Game(gameSettings,
-                                new Strategy[] { strats[firstIndex], strats[secondIndex] });
-                            game.play();
+                            string f = string.Format("{0}{1}-{2}-{3}.txt",filename,round,firstIndex,secondIndex);
+                            using (Game game = new Game(gameSettings,
+                                new Strategy[] { strats[firstIndex], strats[secondIndex] },f))
+                            {
+                                game.play();
+                            }
+                            resultFilenames.Add(f);
 
                             ++finishedRounds;
                             worker.ReportProgress(finishedRounds * 100 / allRounds);
@@ -417,7 +437,7 @@ namespace ProductionsGameLauncher
                 this.Close();
             };
             worker.RunWorkerAsync();
-            //return resultFilenames;
+            return resultFilenames;
         }
 
         List<Thread> activeThreads;

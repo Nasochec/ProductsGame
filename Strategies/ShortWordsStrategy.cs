@@ -21,10 +21,6 @@ namespace Strategies
 
         protected void beforeStart(object sender, EventArgs e)
         {
-            //get the simplified form of productions
-           
-            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
-                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
             StrategyUtilitiesClass.countMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
             bestProd = new int[netMetric.Length];
             for (int i = 0; i < bestProd.Length; ++i)
@@ -50,7 +46,6 @@ namespace Strategies
             List<List<SimplifiedWord>> simplifiedWords,
             Bank bank)
         {
-            
             Move move = new Move();
 
             //get simplified form of words
