@@ -35,6 +35,12 @@ namespace Strategies
             this.GameSettingsChanged += beforeStart;
         }
 
+        public static new Parameters getParameters() {
+            Parameters searchParameters = new Parameters();
+            searchParameters.addParameter("depth", "Глубина перебора", 4);
+            return searchParameters;
+        }
+
         protected void beforeStart(object sender, EventArgs e) 
         {
             //count metric of broductions

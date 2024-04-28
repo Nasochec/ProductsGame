@@ -97,23 +97,16 @@ namespace ProductionsGameLauncher
             players.Add(new Player("Умная случайная стратегия", (param) => new SmartRandomStrategy()));
             players.Add(new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()));
             players.Add(new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()));
-            
+            players.Add(new Player("Адаптивная случайная стратегия", (param) => new AdaptiveRandomStrategy(null)));
 
-            Parameters searchParameters = new Parameters();
-            searchParameters.addParameter("depth","Глубина перебора", 4);
             players.Add(new Player("Переборная стратегия",
                 (param) => new SearchStrategy(param),
-                searchParameters)
+                SearchStrategy.getParameters())
                 );
 
-            Parameters mixedParameters = new Parameters();
-            mixedParameters.addParameter("depth", "Глубина перебора", 4);
-            mixedParameters.addParameter("randomProb", "Вес случайной стратегии", 1);
-            mixedParameters.addParameter("searchProb", "Вес переборной стратегии", 1);
-            mixedParameters.addParameter("shortProb", "Вес стратегии коротких слов", 1);
             players.Add(new Player("Смешанная стратегия",
                 (param) => new MixedStrategy(param),
-                mixedParameters)
+                MixedStrategy.getParameters())
                 );
 
             guiPlayer = new Player("Графический интерфейс", (param) => new GUIStrategyClass());
@@ -393,7 +386,7 @@ namespace ProductionsGameLauncher
             foreach (var player in players)
             {
                 strats.Add(player.get());
-                //strats.Last().setGameSettings(gameSettings);
+                strats.Last().setGameSettings(gameSettings);
             }
             
 

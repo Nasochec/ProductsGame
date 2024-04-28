@@ -49,6 +49,15 @@ namespace Strategies
 
         }
 
+        public static new Parameters getParameters() {
+            Parameters mixedParameters = new Parameters();
+            mixedParameters.addParameter("depth", "Глубина перебора", 4);
+            mixedParameters.addParameter("randomProb", "Вес случайной стратегии", 1);
+            mixedParameters.addParameter("searchProb", "Вес переборной стратегии", 1);
+            mixedParameters.addParameter("shortProb", "Вес стратегии коротких слов", 1);
+            return mixedParameters;
+        }
+
         protected void beforeStart(object sender,EventArgs e)
         {
             foreach(var strat in strats)

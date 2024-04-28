@@ -265,7 +265,7 @@ namespace ProductionsGame
                         try
                         {
                             move = players[ActivePlayer]//TODO - send copies + apply moves
-                                .makeMove(ActivePlayer, MoveNumber, production, getWordsCopies(), getSWordsCopies(), Bank);
+                                .makeMove(ActivePlayer, MoveNumber, production, getWordsCopies(), getSWordsCopies(), new Bank(Bank.getProductions()));
                         }
                         catch (Exception e)
                         {
@@ -276,8 +276,13 @@ namespace ProductionsGame
                             logFinish();
                             return;
                         }
-                        applyMoves(move, production);
+                        bool result = applyMoves(move, production);
                         logMove(move, production);
+                        if (!result)
+                        {
+                            logFinish();
+                            return;
+                        }
                     }
                 }
                 state = State.Finished;
@@ -306,8 +311,12 @@ namespace ProductionsGame
                     logFinish();
                     return null;
                 }
-                applyMoves(move, production);
+                bool result = applyMoves(move, production);
                 logMove(move, production);
+                if (!result) {
+                    logFinish();
+                    return null;
+                }
                 ++ActivePlayer;
                 if (ActivePlayer >= 2)
                 {

@@ -145,7 +145,8 @@ namespace ProductionsGameLauncher
             int playersCount = playersToInt.Count;
 
             DataTable dt = new DataTable();
-            dt.Columns.Add(new DataColumn("Игроки"));
+            dt.Columns.Add(new DataColumn("Первый игрок"));
+            dt.Columns.Add(new DataColumn("Второй Игрок"));
             dt.Columns.Add(new DataColumn("К-во игр", typeof(int)));
             dt.Columns.Add(new DataColumn("Средние очки первого", typeof(double)));
             dt.Columns.Add(new DataColumn("Средние очки второго", typeof(double)));
@@ -155,20 +156,23 @@ namespace ProductionsGameLauncher
             dt.Columns.Add(new DataColumn("Сумма очков втрого", typeof(int)));
             //TODO можно добавить всякие статистически параметы типо дисперисии и т.д.
             DataRow row;
+            int colIndex = 0;
             for (int i = 0; i < playersCount; ++i)
                 for (int j = 0; j < playersCount; ++j)
                 {
                     if (gamesCount[i, j] != 0)
                     {
+                        colIndex = 0;
                         row = dt.NewRow();
-                        row[0] = playersNames[i] + " vs. " + playersNames[j];
-                        row[1] = gamesCount[i, j];
-                        row[2] = firstPlayerMeanScore[i, j];
-                        row[3] = secondPlayerMeanScore[i, j];
-                        row[4] = firstPlayerWin[i, j];
-                        row[5] = secondPlayerWin[i, j];
-                        row[6] = firstPlayerScore[i, j];
-                        row[7] = secondPlayerScore[i, j];
+                        row[colIndex++] = playersNames[i];
+                        row[colIndex++] = playersNames[j];
+                        row[colIndex++] = gamesCount[i, j];
+                        row[colIndex++] = firstPlayerMeanScore[i, j];
+                        row[colIndex++] = secondPlayerMeanScore[i, j];
+                        row[colIndex++] = firstPlayerWin[i, j];
+                        row[colIndex++] = secondPlayerWin[i, j];
+                        row[colIndex++] = firstPlayerScore[i, j];
+                        row[colIndex++] = secondPlayerScore[i, j];
                         dt.Rows.Add(row);
                     }
                 }

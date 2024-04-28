@@ -29,7 +29,7 @@ namespace ProductionsGame
             simplifiedProductions = new List<SimplifiedProductionGroup>();
         }
 
-        static Parameters getParameters()
+        public static Parameters getParameters()
         {
             return new Parameters();
         }
