@@ -12,6 +12,7 @@ namespace ProductionsGame
     public abstract class Strategy
     {
         public string Name { get; protected set; }
+        public string ShortName { get; protected set; }
         //public int PlayerNumber { get; private set; }
         protected GameSettings GameSettings { get; private set; }
         protected List<ProductionGroup> productions;
@@ -23,9 +24,8 @@ namespace ProductionsGame
         /// </summary>
         protected event EventHandler GameSettingsChanged = delegate { };
 
-        protected Strategy(string name)
+        protected Strategy()
         {
-            Name = name;
             simplifiedProductions = new List<SimplifiedProductionGroup>();
         }
 
@@ -52,7 +52,7 @@ namespace ProductionsGame
         /// </summary>
         /// <param name="productionNumber"></param>
         public abstract Move makeMove(int playerNumber,
-            int MoveNumber,
+            int moveNumber,
             int productionNumber,
             List<List<string>> words,
             List<List<SimplifiedWord>> simplifiedWords,

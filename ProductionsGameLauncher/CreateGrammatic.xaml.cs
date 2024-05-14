@@ -29,7 +29,7 @@ namespace ProductionsGameLauncher
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Result != null && Result.getProductionGroups().Count() == 11)
+            if (Result != null && Result.getProductions().Count() == 11)
             {
                 this.DialogResult = true;
                 this.Close();
@@ -62,7 +62,7 @@ namespace ProductionsGameLauncher
                 }
                 previewTextBlock.Text = sb.ToString();
             }
-            if (Result != null && Result.getProductionGroups().Count() != 11)
+            if (Result != null && Result.getProductions().Count() != 11)
                 previewTextBlock.Text += "Количество продукций должно быть равно 11";
         }
 

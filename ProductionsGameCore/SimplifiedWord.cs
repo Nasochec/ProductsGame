@@ -1,6 +1,7 @@
 ﻿using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ProductionsGameCore
 {
@@ -58,5 +59,33 @@ namespace ProductionsGameCore
                     return 0;
             return 3 + terminals;
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            //sb.Append(terminals);
+            foreach (var item in nonterminals)
+                sb.Append(string.Format("{0}: {1},",item.Key,item.Value));
+            return sb.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            //if(!(obj is SimplifiedWord))
+            //    return false;
+            return true;
+            SimplifiedWord other = obj as SimplifiedWord;
+            foreach(var nont in nonterminals)
+                if(other.getNonterminal(nont.Key) != nont.Value)
+                    return false;
+            foreach (var nont in other.nonterminals)
+                if (this.getNonterminal(nont.Key) != nont.Value)
+                    return false;
+            return true;
+        }
+        //public override int GetHashCode()
+        //{
+        //    return nonterminals.GetHashCode();
+        //}
     }
 }

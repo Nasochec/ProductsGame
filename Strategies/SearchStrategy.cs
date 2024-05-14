@@ -27,8 +27,10 @@ namespace Strategies
         /// Gets parameter depth - septh of recursion in search.
         /// </summary>
         /// <param name="parameters"></param>
-        public SearchStrategy(Parameters parameters) : base("Search Strategy")
+        public SearchStrategy(Parameters parameters) : base()
         {
+            Name = "Search Strategy";
+            ShortName = "SS";
             var param = parameters.getParameter("depth");
             if (param != null && param.Value >= 0)
                 maxDepth = param.Value;
@@ -48,7 +50,7 @@ namespace Strategies
         }
 
         public override Move makeMove(int playerNumber,
-            int MoveNumber,
+            int moveNumber,
             int productionNumber,
             List<List<string>> words,
             List<List<SimplifiedWord>> simplifiedWords,

@@ -15,7 +15,9 @@ namespace Strategies
         double[][] prodsMetric;
         int[] bestProd;
 
-        public ShortWordsStrategy():base("Short Words Strategy") { 
+        public ShortWordsStrategy():base() {
+            Name = "Short Words Strategy";
+            ShortName = "SWS";
             this.GameSettingsChanged += beforeStart;
         }
 
@@ -40,7 +42,7 @@ namespace Strategies
         }
 
         public override Move makeMove(int playerNumber,
-            int MoveNumber,
+            int moveNumber,
             int productionNumber,
             List<List<string>> words,
             List<List<SimplifiedWord>> simplifiedWords,

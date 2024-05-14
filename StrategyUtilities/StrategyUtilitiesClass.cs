@@ -261,5 +261,7 @@ namespace StrategyUtilities
                 simpleWords.Add(word);
             }
         }
+
+        
     }
 }

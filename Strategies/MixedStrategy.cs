@@ -23,8 +23,10 @@ namespace Strategies
         Random random;
 
 
-        public MixedStrategy(Parameters parameters) : base("Mixed Strategy")
+        public MixedStrategy(Parameters parameters) : base()
         {
+            Name = "Mixed Strategy";
+            ShortName = "MS";
             int randomProb = 1;
             int searchProb = 1;
             int shortProb = 1;
@@ -65,7 +67,7 @@ namespace Strategies
         }
 
         public override Move makeMove(int playerNumber,
-            int MoveNumber,
+            int moveNumber,
             int productionNumber,
             List<List<string>> words,
             List<List<SimplifiedWord>> simplifiedWords,
@@ -75,7 +77,7 @@ namespace Strategies
             for (int i = 0; i < strats.Count; ++i) {
                 rez -= probs[i];
                 if (rez < 0)
-                    return strats[i].makeMove(playerNumber,MoveNumber,productionNumber,words,simplifiedWords,bank);
+                    return strats[i].makeMove(playerNumber,moveNumber,productionNumber,words,simplifiedWords,bank);
             }
             return new Move();
         }

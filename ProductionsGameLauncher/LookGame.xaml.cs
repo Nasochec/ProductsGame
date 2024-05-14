@@ -184,5 +184,23 @@ namespace ProductionsGameLauncher
             fillAnotherInfo();
 
         }
+
+        private void fullBackwardButton_Click(object sender, RoutedEventArgs e)
+        {
+            while (gameHistory.hasPrevMove())
+                gameHistory.movePrev();
+            fillProductionsTextBlock();
+            fillPlayersInfo();
+            fillAnotherInfo();
+        }
+
+        private void fullForwardButton_Click(object sender, RoutedEventArgs e)
+        {
+            while (gameHistory.hasNextMove())
+                gameHistory.moveNext();
+            fillProductionsTextBlock();
+            fillPlayersInfo();
+            fillAnotherInfo();
+        }
     }
 }

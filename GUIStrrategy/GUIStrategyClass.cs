@@ -12,7 +12,7 @@ namespace GUIStrategy
 {
     public class GUIStrategyClass: Strategy
     {
-        public GUIStrategyClass():base("GUI stategy") { }
+        public GUIStrategyClass():base() { Name = "GUI stategy"; }
 
 
         public override Move makeMove(int playerNumber,

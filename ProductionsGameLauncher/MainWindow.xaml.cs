@@ -86,7 +86,7 @@ namespace ProductionsGameLauncher
                         "B->BBB",
                         "C->CC|c",
                         "C->A|B|c",
-                        "C->T|A",
+                        "C->B|A",
                         "B->abacabade"
                     })
                 });
@@ -95,9 +95,10 @@ namespace ProductionsGameLauncher
             players = new List<Player>();
             players.Add(new Player("Случайная стратегия", (param) => new RandomStrategy()));
             players.Add(new Player("Умная случайная стратегия", (param) => new SmartRandomStrategy()));
+            players.Add(new Player("Улучшенная умная случайная стратегия", (param) => new BetterSmartRandomStrategy()));
             players.Add(new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()));
             players.Add(new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()));
-            players.Add(new Player("Адаптивная случайная стратегия", (param) => new AdaptiveRandomStrategy(null)));
+            players.Add(new Player("Адаптивная случайная стратегия", (param) => new AdaptiveRandomStrategy()));
 
             players.Add(new Player("Переборная стратегия",
                 (param) => new SearchStrategy(param),
@@ -318,7 +319,11 @@ namespace ProductionsGameLauncher
                 MessageBox.Show("Указано неверное количество ходов.");
                 return;
             }
-            gameSettings = new GameSettings(movesNumber, grammatic.getProductionGroups(), rs);
+            if (grammatic == null) {
+                MessageBox.Show("Выберите грамматику перед старотом игры.");
+                return;
+            }
+            gameSettings = new GameSettings(movesNumber, grammatic.getProductions(), rs);
 
 
             if (tournamentCheckBox.IsChecked.Value)

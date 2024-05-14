@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,96 +12,150 @@ namespace Strategies
 {
     public class SmartRandomStrategy:RandomStrategy
     {
-        double[] netMetric;
-        double[][] prodsMetric;
+        protected double[] netMetric;
+        protected double[][] prodsMetric;
         //int[] bestProd;
 
         public SmartRandomStrategy():base() {
             Name = "Smart Random Strategy";
+            ShortName = "SRS";
             this.GameSettingsChanged += beforeStart;
         }
 
-        protected void beforeStart(object sender,EventArgs e) {
+        protected virtual void beforeStart(object sender, EventArgs e) {
             StrategyUtilitiesClass.countMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
         }
 
-        private int getRand(IEnumerable<double> weights) {
-            double sum = 0;
-            foreach (double weight in weights)
-                sum+= Math.Sqrt(weight);
-            double rand = random.NextDouble() * sum;
-            int i = 0;
-            foreach (double weight in weights)
-            {
-                rand -= Math.Sqrt(weight);
-                if (rand <= 0)
-                    return i;
-                i++;
-            }
-            return 0;
+        /// <summary>
+        /// Counts weights of production groups.
+        /// override this method for new strategy
+        /// </summary>
+        protected override List<double> getGroupsWeights(List<int> indexes)
+        {
+            return indexes.Select((index) => netMetric[index]).ToList();
+            return indexes.Select((index) => Math.Sqrt(netMetric[index])).ToList();
+        }
+        /// <summary>
+        /// Counts weights of productions in production groups.
+        /// </summary>
+        protected override List<double> getProductionsWeights(int index)
+        {
+            return prodsMetric[index].Select((m) => m).ToList();
+            return prodsMetric[index].Select((m)=> Math.Sqrt(m)).ToList();
+        }
+        /// <summary>
+        /// Counts weights of words.
+        /// </summary>
+        protected override List<double> getWordsWeights(List<SimplifiedWord> words)
+        {
+            return words.Select(
+                (word) =>
+                StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions)
+
+                //Math.Sqrt(StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions))
+                ).ToList();
+        }
+    }
+
+    public class BetterSmartRandomStrategy : SmartRandomStrategy
+    {
+
+        public BetterSmartRandomStrategy() : base()
+        {
+            Name = "Better Smart Random Strategy";
+            ShortName = "BSRS";
+            //this.GameSettingsChanged += beforeStart;
         }
 
-
-        protected override PrimaryMove findFirstMove(List<string> words, int productionGroupNumber)
+        protected override void beforeStart(object sender, EventArgs e)
         {
-            List<int> allowedWords;
-
-            var prod = productions[productionGroupNumber];
-            allowedWords = StrategyUtilitiesClass.findMatches(words, prod.Left);
-            if (prod.Left == 'S')//if can create new word
-                allowedWords.Add(-1);
-
-            if (allowedWords.Count == 0)
-                return null;//not found production
-
-            int productionNumber = getRand(prodsMetric[productionGroupNumber]);
-            List<double> wordsMetrics = new List<double>();
-            foreach (int wordIndex in allowedWords)
-            {
-                var word = (wordIndex == -1) ? "S" : words[wordIndex];
-                wordsMetrics.Add(StrategyUtilitiesClass.countWordMetric(new SimplifiedWord(word), rs, netMetric, simplifiedProductions));
-            }
-            int wordnumber = getRand(wordsMetrics);//select word
-                //random.Next(allowedWords.Count);
-            wordnumber = allowedWords[wordnumber];
-
-            return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);
+            StrategyUtilitiesClass.countBetterMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
         }
 
-        protected override PrimaryMove findMove(List<string> words, Bank bank)
+        /// <summary>
+        /// Counts weights of production groups.
+        /// override this method for new strategy
+        /// </summary>
+        protected override List<double> getGroupsWeights(List<int> indexes)
         {
-            List<List<int>> allowedWords = new List<List<int>>();
-            int productionGroupNumber;
-            foreach (var pr in productions)//find words allowed for productions
-            {
-                allowedWords.Add(StrategyUtilitiesClass.findMatches(words, pr.Left));
-                if (pr.Left == 'S')//if can create new word
-                    allowedWords.Last().Add(-1);
-            }
+            return indexes.Select((index) => Math.Sqrt(netMetric[index])).ToList();
+        }
+        /// <summary>
+        /// Counts weights of productions in production groups.
+        /// </summary>
+        protected override List<double> getProductionsWeights(int index)
+        {
+            return prodsMetric[index].Select((m) => Math.Sqrt(m)).ToList();
+        }
+        /// <summary>
+        /// Counts weights of words.
+        /// </summary>
+        protected override List<double> getWordsWeights(List<SimplifiedWord> words)
+        {
+            return words.Select(
+                (word) =>
+                Math.Sqrt(StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions))
+                ).ToList();
+        }
+    }
 
-            List<int> allowedGroupIndexes = new List<int>();
-            List<double> allowedGroupMetrics = new List<double>();
-            for (int i = 0; i < productions.Count; ++i)
-                if (allowedWords[i].Count > 0 && bank.getProductionCount(i) > 0)
-                {
-                    allowedGroupIndexes.Add(i);
-                    allowedGroupMetrics.Add(netMetric[i]);
-                }
-            if (allowedGroupIndexes.Count == 0)
-                return null;//not found production
+    public class InversedSmartRandomStrategy : SmartRandomStrategy
+    {
 
-            productionGroupNumber = allowedGroupIndexes[getRand(allowedGroupMetrics)];
-            int productionNumber = getRand(prodsMetric[productionGroupNumber]);
+        public InversedSmartRandomStrategy() : base()
+        {
+            Name = "Inversed Smart Random Strategy";
+            ShortName = "ISRS";
+            //this.GameSettingsChanged += beforeStart;
+        }
 
-            List<double> wordsMetrics = new List<double>();
-            foreach (int wordIndex in allowedWords[productionGroupNumber])
-            {
-                wordsMetrics.Add(StrategyUtilitiesClass.countWordMetric(new SimplifiedWord(words[wordIndex]), rs, netMetric, simplifiedProductions));
-            }
-            int wordnumber = getRand(wordsMetrics);//select word
+        protected override void beforeStart(object sender, EventArgs e)
+        {
+            StrategyUtilitiesClass.countBetterMetric(simplifiedProductions, rs, out netMetric, out prodsMetric);
+        }
 
-            wordnumber = allowedWords[productionGroupNumber][wordnumber];
-            return new PrimaryMove(wordnumber, productionGroupNumber, productionNumber);
+        /// <summary>
+        /// Counts weights of production groups.
+        /// override this method for new strategy
+        /// </summary>
+        protected override List<double> getGroupsWeights(List<int> indexes)
+        {
+            //Math.Sqrt()
+            //return indexes.Select((index) => 1 - netMetric[index]).ToList();
+            return indexes.Select((index) => 
+            { 
+                if (index == 0 ) //|| index == 1
+                    return 0d;
+                else
+                    return 1.01d - netMetric[index];
+            }).ToList();
+
+        }
+        /// <summary>
+        /// Counts weights of productions in production groups.
+        /// </summary>
+        protected override List<double> getProductionsWeights(int index)
+        {
+            //Math.Sqrt()
+            //return prodsMetric[index].Select((m) =>1 - m).ToList();
+            return prodsMetric[index].Select((m) => {
+                if (m == 0 )//|| m == 1
+                    return 0d;
+                else
+                    return 1.01d - netMetric[index];
+            }).ToList();
+
+        }
+        /// <summary>
+        /// Counts weights of words.
+        /// </summary>
+        protected override List<double> getWordsWeights(List<SimplifiedWord> words)
+        {
+            // Math.Sqrt()
+            return words.Select(
+                (word) =>
+                1.01 - StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions)
+                ).ToList();
         }
     }
 }

@@ -11,31 +11,46 @@ namespace Strategies
     public class AdaptiveRandomStrategy: Strategy
     {
         public int changeMoves = 20;
-        SmartRandomStrategy smartRandomStrategy;
-        ShortWordsStrategy shortWordsStrategy;
+        Strategy startingStrategy;
+        Strategy finishingStrategy;
 
-        public AdaptiveRandomStrategy(Parameters parameters) : base("Adaptive Random")
+        public AdaptiveRandomStrategy() : base()
         {
-            //var param = parameters.getParameter("depth");
-            //if (param != null && param.Value >= 0)
-            //    maxDepth = param.Value;
-            smartRandomStrategy = new SmartRandomStrategy();
-            shortWordsStrategy = new ShortWordsStrategy();
+            Name = "Adaptive Random";
+            ShortName = "AR";
+            startingStrategy = new InversedSmartRandomStrategy();
+            //finishingStrategy = new ShortWordsStrategy();
+            var parameters = SearchStrategy.getParameters();
+            finishingStrategy = new SearchStrategy(parameters);
+
             this.GameSettingsChanged += beforeStart;
         }
 
         
         protected void beforeStart(object sender, EventArgs e) { 
-            smartRandomStrategy.setGameSettings(this.GameSettings);
-            shortWordsStrategy.setGameSettings(this.GameSettings);
+            startingStrategy.setGameSettings(this.GameSettings);
+            finishingStrategy.setGameSettings(this.GameSettings);
+        }
+
+        protected int countNonterminals(List<SimplifiedWord> words) {
+            int count = 0;
+            foreach (SimplifiedWord word in words)
+            {
+                foreach (var nonterminal in word.nonterminals)
+                    count += nonterminal.Value;
+            }
+            return count;
         }
         
-        public override Move makeMove(int playerNumber, int MoveNumber, int productionNumber, List<List<string>> words, List<List<SimplifiedWord>> simplifiedWords, Bank bank)
+        public override Move makeMove(int playerNumber, int moveNumber, int productionNumber, List<List<string>> words, List<List<SimplifiedWord>> simplifiedWords, Bank bank)
         {
-            if(MoveNumber < GameSettings.NumberOfMoves - changeMoves)
-                return smartRandomStrategy.makeMove(playerNumber, MoveNumber, productionNumber, words, simplifiedWords, bank);
+            //TODO make smarter strategy shange 
+            int nonterminals = countNonterminals(simplifiedWords[playerNumber]);
+            //if(MoveNumber < GameSettings.NumberOfMoves - changeMoves)
+            if (nonterminals * 2 + changeMoves < GameSettings.NumberOfMoves - moveNumber )//|| nonterminals >= 10
+                return startingStrategy.makeMove(playerNumber, moveNumber, productionNumber, words, simplifiedWords, bank);
             else
-                return shortWordsStrategy.makeMove(playerNumber, MoveNumber, productionNumber, words, simplifiedWords, bank);
+                return finishingStrategy.makeMove(playerNumber, moveNumber, productionNumber, words, simplifiedWords, bank);
 
         }
         //new public static Parameters getParameters()

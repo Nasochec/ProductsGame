@@ -30,6 +30,7 @@ namespace ProductionsGameLauncher
     {
         //файлы стратегий игроков
         List<string> playersNames;
+        List<string> playersShortNames;
 
         //файлы результатов раундов игркоков
         //List<string> resultFilenames = new List<string>();
@@ -123,7 +124,7 @@ namespace ProductionsGameLauncher
                 ++gamesCount[f, s];
                 firstPlayerScore[f, s] += rez.playersScores[0];
                 secondPlayerScore[f, s] += rez.playersScores[1];
-                if(rez.winner==Game.Winner.First)
+                if (rez.winner == Game.Winner.First)
                     firstPlayerWin[f, s]++;
                 else if (rez.winner == Game.Winner.Second)
                     secondPlayerWin[f, s]++;
@@ -185,45 +186,71 @@ namespace ProductionsGameLauncher
             resultsDataGrid.CanUserResizeRows = false;
         }
 
-        private void writeToFile() {
-            StreamWriter sf = new StreamWriter("./out.txt");
-            int[] trueIndexes = new int[4];
-            //TODO change
-            trueIndexes[0] = find(" ./RandomStrategy.exe");
-            trueIndexes[1] = find(" ./StupidShortWordsStrategy.exe");
-            trueIndexes[2] = find(" ./ShortWordsStrategy.exe");
-            trueIndexes[3] = find(" ./SearchStrategy.exe");
-            for (int i = 0; i < 4; i++)
-            {
-                
-                for (int j = 0; j < 4; j++)
-                {
-                    sf.Write(" & ");
-                    sf.Write((int)firstPlayerMeanScore[trueIndexes[i], trueIndexes[j]]);
-                    sf.Write("/");
-                    sf.Write((int)secondPlayerMeanScore[trueIndexes[i], trueIndexes[j]]);
-                }
-                sf.WriteLine("\\\\");
-                sf.WriteLine("\\hline");
-            }
 
-            sf.WriteLine("\\hline"); sf.WriteLine("\\hline"); sf.WriteLine("\\hline");
-            for (int i = 0; i < 4; i++)
+
+        private void writeToFile()
+        {
+            using (StreamWriter sw = new StreamWriter("./out.txt"))
             {
-                for (int j = 0; j < 4; j++)
+                int sz = playersNames.Count;
                 {
-                    sf.Write(" & ");
-                    sf.Write(firstPlayerWin[trueIndexes[i], trueIndexes[j]]);
-                    sf.Write("/");
-                    sf.Write(secondPlayerWin[trueIndexes[i], trueIndexes[j]]);
+                    sw.WriteLine(@"\begin{center}");
+                    sw.Write(@"\begin{tabular}{");
+                    for (int i = 0; i <= sz; i++)
+                        sw.Write("| c ");
+                    sw.WriteLine("|}");
+                    sw.WriteLine(@"\hline");
+                    for (int i = 0; i <= sz; i++)
+                        sw.Write(string.Format("& {0}", playersShortNames[i]));
+                    sw.WriteLine(@"\\");
+                    for (int i = 0; i < sz; i++)
+                    {
+                        sw.Write(playersShortNames[i]);
+                        for (int j = 0; j < sz; j++)
+                        {
+                            sw.Write(" & ");
+                            sw.Write((int)firstPlayerMeanScore[i, j]);
+                            sw.Write("/");
+                            sw.Write((int)secondPlayerMeanScore[i, j]);
+                        }
+                        sw.WriteLine(@"\\");
+                        sw.WriteLine(@"\hline");
+                    }
+                    sw.WriteLine(@"\hline");
+                    sw.WriteLine(@"\end{tabular}");
+                    sw.WriteLine(@"\end{ center");
                 }
-                sf.WriteLine("\\\\");
-                sf.WriteLine("\\hline");
+                {
+                    sw.WriteLine(@"\begin{center}");
+                    sw.Write(@"\begin{tabular}{");
+                    for (int i = 0; i <= sz; i++)
+                        sw.Write("| c ");
+                    sw.WriteLine("|}");
+                    sw.WriteLine(@"\hline");
+                    for (int i = 0; i <= sz; i++)
+                        sw.Write(string.Format("& {0}", playersShortNames[i]));
+                    sw.WriteLine(@"\\");
+                    for (int i = 0; i < 4; i++)
+                    {
+                        for (int j = 0; j < 4; j++)
+                        {
+                            sw.Write(" & ");
+                            sw.Write(firstPlayerWin[i, j]);
+                            sw.Write("/");
+                            sw.Write(secondPlayerWin[i, j]);
+                        }
+                        sw.WriteLine(@"\\");
+                        sw.WriteLine(@"\hline");
+                    }
+                    sw.WriteLine(@"\hline");
+                    sw.WriteLine(@"\end{tabular}");
+                    sw.WriteLine(@"\end{ center");
+                }
             }
-            sf.Close();
         }
 
-        private int find(string s) {
+        private int find(string s)
+        {
             foreach (var v in playersToInt)
                 if (v.Key == s) return v.Value;
             return -1;
