@@ -11,13 +11,7 @@ namespace Strategies
 {
     public class MixedStrategy : Strategy
     {
-        //RandomStrategy randomStrategy;
-        //SearchStrategy searchStrategy;
-        //ShortWordsStrategy shortWordsStrategy;
         List<Strategy> strats = new List<Strategy>();
-        //int randomProb = 1;
-        //int searchProb = 1;
-        //int shortProb = 1;
         List<int>probs = new List<int>();
         int sum;
         Random random;

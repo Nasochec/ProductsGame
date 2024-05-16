@@ -14,7 +14,6 @@ namespace Strategies
     {
         protected double[] netMetric;
         protected double[][] prodsMetric;
-        //int[] bestProd;
 
         public SmartRandomStrategy():base() {
             Name = "Smart Random Strategy";
@@ -51,7 +50,6 @@ namespace Strategies
             return words.Select(
                 (word) =>
                 StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions)
-
                 //Math.Sqrt(StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions))
                 ).ToList();
         }
@@ -64,7 +62,6 @@ namespace Strategies
         {
             Name = "Better Smart Random Strategy";
             ShortName = "BSRS";
-            //this.GameSettingsChanged += beforeStart;
         }
 
         protected override void beforeStart(object sender, EventArgs e)
@@ -106,7 +103,6 @@ namespace Strategies
         {
             Name = "Inversed Smart Random Strategy";
             ShortName = "ISRS";
-            //this.GameSettingsChanged += beforeStart;
         }
 
         protected override void beforeStart(object sender, EventArgs e)
@@ -120,24 +116,19 @@ namespace Strategies
         /// </summary>
         protected override List<double> getGroupsWeights(List<int> indexes)
         {
-            //Math.Sqrt()
-            //return indexes.Select((index) => 1 - netMetric[index]).ToList();
             return indexes.Select((index) => 
             { 
-                if (index == 0 ) //|| index == 1
+                if (index == 0 )
                     return 0d;
                 else
                     return 1.01d - netMetric[index];
             }).ToList();
-
         }
         /// <summary>
         /// Counts weights of productions in production groups.
         /// </summary>
         protected override List<double> getProductionsWeights(int index)
         {
-            //Math.Sqrt()
-            //return prodsMetric[index].Select((m) =>1 - m).ToList();
             return prodsMetric[index].Select((m) => {
                 if (m == 0 )//|| m == 1
                     return 0d;
@@ -151,7 +142,6 @@ namespace Strategies
         /// </summary>
         protected override List<double> getWordsWeights(List<SimplifiedWord> words)
         {
-            // Math.Sqrt()
             return words.Select(
                 (word) =>
                 1.01 - StrategyUtilitiesClass.countWordMetric(word, rs, netMetric, simplifiedProductions)

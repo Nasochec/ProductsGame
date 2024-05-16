@@ -12,10 +12,8 @@ namespace ProductionsGameLauncher
 {
     internal abstract class GameResult
     {
-        //public string filename { get; private set; }
-        //public GameSettings gameSettings { get; private set; }
         public List<string> playersNames = new List<string>();
-        //public List<string> shortPlayersFilanames = new List<string>();
+        public List<string> shortPlayersFilanames;
         public List<int> playersScores = new List<int>();
         public Game.Winner winner { get; protected set; }
 
@@ -69,6 +67,9 @@ namespace ProductionsGameLauncher
 
                 playersNames.Add(p1.Split(':').Last());
                 playersNames.Add(p2.Split(':').Last());
+                shortPlayersFilanames = playersNames.Select((name) => 
+                    string.Concat(name.Where(c => c >= 'A' && c <= 'Z'))
+                    ).ToList();
 
                 while (true)
                 {
@@ -110,6 +111,9 @@ namespace ProductionsGameLauncher
             if (!(game.state == Game.State.Failed || game.state ==Game.State.Failed))
                 throw new ArgumentException("Game is't finished.");
             playersNames = game.getPlayers();
+            shortPlayersFilanames = playersNames.Select((name) =>
+                   string.Concat(name.Where(c => c >= 'A' && c <= 'Z'))
+                   ).ToList();
             playersScores = game.getScores();
             winner = game.getWinner();
         }

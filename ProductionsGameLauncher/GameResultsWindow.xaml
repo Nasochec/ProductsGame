@@ -21,8 +21,8 @@
         <Button x:Name="addFilesButton" Grid.Column="1" Content="Добавить" Margin="170,10,10,10" Grid.Row="2" Click="addFilesButton_Click"/>
         <TextBlock Grid.Column="1" Margin="10,10,10,10" TextWrapping="Wrap" Text="Выбаные файлы:"/>
         <TextBlock Margin="10,10,10,10" TextWrapping="Wrap" Text="Таблица с результатами" />
-        <Button x:Name="sookSelectedGameButton" Grid.Column="1" Content="Просмотр выбранной" HorizontalAlignment="Left" Margin="10,10,0,10" Grid.Row="2" Width="139" Click="sookSelectedGameButton_Click"/>
-        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="630,0,0,0" VerticalAlignment="Center" Click="Button_Click"/>
+        <Button x:Name="lookSelectedGameButton" Grid.Column="1" Content="Просмотр выбранной" HorizontalAlignment="Left" Margin="10,10,0,10" Grid.Row="2" Width="139" Click="lookSelectedGameButton_Click"/>
+        <Button Visibility="Visible" Content="Сохранить в файл" VerticalAlignment="Center" Click="saveButton_Click" Margin="573,0,5,0"/>
 
     </Grid>
 </Window>
