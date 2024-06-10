@@ -1,0 +1,278 @@
+% !TeX encoding = windows-1251
+\documentclass[fullscreen=true,russian,compress,%
+	hyperref={unicode,bookmarks=false}]{presentation}
+\inputencoding{cp1251} % Кодировка вашего файла 
+% Внимание! Опция russian не совместима с \tableofcontents
+\usepackage[russian]{babel} % Эту строку можно удалить
+\usepackage{paratype} % Выбираем шрифт
+% Определяем длины частей нижнего колонтитула: автор, название, число слайдов
+\makefootline{.35}{.55}{.1} % Сумма длин = 1
+
+\usepackage{tikz} % Для создания рисунков с помощью tikz
+\usepackage{listings} % Для листингов программ
+\graphicspath{ {./images/} }
+
+\begin{document}
+
+\newtheorem{Metric}{Метрика}
+% Если потребуется, переводим названия блоков с английского:
+\deftranslation[to=Russian]{Theorem}{Теорема}
+\deftranslation[to=Russian]{Example}{Пример}
+%\deftranslation[to=Russian]{Metric}{Метрика}
+
+% Данные титульного слайда
+\title[<<Игра в подстановки>>]{Стратегии для <<Игры в подстановки>>}
+\author{Гладков Артемий Николаевич}
+\institute{Научный руководитель: к. ф.-м. н., доцент, А.\,В.~Смирнов}
+\date{17.06.2024}
+
+% Создаем титульный слайд
+\begin{frame}
+\titlepage
+\end{frame}
+
+% \tableofcontents не работает при включенной опции russian пакета babel
+%\begin{frame}{Содержание}\tableofcontents\end{frame}
+
+\section{Постановка задачи}
+
+\begin{frame}{Постановка задачи}
+	\begin{columns}[T]
+		\begin{column}{.30\paperwidth}
+			Пример грамматики:
+			\begin{enumerate}
+				\item $S \rightarrow ABC$
+				\item $A \rightarrow aA \mid B$
+				\item $A \rightarrow bc \mid CA$
+				\item $A \rightarrow a$
+				\item $S \rightarrow AB \mid AC$
+				\item $B \rightarrow b$
+				\item $B \rightarrow BBB$
+				\item $C \rightarrow AA \mid c$
+				\item $C \rightarrow A \mid B \mid c$
+				\item $C \rightarrow T \mid A$
+				\item $B \rightarrow abacabade$
+			\end{enumerate}
+		\end{column}
+	
+		\begin{column}{.65\paperwidth}
+%		Дана контекстно-свободная грамматика, продукции которой разбиты на 11 групп так, что в каждой группе все продукции в левой части имеют одинаковый нетерминал.
+%		
+%		Два игрока совершают ходы поочереди. В начале хода игрок бросает 2 шестигранных кубика. Сумма значений, выпавшая на кубиках, определяет группа продукций, которую игрок может применить к любому имеющемуся у него выводу. Если он не может применить выпавшую продукцию, она отправляется в банк. После применения выпавшей продукции игрок обязан применить все подходящие продукции из банка, пока 
+		
+		Целью игроков является построение как можно большего количества сентенций 
+		В рассматриваемой игре два игрока стремятся максимизировать свой выигрыш, получая как можно больше сентенций как можно большей
+		суммарной длины, строя выводы в выбранной контекстно-свободной
+		грамматике. В игру вводится элемент случайности: доступные продукции определяются броском двух кубиков; кроме них также можно
+		использовать продукции, находящиеся в банке продукций
+	
+		\end{column}
+	\end{columns}	
+\end{frame}
+
+\begin{frame}{Описание стратегий}
+	\begin{block}{Случайная стратегия}
+		Идея заключается в совершении случайного хода. Выбор групп продукций, продукций и выводов делается с равными весами.
+	\end{block}	
+	
+	\begin{block}<2->{Глупая стратегия коротких слов}
+		\begin{itemize}
+		\item Призвана строить законченные выводы кратчайшим способом. 
+		\item Основана на анализе грамматики и выборе лучшего хода.
+		\item Для оценки продукций и выводов используется метрика 1. \label{metric1ref}\hyperlink{metric1}{\beamerbutton{Подробнее}}
+		\item Метрика основана на количестве нетерминалов в строке.
+%		\begin{Metric}[$M_1$]%<3->
+%			\begin{enumerate}
+%				\item Метрика строки $\alpha$ равна количеству нетерминалов в ней.
+%				
+%				\item $M_1(A\rightarrow\alpha)=M_1(\alpha).$
+%				
+%				\item $M_1(A \rightarrow \alpha_1\mid\ldots\mid\alpha_k)=\min_{1 \leqslant i \leqslant k}M_1(A\rightarrow\alpha_i).$
+%			\end{enumerate}
+%			Чем метрика $M_1$ меньше, тем продукция(вывод) лучше.
+%		\end{Metric}
+		\end{itemize}
+	\end{block}	
+\end{frame}
+
+\begin{frame}{Чистые стратегии}
+	\begin{block}{Стратегия коротких слов}
+	Также основана на анализе грамматики и выборе на каждом шаге лучшего хода.
+	Использует метрику 2. \label{metric2ref}\hyperlink{metric2}{\beamerbutton{Подробнее}}
+	
+	Метрика вывода приближённо может быть интерпретирована как шанс завершить текущий вывод на следующем ходу.
+%	\begin{Metric}[$M_2$]
+%		Она строится итеративно:
+%		\begin{enumerate}
+%			\item Изначально метрика каждой продукции равна~$0$.
+%			
+%			\item $M_2(A \rightarrow \alpha_1\mid\ldots\mid\alpha_k)=\max_{1 \leqslant i \leqslant k}M_2(A\rightarrow\alpha_i).$
+%			
+%			\item \[M_2(\alpha)=\prod_{a \in \alpha}M_2(a), \quad M_2(A \rightarrow \alpha)=M_2(\alpha).\]
+%			
+%			$M_2(a)=1\,\forall a \in T, \quad M_2(A)=\sum M_2(q)\cdot p(q)\,\forall A \in N,$ где\\ $q$ "--- группа продукций вида $A \rightarrow \gamma$, $p(q)$ "--- шанс выпадения $q$.
+%			
+%			\item Переходим к шагу 2.
+%		\end{enumerate}
+%		Чем метрика $M_1$ меньше, тем продукция(вывод) лучше.
+%	\end{Metric}
+	\end{block}	
+
+\end{frame}
+
+\begin{frame}{Чистые стратегии}
+	\begin{block}{Переборная стратегия}
+		Стратегия основана на переборе возможных шагов и выборе лучшего из получаемых выводов. Из-за невозможность полного перебора ходов глубина перебора ограничена. Выводы оцениваются с помощью метрики 2. 
+	\end{block}	
+	\begin{block}<2->{Улучшенная случайная стратегия}
+		Является модификацией случайной стратегии. Веса продукций и выводов определяются метрикой 2.
+	\end{block}	
+\end{frame}
+
+\begin{frame}{Чистые стратегии}
+	\begin{block}{Улучшенная умная случайная стратегия}
+		Является модификацией умной случайной стратегии. Веса продукций и выводов определяются метрикой 3.
+		\begin{Metric}[$M_3$]
+			Она строится итеративно:
+			\begin{enumerate}
+				\item Изначально метрика каждой продукции равна $0$.
+				\item $M_3(A \rightarrow \alpha_1\mid\ldots\mid\alpha_k)=\max_{1 \leqslant i \leqslant k}M_3(A\rightarrow\alpha_i).$
+				\item $M_3(A \rightarrow \alpha)=M_3(\alpha),$ \[M_3(\alpha)=\min_{a \in \alpha \wedge a \in N}M_3(a) \div count(a \in \alpha \wedge a \in N).\]
+				Метрики терминалов и нетерминалов рассчитываются как в~метрике~2.
+				\item Переходим к шагу 2.
+			\end{enumerate}
+		\end{Metric}
+	\end{block}	
+\end{frame}
+
+\begin{frame}{Смешанные стратегии}
+	\begin{block}{Адаптивная случайная стратегия}
+		Призвана строить более длинные выводы. Основана на анализе положения игры и смене модели поведения с одной на другую. 
+		\begin{itemize}
+			\item В начале партии "--- совершать ходы, не приводящие к уменьшению количества нетерминалов.
+			\item В конце партии "--- совершать ходы, наиболее быстро приводящие выводы к завершению.
+		\end{itemize}
+	 
+	\end{block}	
+	\begin{block}{Основанные на вероятностном смешивании}
+		Определяются вероятностным выбором на каждом ходу одной из чистых стратегий. 
+	\end{block}	
+\end{frame}
+
+
+
+\section{Вступление}
+
+
+\begin{frame}
+\begin{block}{Длительность и объем}
+	\begin{enumerate}
+		\item Выясните, сколько времени отводится ваш доклад.
+		\item Презентация одного слайда занимает (в среднем) 1-2 минуты.
+		\item Обычный слайд содержит 20--40 слов (максимум 80).\\ 
+		Пример: на этом слайде 50 слов.
+		\item Используйте иллюстрации, \\
+		о~деталях сообщайте в устном докладе \\
+		или выносите их в приложение. \ 
+		\label{labstr}\hyperlink{example}{\beamerbutton{Пример}}
+		%\item Всё, что не укладывается в эти рамки, вынесите в приложения.
+	\end{enumerate}
+\end{block}
+
+\end{frame}
+
+\section{Заключение}
+
+\begin{frame}{Заключение}
+	\begin{center}
+	\LARGE 
+	Подводим итоги.\\
+	Описываем перспективы.
+	\end{center}
+\end{frame}
+
+\begin{frame}%[allowframebreaks]
+	\frametitle<presentation>{Литература}
+	
+	\begin{thebibliography}{9}
+		\beamertemplatebookbibitems
+		
+		\bibitem{Baldin:2013}
+		Е.\,М.~Балдин.
+		\newblock {\em \href{https://www.ctan.org/tex-archive/info/russian/Computer_Typesetting_Using_LaTeX}{Компьютерная типография \LaTeX.}}
+		\bibitem{Beamer:2017}
+		Till Tantau, Joseph Wright, Vedran Mileti\'c.
+		\newblock {\em \href{https://www.ctan.org/tex-archive/macros/latex/contrib/beamer}{The beamer class.}}
+		\bibitem{BeamerThemes}
+		{\em\href{https://www.hartwork.org/beamer-theme-matrix/}{Таблица стилей}}
+		
+	\end{thebibliography}
+\end{frame}
+
+\appendix
+
+\begin{frame}{Метрика 1}
+	\label{metric1}
+	\begin{Metric}[$M_1$]
+		\begin{enumerate}
+			\item Метрика строки $\alpha$ равна количеству нетерминалов в ней.
+			
+			\item Метрика продукции $A \rightarrow \alpha$: \[M_1(A\rightarrow\alpha)=M_1(\alpha).\]
+			
+			\item Метрика группы продукций $A \rightarrow \alpha_1\mid \ldots \mid \alpha_k$: \[M_1(A \rightarrow \alpha_1\mid\ldots\mid\alpha_k)=\min_{1 \leqslant i \leqslant k}M_1(A\rightarrow\alpha_i).\]
+		\end{enumerate}
+	\end{Metric}
+	\hyperlink{metric1ref}{\beamerbutton{Назад}}
+\end{frame}
+
+\begin{frame}{Метрика 2}
+	\label{metric2}
+	\begin{Metric}[$M_2$]
+		Она строится итеративно:
+		\begin{enumerate}
+			\item Изначально метрика каждой продукции равна~$0$.
+			
+			\item $M_2(A \rightarrow \alpha_1\mid\ldots\mid\alpha_k)=\max_{1 \leqslant i \leqslant k}M_2(A\rightarrow\alpha_i).$
+			
+			\item \[M_2(\alpha)=\prod_{a \in \alpha}M_2(a), \quad M_2(A \rightarrow \alpha)=M_2(\alpha).\]
+			
+			$M_2(a)=1\,\forall a \in T, \quad M_2(A)=\sum M_2(q)\cdot p(q)\,\forall A \in N,$ где\\ $q$ "--- группа продукций вида $A \rightarrow \gamma$, $p(q)$ "--- шанс выпадения $q$.
+			
+			\item Переходим к шагу 2.
+		\end{enumerate}
+		Чем метрика $M_1$ меньше, тем продукция(вывод) лучше.
+	\end{Metric}
+		\hyperlink{metric2ref}{\beamerbutton{Назад}}
+\end{frame}
+%\begin{frame}{Основные части презентации}
+%	\label{example}
+%	\begin{description}
+%		\item[Вступление:] о чем пойдет речь.
+%		\item[Основная часть:] что удалось выяснить, обнаружить.
+%		\item[Заключение:] повторяем основную мысль.\\
+%		(После этого можно описать перспективы.) 
+%		\item[Литература:] не более одного слайда.\\
+%		Только действительно полезные ссылки.
+%		\item[Приложение:] все, что не поместилось в основной части,\\
+%		а также ответы на ожидаемые вопросы.
+%	\end{description}
+%	\centering
+%	\hyperlink{labstr}{\beamerbutton{Назад}}
+%\end{frame}
+
+\begin{frame}{Пример оверлеев в beamer}
+	\begin{block}{Оверлеи}
+		2. \only<2->{Со второго} слайда\\
+		\visible<3->{3. С третьего\\}
+		\uncover<4->{4. С четвертого\\}
+		\visible<1,3,5>{5. Мелькает\\}
+		6. \alt<4->{Больше трех}{Меньше четырех} \\
+		7. \temporal<3,4>%
+		{\color{red}}{\color{yellow}}{\color{green}}%	
+		Меняет цвет
+	\end{block}
+\end{frame}
+
+
+\end{document}
+
