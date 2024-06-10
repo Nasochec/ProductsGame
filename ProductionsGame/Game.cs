@@ -58,9 +58,7 @@ namespace ProductionsGame
             RandomProvider = new RandomProvider(GameSettings.RandomSettings);
             words = new List<List<string>> { new List<string>() , new List<string>() };
             simplifiedWords = new List<List<SimplifiedWord>> { new List<SimplifiedWord>(),new List<SimplifiedWord>()};
-            simplifiedProductions = new List<SimplifiedProductionGroup>();
-            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
-                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
+            simplifiedProductions = GameSettings.GetSimplifiedProductions().ToList();
             scores = new List<int> { 0, 0 };
             state = State.Ready;
             
@@ -126,6 +124,7 @@ namespace ProductionsGame
             log.WriteLine("Счёт игрока 0: {0}", scores[0]);
             log.WriteLine("Счёт игрока 1: {0}", scores[1]);
             log.Flush();
+            log.Close();
         }
 
         private bool applyMoves(Move moves,int firstProductionNumber) {
@@ -148,6 +147,7 @@ namespace ProductionsGame
                 ProductionGroup production = GameSettings.getProductionGroup(productionGroupNumber);
                 SimplifiedProductionGroup simplifiedProduction = simplifiedProductions[productionGroupNumber];
                 char left = production.Left;
+                int leftIndex = simplifiedProduction.Left;
                 string right = production.getRightAt(productionNumber);
 
                 if (isfirst)
@@ -172,7 +172,7 @@ namespace ProductionsGame
                     string word = words[ActivePlayer][wordNumber];
                     SimplifiedWord sword = simplifiedWords[ActivePlayer][wordNumber];
                     int index = word.IndexOf(left);
-                    if (sword.getNonterminal(left) <= 0 || index==-1)
+                    if (sword.getNonterminal(leftIndex) <= 0 || index==-1)
                     {
                         lastError = String.Format("Неверный ход. Вывод {0} не содержит нетерминала {1}", word, left);
                         state = State.Failed;
@@ -185,10 +185,10 @@ namespace ProductionsGame
                             word.Substring(index + 1, word.Length - index - 1);
                         words[ActivePlayer][wordNumber] = newWord;
                         //Применяем к упрощённой форме
-                        sword.addNonterminal(left, -1);
-                        sword.terminals += simplifiedProduction.rights[productionNumber].terminals;
-                        foreach (var nonterminal in simplifiedProduction.rights[productionNumber].nonterminals)
-                            sword.addNonterminal(nonterminal.Key, nonterminal.Value);
+                        sword.addNonterminal(leftIndex, -1);
+                        sword.terminals += simplifiedProduction[productionNumber].terminals;
+                        for(int i = 0; i < simplifiedProduction[productionNumber].NonterminalsCount;++i)
+                            sword.addNonterminal(i, simplifiedProduction[productionNumber][i]);
                     }
                 }
                 else
@@ -196,7 +196,7 @@ namespace ProductionsGame
                     if (left == 'S')
                     {
                         words[ActivePlayer].Add(right);
-                        simplifiedWords[ActivePlayer].Add(new SimplifiedWord(simplifiedProduction.rights[productionNumber]));
+                        simplifiedWords[ActivePlayer].Add(new SimplifiedWord(simplifiedProduction[productionNumber]));
                     }
                 }
                 if (!isfirst)  //Удаляем продукцию из банка
@@ -210,6 +210,8 @@ namespace ProductionsGame
                 if (moves.MovesCount == 0)//если не была применена первая продукция
                 {
                     char left = GameSettings.getProductionGroup(firstProductionNumber).Left;
+                    int leftIndex = simplifiedProductions[firstProductionNumber].Left;
+    
                     if (left == 'S')
                     {
                         lastError  = String.Format("Группа продукций {0} может быть применена для создания нового вывода, но не была применена.", firstProductionNumber);
@@ -218,7 +220,7 @@ namespace ProductionsGame
                     }
                     foreach (var word in simplifiedWords[ActivePlayer])
                     {
-                        if (word.getNonterminal(left) >0)
+                        if (word.getNonterminal(leftIndex) >0)
                         {
                             lastError = String.Format("Группа продукций {0} может быть применена к выводу {1}.", firstProductionNumber, word);
                             state = State.Failed;
@@ -364,7 +366,6 @@ namespace ProductionsGame
 
         public void Dispose()
         {
-            log.Flush();
             log.Close();
         }
     }

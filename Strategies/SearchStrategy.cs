@@ -29,17 +29,20 @@ namespace Strategies
         /// <param name="parameters"></param>
         public SearchStrategy(Parameters parameters) : base()
         {
-            Name = "Search Strategy";
-            ShortName = "SS";
-            var param = parameters.getParameter("depth");
-            if (param != null && param.Value >= 0)
-                maxDepth = param.Value;
+            if (parameters != null)
+            {
+                var param = parameters.getParameter("depth");
+                if (param != null && param is IntParameter && (param as IntParameter).Value >= 0)
+                    maxDepth = (param as IntParameter).Value;
+            }
             this.GameSettingsChanged += beforeStart;
+            Name = "Search Strategy "+maxDepth;
+            ShortName = "SS"+maxDepth;
         }
 
         public static new Parameters getParameters() {
             Parameters searchParameters = new Parameters();
-            searchParameters.addParameter("depth", "Глубина перебора", 4);
+            searchParameters.addParameter(new IntParameter("depth", "Глубина перебора", 4));
             return searchParameters;
         }
 
@@ -78,9 +81,7 @@ namespace Strategies
             {
                 Move move1 = findMove(simpleWords, wordsMetric, bank);
                 if (move1 != null && move1.MovesCount != 0)
-                {
                     move.addMove(move1);
-                }
                 else
                     break;
             }
@@ -119,11 +120,9 @@ namespace Strategies
                     oldWord.addNonterminal(prod.Left, -1);
                     for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
                     {
-
-                        oldWord.terminals += prod.rights[rightIndex].terminals;
-                        foreach (var neterminal in prod.rights[rightIndex].nonterminals)
-                            oldWord.addNonterminal(neterminal.Key, neterminal.Value);
-
+                        oldWord.terminals += prod[rightIndex].terminals;
+                        for(int nonterminal=0;nonterminal< prod[rightIndex].NonterminalsCount;++nonterminal)
+                            oldWord.addNonterminal(nonterminal, prod[rightIndex][nonterminal]);
                         currentMove.addMove(wordIndex, prodIndex, rightIndex);
                         searchMove(oldWord, wordIndex, bank,
                             out bMove, out bMetric, out bTerminals, currentMove, depth + 1);
@@ -135,9 +134,9 @@ namespace Strategies
                         }
                         currentMove.popMove();
 
-                        oldWord.terminals -= prod.rights[rightIndex].terminals;
-                        foreach (var neterminal in prod.rights[rightIndex].nonterminals)
-                            oldWord.addNonterminal(neterminal.Key, -neterminal.Value);
+                        oldWord.terminals -= prod[rightIndex].terminals;
+                        for (int nonterminal = 0; nonterminal < prod[rightIndex].NonterminalsCount; ++nonterminal)
+                            oldWord.addNonterminal(nonterminal, -prod[rightIndex][nonterminal]);
                     }
                     oldWord.addNonterminal(prod.Left, 1);
                     bank.addProduction(prodIndex);
@@ -176,11 +175,11 @@ namespace Strategies
                     }
                 }
                 //if can create new word
-                if (prod.Left == 'S' &&
-                    maxMetric < StrategyUtilitiesClass.countWordMetric(new SimplifiedWord("S"), rs, netMetric, simplifiedProductions))
+                if (simplifier.GetChar(prod.Left) == 'S' &&
+                    maxMetric < StrategyUtilitiesClass.countWordMetric(simplifier.ConvertWord("S"), rs, netMetric, simplifiedProductions))
                 {
                     maxIndex = -1;
-                    word = new SimplifiedWord("S");
+                    word = simplifier.ConvertWord("S");
                 }
                 else if (maxMetric == -1)
                     return null;
@@ -194,9 +193,9 @@ namespace Strategies
             word.addNonterminal(prod.Left, -1);
             for (int rightIndex = 0; rightIndex < prod.RightSize; ++rightIndex)
             {
-                word.terminals += prod.rights[rightIndex].terminals;
-                foreach (var neterminal in prod.rights[rightIndex].nonterminals)
-                    word.addNonterminal(neterminal.Key, neterminal.Value);
+                word.terminals += prod[rightIndex].terminals;
+                for(int nonterminal = 0; nonterminal < prod[rightIndex].NonterminalsCount;++nonterminal)
+                    word.addNonterminal(nonterminal, prod[rightIndex][nonterminal]);
 
                 move.addMove(maxIndex, productionGroupNumber, rightIndex);
                 searchMove(word,
@@ -215,9 +214,9 @@ namespace Strategies
                 }
                 move.popMove();
 
-                word.terminals -= prod.rights[rightIndex].terminals;
-                foreach (var neterminal in prod.rights[rightIndex].nonterminals)
-                    word.addNonterminal(neterminal.Key, -neterminal.Value);
+                word.terminals -= prod[rightIndex].terminals;
+                for (int nonterminal = 0; nonterminal < prod[rightIndex].NonterminalsCount; ++nonterminal)
+                    word.addNonterminal(nonterminal,-prod[rightIndex][nonterminal]);
             }
             word.addNonterminal(prod.Left, 1);
 

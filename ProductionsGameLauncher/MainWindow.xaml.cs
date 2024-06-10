@@ -92,23 +92,23 @@ namespace ProductionsGameLauncher
                 });
 
             //TODO Дописать сюда если хотите добавить свою стратегию
-            players = new List<Player>();
-            players.Add(new Player("Случайная стратегия", (param) => new RandomStrategy()));
-            players.Add(new Player("Умная случайная стратегия", (param) => new SmartRandomStrategy()));
-            players.Add(new Player("Улучшенная умная случайная стратегия", (param) => new BetterSmartRandomStrategy()));
-            players.Add(new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()));
-            players.Add(new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()));
-            players.Add(new Player("Адаптивная случайная стратегия", (param) => new AdaptiveRandomStrategy()));
-
-            players.Add(new Player("Переборная стратегия",
-                (param) => new SearchStrategy(param),
-                SearchStrategy.getParameters())
-                );
-
-            players.Add(new Player("Смешанная стратегия",
-                (param) => new MixedStrategy(param),
-                MixedStrategy.getParameters())
-                );
+            players = new List<Player>
+            {
+                new Player("Случайная стратегия", (param) => new RandomStrategy()),
+                new Player("Умная случайная стратегия", (param) => new SmartRandomStrategy()),
+                new Player("Улучшенная умная случайная стратегия", (param) => new BetterSmartRandomStrategy()),
+                new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()),
+                new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()),
+                new Player("Адаптивная случайная стратегия",
+                    (param) => new AdaptiveRandomStrategy(param),
+                    AdaptiveRandomStrategy.getParameters()),
+                new Player("Переборная стратегия",
+                    (param) => new SearchStrategy(param),
+                    SearchStrategy.getParameters()),
+                new Player("Смешанная стратегия",
+                    (param) => new MixedStrategy(param),
+                    MixedStrategy.getParameters())
+            };
 
             guiPlayer = new Player("Графический интерфейс", (param) => new GUIStrategyClass());
 
@@ -117,10 +117,6 @@ namespace ProductionsGameLauncher
             //depthSelectComboBox.SelectedValue = 4;
             //depthSelectComboBox.SelectionChanged += (sender, e) => { searchPlayer.setParameter(depthSelectComboBox.SelectedValue.ToString()); };
 
-            for (int i = 1; i <= 4; i++)
-                parallelComboBox.Items.Add((i * 5));
-            parallelComboBox.SelectedValue = 10;
-            parallelComboBox.SelectionChanged += (sender, e) => { maxActiveThreads = (int)parallelComboBox.SelectedItem; };
             addTwoPlayers();
             //showDepthSelect();
         }
@@ -260,11 +256,13 @@ namespace ProductionsGameLauncher
                 TextBlock label = new TextBlock();
                 label.Text = "Игрок " + (i + 1);
                 label.TextWrapping = TextWrapping.Wrap;
+                label.TextAlignment = TextAlignment.Center;
                 Grid.SetRow(label, i);
                 twoPlayersGrid.Children.Add(label);
                 ComboBox playerComboBox = new ComboBox();
                 playerComboBox.VerticalAlignment = VerticalAlignment.Center;
-                playerComboBox.Height = 20;
+                playerComboBox.Height = 50;
+                playerComboBox.VerticalContentAlignment = VerticalAlignment.Center;
                 foreach (var item in players)
                     playerComboBox.Items.Add(item);
                 playerComboBox.Items.Add(guiPlayer);
@@ -373,7 +371,6 @@ namespace ProductionsGameLauncher
             helpButton.IsEnabled = false;
             startGameButton.IsEnabled = false;
             resultButton.IsEnabled = false;
-            depthSelectComboBox.IsEnabled = false;
         }
 
         //Вариант проигрываения партий турнира по-очереди

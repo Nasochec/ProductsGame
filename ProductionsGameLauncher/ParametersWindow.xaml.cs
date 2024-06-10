@@ -40,23 +40,52 @@ namespace ProductionsGameLauncher
                 Label label = new Label();
                 label.Content = parameter.Name;
                 TextBox textBox = new TextBox();
-                textBox.Text = parameter.Value.ToString();
-                textBox.PreviewTextInput += (sender, e) =>
+                if (parameter is IntParameter)
                 {
-                    string s = e.Text;
-                    foreach (char c in s)
-                        if (!(c >= '0' && c <= '9'))
-                            e.Handled = true;
-                };
-                textBox.TextChanged += (sender, e) =>
-                {
-                    if (textBox.Text.Length == 0)
+                    IntParameter p = (IntParameter)parameter;
+                    textBox.Text = p.Value.ToString();
+                    textBox.PreviewTextInput += (sender, e) =>
                     {
-                        parameter.Value = 0;
-                        return;
-                    }
-                    parameter.Value = Convert.ToInt32(textBox.Text);
-                };
+                        string s = (sender as TextBox).Text + e.Text;
+                        int rez;
+                        bool k = int.TryParse(s, out rez);
+                        if(!k)
+                            e.Handled = true;
+                        //foreach (char c in s)
+                        //    if (!(c >= '0' && c <= '9'))
+                        //        e.Handled = true;
+                    };
+                    textBox.TextChanged += (sender, e) =>
+                    {
+                        if (textBox.Text.Length == 0)
+                        {
+                            p.Value = 0;
+                            return;
+                        }
+                        p.Value = Convert.ToInt32(textBox.Text);
+                    };
+                }
+                else if (parameter is DoubleParameter) {
+                    DoubleParameter p = (DoubleParameter)parameter;
+                    textBox.Text = p.Value.ToString();
+                    textBox.PreviewTextInput += (sender, e) =>
+                    {
+                        string s = (sender as TextBox).Text + e.Text;
+                        double rez;
+                        bool k = double.TryParse(s, out rez);
+                        if (!k)
+                            e.Handled = true;
+                    };
+                    textBox.TextChanged += (sender, e) =>
+                    {
+                        if (textBox.Text.Length == 0)
+                        {
+                            p.Value = 0;
+                            return;
+                        }
+                        p.Value = Convert.ToDouble(textBox.Text);
+                    };
+                }
                 Grid.SetRow(label,row);
                 Grid.SetColumn(label, 0);
                 Grid.SetRow(textBox, row);
@@ -65,6 +94,11 @@ namespace ProductionsGameLauncher
                 MainGrid.Children.Add(textBox);
                ++row;
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

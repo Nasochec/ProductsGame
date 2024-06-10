@@ -39,10 +39,11 @@ namespace ProductionsGameLauncher
             dt.Columns.Add(new DataColumn("Первый игрок"));
             dt.Columns.Add(new DataColumn("Второй Игрок"));
             dt.Columns.Add(new DataColumn("К-во игр", typeof(int)));
-            dt.Columns.Add(new DataColumn("Средние очки первого", typeof(double)));
-            dt.Columns.Add(new DataColumn("Средние очки второго", typeof(double)));
             dt.Columns.Add(new DataColumn("Побед первого", typeof(double)));
             dt.Columns.Add(new DataColumn("Побед второго", typeof(double)));
+            dt.Columns.Add(new DataColumn("Ничьи", typeof(double)));
+            dt.Columns.Add(new DataColumn("Средние очки первого", typeof(double)));
+            dt.Columns.Add(new DataColumn("Средние очки второго", typeof(double)));
             dt.Columns.Add(new DataColumn("Сумма очков первого", typeof(int)));
             dt.Columns.Add(new DataColumn("Сумма очков втрого", typeof(int)));
             //TODO можно добавить всякие статистически параметы типо дисперисии и т.д.
@@ -58,10 +59,11 @@ namespace ProductionsGameLauncher
                         row[colIndex++] = result.playersNames[i];
                         row[colIndex++] = result.playersNames[j];
                         row[colIndex++] = result.gamesCount[i, j];
-                        row[colIndex++] = result.firstPlayerMeanScore[i, j];
-                        row[colIndex++] = result.secondPlayerMeanScore[i, j];
                         row[colIndex++] = result.firstPlayerWin[i, j];
                         row[colIndex++] = result.secondPlayerWin[i, j];
+                        row[colIndex++] = result.draw[i, j];
+                        row[colIndex++] = result.firstPlayerMeanScore[i, j];
+                        row[colIndex++] = result.secondPlayerMeanScore[i, j];
                         row[colIndex++] = result.firstPlayerScore[i, j];
                         row[colIndex++] = result.secondPlayerScore[i, j];
                         dt.Rows.Add(row);

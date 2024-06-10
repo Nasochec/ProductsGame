@@ -19,38 +19,48 @@ namespace Strategies
 
         public MixedStrategy(Parameters parameters) : base()
         {
-            Name = "Mixed Strategy";
-            ShortName = "MS";
             int randomProb = 1;
             int searchProb = 1;
             int shortProb = 1;
-            var param = parameters.getParameter("randomProb");
-            if (param != null && param.Value >= 0)
-                randomProb = param.Value;
-            param = parameters.getParameter("searchProb");
-            if (param != null && param.Value >= 0)
-                searchProb = param.Value;
-            param = parameters.getParameter("shortProb");
-            if (param != null && param.Value >= 0)
-                shortProb = param.Value;
+            int adaptiveProb = 1;
+            if (parameters != null)
+            {
+                var param = parameters.getParameter("randomProb");
+                if (param != null && param is IntParameter && (param as IntParameter).Value >= 0)
+                    randomProb = (param as IntParameter).Value;
+                param = parameters.getParameter("searchProb");
+                if (param != null && param is IntParameter && (param as IntParameter).Value >= 0)
+                    searchProb = (param as IntParameter).Value;
+                param = parameters.getParameter("shortProb");
+                if (param != null && param is IntParameter && (param as IntParameter).Value >= 0)
+                    shortProb = (param as IntParameter).Value;
+                param = parameters.getParameter("adaptiveProb");
+                if (param != null && param is IntParameter && (param as IntParameter).Value >= 0)
+                    adaptiveProb = (param as IntParameter).Value;
+            }
             probs.Add(randomProb);
             probs.Add(searchProb);
             probs.Add(shortProb);
-            sum = randomProb + searchProb + shortProb;
-            strats.Add(new RandomStrategy());
+            probs.Add(adaptiveProb);
+            sum = randomProb + searchProb + shortProb + adaptiveProb;
+            strats.Add(new BetterSmartRandomStrategy());
             strats.Add(new SearchStrategy(parameters));
             strats.Add(new ShortWordsStrategy());
+            strats.Add(new AdaptiveRandomStrategy(parameters));
             random = new Random((int)DateTime.Now.Ticks * Thread.CurrentThread.ManagedThreadId);
             this.GameSettingsChanged += beforeStart;
+            Name = string.Format("Mixed Strategy {0} {1} {2} {3}",randomProb, shortProb, searchProb, adaptiveProb);
+            ShortName = string.Format("MS{0}{1}{2}{3}", randomProb, shortProb, searchProb, adaptiveProb);
 
         }
 
         public static new Parameters getParameters() {
             Parameters mixedParameters = new Parameters();
-            mixedParameters.addParameter("depth", "Глубина перебора", 4);
-            mixedParameters.addParameter("randomProb", "Вес случайной стратегии", 1);
-            mixedParameters.addParameter("searchProb", "Вес переборной стратегии", 1);
-            mixedParameters.addParameter("shortProb", "Вес стратегии коротких слов", 1);
+            //mixedParameters.addParameter(new IntParameter("depth", "Глубина перебора", 4));
+            mixedParameters.addParameter(new IntParameter("randomProb", "Вес умной случайной стратегии", 1));
+            mixedParameters.addParameter(new IntParameter("shortProb", "Вес стратегии коротких слов", 1));
+            mixedParameters.addParameter(new IntParameter("searchProb", "Вес переборной стратегии", 1));
+            mixedParameters.addParameter(new IntParameter("adaptiveProb", "Вес адаптивной случаной стратегии", 1));
             return mixedParameters;
         }
 

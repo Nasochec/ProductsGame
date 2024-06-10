@@ -33,7 +33,7 @@ namespace Strategies
                 {
                     if (prodsMetric[i][j] < minMetric ||
                         prodsMetric[i][j] == minMetric &&
-                        simplifiedProductions[i].rights[j].terminals > simplifiedProductions[i].rights[bestProd[j]].terminals)
+                        simplifiedProductions[i][j].terminals > simplifiedProductions[i][bestProd[j]].terminals)
                     {
                         minMetric = prodsMetric[i][j];
                         bestProd[i] = j;
@@ -81,11 +81,7 @@ namespace Strategies
             int groupNumber;
             List<List<int>> allowedWords = new List<List<int>>();
             foreach (var pr in simplifiedProductions)//find words allowed for productions
-            {
                 allowedWords.Add(StrategyUtilitiesClass.findMatches(simpleWords, pr.Left));
-                if (pr.Left == 'S')//if can create new word
-                    allowedWords.Last().Add(-1);
-            }
 
             //select production from bank
             {//find production with better metric
@@ -110,11 +106,7 @@ namespace Strategies
                 int minMetric = int.MaxValue;
                 for (int i = 0; i < allowedWords[groupNumber].Count; ++i)
                 {
-                    SimplifiedWord word;
-                    if (allowedWords[groupNumber][i] == -1)
-                        word = new SimplifiedWord("" + simplifiedProductions[groupNumber].Left);
-                    else
-                        word = simpleWords[allowedWords[groupNumber][i]];
+                    SimplifiedWord word = simpleWords[allowedWords[groupNumber][i]];
                     int metric = StrategyUtilitiesClass.countWordStupidMetric(word);
                     if (metric < minMetric)
                     {
@@ -133,7 +125,7 @@ namespace Strategies
             var prod = simplifiedProductions[productionGroupNumber];
             List<int> allowedWords = new List<int>();
             allowedWords = StrategyUtilitiesClass.findMatches(simpleWords, prod.Left);
-            if (prod.Left == 'S')//if can create new word
+            if (simplifier.GetChar(prod.Left) == 'S')//if can create new word
                 allowedWords.Add(-1);
 
             if (allowedWords.Count == 0)
@@ -149,7 +141,7 @@ namespace Strategies
                 {
                     SimplifiedWord word;
                     if (allowedWords[i] == -1)
-                        word = new SimplifiedWord("" + simplifiedProductions[groupNumber].Left);
+                        word = simplifier.ConvertWord("S");
                     else
                         word = simpleWords[allowedWords[i]];
                     int metric = StrategyUtilitiesClass.countWordStupidMetric(word);

@@ -88,8 +88,8 @@ namespace GUIStrategy
         {
             totalMovesTextBlock.Text = "Всего ходов: " + gameSettings.NumberOfMoves; 
             moveNumberTextBlock.Text = "Номер хода: " + (moveNumber + 1);
-            playerNumberTextBlock.Text = "Вы игрок под номером: " + (playerNumber + 1);
-            productionNumberTextBlock.Text = "Выпала продукция под номером: " + (productionGroupNumber + 1);
+            playerNumberTextBlock.Text = "Вы "+  (playerNumber + 1)+ "-й игрок" ;
+            productionNumberTextBlock.Text = "Выпала продукция: " + (productionGroupNumber + 1);
         }
 
         private void fillPlayerWordsListBox()
@@ -130,7 +130,7 @@ namespace GUIStrategy
             if (moves.Count >= 1)
             {
                 index = productionsListBox.SelectedIndex;
-                selectedProductionGroupTextBlock.Text = "Вами вырана продукция из банка: ";
+                selectedProductionGroupTextBlock.Text = "Вами выбрана продукция из банка: ";
             }
             else
             {

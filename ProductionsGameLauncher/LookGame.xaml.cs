@@ -59,7 +59,7 @@ namespace ProductionsGameLauncher
         {
             totalMovesTextBlock.Text = "Всего ходов:" + gameHistory.GameSettings.NumberOfMoves;
             firstPlayerNameTextBlock.Text = String.Format("Выводы первого игрока ({0})", gameHistory.playersNames[0]);
-            secondPlayerNameTextBlock.Text = String.Format("Выводы первого игрока ({0})", gameHistory.playersNames[1]);
+            secondPlayerNameTextBlock.Text = String.Format("Выводы второго игрока ({0})", gameHistory.playersNames[1]);
             playersListBoxes[0] = firstPlayerWordsListBox;
             playersListBoxes[1] = secondplayerWordsListBox;
             playersScores[0] = firstPlayerScoreTextBlock;

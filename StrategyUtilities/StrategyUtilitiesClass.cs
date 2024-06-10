@@ -11,18 +11,18 @@ namespace StrategyUtilities
 {
     public static class StrategyUtilitiesClass
     {
-        public static bool isHaveLetter(SimplifiedWord word, char c)
+        public static bool isHaveLetter(SimplifiedWord word, int letterIndex)
         {
-            return word.nonterminals.ContainsKey(c) && word.getNonterminal(c) > 0;
+            return word[letterIndex] >0;
         }
 
-        public static List<int> findMatches(IEnumerable<SimplifiedWord> words, char c)
+        public static List<int> findMatches(IEnumerable<SimplifiedWord> words, int letterIndex)
         {
             List<int> indexes = new List<int>();
             int index = 0;
             foreach (var word in words)
             {
-                if (isHaveLetter(word, c)) indexes.Add(index);
+                if (isHaveLetter(word, letterIndex)) indexes.Add(index);
                 index++;
             }
             return indexes;
@@ -55,7 +55,6 @@ namespace StrategyUtilities
             netMetric = new double[productions.Count];
             prodMetric = new double[productions.Count][];
             int productionsCount = productions.Count;
-            const double eps = 1e-9;
 
             //initialization
             for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
@@ -63,7 +62,7 @@ namespace StrategyUtilities
                 netMetric[prodIndex] = -1;
                 prodMetric[prodIndex] = new double[productions[prodIndex].RightSize];
                 for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
-                    if (productions[prodIndex].rights[rightIndex].nonterminals.Count == 0)
+                    if (productions[prodIndex][rightIndex].NonterminalsCount == 0)
                         netMetric[prodIndex] = prodMetric[prodIndex][rightIndex] = 1;
                     else
                         prodMetric[prodIndex][rightIndex] = -1;//not aclculated -1
@@ -75,8 +74,8 @@ namespace StrategyUtilities
                 for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
                     for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
                     {
-                        var right = productions[prodIndex].rights[rightIndex];
-                        if (right.nonterminals.Count != 0)
+                        var right = productions[prodIndex][rightIndex];
+                        if (right.NonterminalsCount != 0)
                         {//if production contains neterminal - calculating  
                             double rightSum = countWordMetric(right, rs, netMetric, productions);
                             if (Math.Abs(prodMetric[prodIndex][rightIndex] - rightSum) > prodMetric[prodIndex][rightIndex] * 0.05)//eps 
@@ -97,13 +96,13 @@ namespace StrategyUtilities
         {
             int productionsCount = productions.Count;
             double rightSum = 1;
-            foreach (var neterminal in word.nonterminals)
+            for (int j =0;j<word.NonterminalsCount;++j)
             {
                 double sum = 0;
                 for (int i = 0; i < productionsCount; ++i)
-                    if (netMetric[i] != -1 && productions[i].Left == neterminal.Key)
+                    if (netMetric[i] != -1 && productions[i].Left == j)
                         sum += netMetric[i] * rs.getProductionPossibility(i) / rs.getTotalPossibility();
-                sum = Math.Pow(sum, neterminal.Value);
+                sum = Math.Pow(sum, word[j]);
                 rightSum *= sum;
             }
             return rightSum;
@@ -118,7 +117,6 @@ namespace StrategyUtilities
             netMetric = new double[productions.Count];
             prodMetric = new double[productions.Count][];
             int productionsCount = productions.Count;
-            const double eps = 1e-9;
 
             //initialization
             for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
@@ -126,7 +124,7 @@ namespace StrategyUtilities
                 netMetric[prodIndex] = -1;
                 prodMetric[prodIndex] = new double[productions[prodIndex].RightSize];
                 for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
-                    if (productions[prodIndex].rights[rightIndex].nonterminals.Count == 0)
+                    if (productions[prodIndex][rightIndex].NonterminalsCount == 0)
                         netMetric[prodIndex] = prodMetric[prodIndex][rightIndex] = 1;
                     else
                         prodMetric[prodIndex][rightIndex] = -1;//not aclculated -1
@@ -138,8 +136,8 @@ namespace StrategyUtilities
                 for (int prodIndex = 0; prodIndex < productionsCount; ++prodIndex)
                     for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
                     {
-                        var right = productions[prodIndex].rights[rightIndex];
-                        if (right.nonterminals.Count != 0)
+                        var right = productions[prodIndex][rightIndex];
+                        if (right.NonterminalsCount != 0)
                         {//if production contains neterminal - calculating  
                             double rightSum = countBetterWordMetric(right, rs, netMetric, productions);
                             if (Math.Abs(prodMetric[prodIndex][rightIndex] - rightSum) > prodMetric[prodIndex][rightIndex] * 0.05)//eps 
@@ -161,16 +159,17 @@ namespace StrategyUtilities
             int productionsCount = productions.Count;
             double min = 1;
             int count = 0;
-            foreach (var neterminal in word.nonterminals)
+            for (int j = 0; j < word.NonterminalsCount; ++j)
             {
                 double sum = 0;
                 for (int i = 0; i < productionsCount; ++i)
-                    if (netMetric[i] != -1 && productions[i].Left == neterminal.Key)
+                    if (netMetric[i] != -1 && productions[i].Left == j && word[j]>0)
                         sum += netMetric[i] * rs.getProductionPossibility(i) / rs.getTotalPossibility();
-                min = Math.Min(min, sum);
-                count += neterminal.Value;
-                //sum = sum / neterminal.Value;
-                //rightSum = Math.Min(sum,rightSum);
+                if (word[j] > 0)
+                {
+                    min = Math.Min(min, sum);
+                    count += word[j];
+                }
             }
             if(count>0)
                 return min/count;
@@ -194,7 +193,7 @@ namespace StrategyUtilities
             {
                 for (int rightIndex = 0; rightIndex < productions[prodIndex].RightSize; ++rightIndex)
                 {
-                    var right = productions[prodIndex].rights[rightIndex];
+                    var right = productions[prodIndex][rightIndex];
                     int rightSum = countWordStupidMetric(right);
                     prodMetric[prodIndex][rightIndex] = rightSum;
                     netMetric[prodIndex] = Math.Min(netMetric[prodIndex], rightSum);
@@ -205,10 +204,8 @@ namespace StrategyUtilities
         public static int countWordStupidMetric(SimplifiedWord word)
         {
             int rightSum = 0;
-            foreach (var neterminal in word.nonterminals)
-            {
-                rightSum += neterminal.Value;
-            }
+            for (int j = 0; j < word.NonterminalsCount; ++j)
+                rightSum += word[j];
             return rightSum;
         }
 
@@ -238,9 +235,9 @@ namespace StrategyUtilities
                 bank.removeProduction(m.ProductionGroupNumber);
                 var prod = prods[m.ProductionGroupNumber];
                 word.addNonterminal(prod.Left, -1);
-                word.terminals += prod.rights[m.ProductionNumber].terminals;
-                foreach (var neterminal in prod.rights[m.ProductionNumber].nonterminals)
-                    word.addNonterminal(neterminal.Key, -neterminal.Value);
+                word.terminals += prod[m.ProductionNumber].terminals;
+                for (int j=0;j< prod[m.ProductionNumber].NonterminalsCount;++j)
+                    word.addNonterminal(j, -prod[m.ProductionNumber][j]);
             }
         }
 
@@ -251,17 +248,15 @@ namespace StrategyUtilities
             {
                 SimplifiedWord word = simpleWords[move.WordNumber];
                 word.addNonterminal(prod.Left, -1);
-                word.terminals += prod.rights[move.ProductionNumber].terminals;
-                foreach (var neterminal in prod.rights[move.ProductionNumber].nonterminals)
-                    word.addNonterminal(neterminal.Key, neterminal.Value);
+                word.terminals += prod[move.ProductionNumber].terminals;
+                for (int j = 0; j < prod[move.ProductionNumber].NonterminalsCount; ++j)
+                    word.addNonterminal(j, -prod[move.ProductionNumber][j]);
             }
             else
             {
-                SimplifiedWord word = new SimplifiedWord(prod.rights[move.ProductionNumber]);
+                SimplifiedWord word = new SimplifiedWord(prod[move.ProductionNumber]);
                 simpleWords.Add(word);
             }
         }
-
-        
     }
 }

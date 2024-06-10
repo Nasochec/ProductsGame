@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ProductionsGameLauncher
 {
-    internal abstract class GameResult
+    public abstract class GameResult
     {
         public List<string> playersNames = new List<string>();
         public List<string> shortPlayersFilanames;
@@ -37,7 +37,7 @@ namespace ProductionsGameLauncher
     /// <summary>
     /// Класс, используемый чтобы из файлов с резальтатами игр получить данные об составе игроков и их очках.
     /// </summary>
-    internal class FileGameResult:GameResult
+    public class FileGameResult:GameResult
     {
         public string filename { get; private set; }
         //public GameSettings gameSettings { get; private set; }
@@ -68,7 +68,7 @@ namespace ProductionsGameLauncher
                 playersNames.Add(p1.Split(':').Last());
                 playersNames.Add(p2.Split(':').Last());
                 shortPlayersFilanames = playersNames.Select((name) => 
-                    string.Concat(name.Where(c => c >= 'A' && c <= 'Z'))
+                    string.Concat(name.Where(c => (c >= 'A' && c <= 'Z')||(c>='0'&&c<='9')))
                     ).ToList();
 
                 while (true)
@@ -104,7 +104,7 @@ namespace ProductionsGameLauncher
     /// <summary>
     /// Класс, используемый чтобы из файлов с резальтатами игр получить данные об составе игроков и их очках.
     /// </summary>
-    internal class CompilerGameResult:GameResult
+    public class CompilerGameResult:GameResult
     {
         public CompilerGameResult(Game game)
         {
@@ -112,7 +112,7 @@ namespace ProductionsGameLauncher
                 throw new ArgumentException("Game is't finished.");
             playersNames = game.getPlayers();
             shortPlayersFilanames = playersNames.Select((name) =>
-                   string.Concat(name.Where(c => c >= 'A' && c <= 'Z'))
+                   string.Concat(name.Where(c => (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')))
                    ).ToList();
             playersScores = game.getScores();
             winner = game.getWinner();

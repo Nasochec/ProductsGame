@@ -10,7 +10,7 @@ using System.Windows.Controls;
 
 namespace ProductionsGameLauncher
 {
-    internal class GameResults
+    public class GameResults
     {
         public ObservableCollection<FileGameResult> results;
         public Dictionary<string, int> playersToInt;
@@ -22,6 +22,8 @@ namespace ProductionsGameLauncher
 
         public int[,] firstPlayerWin;
         public int[,] secondPlayerWin;
+        public int[,] draw;
+
 
         public double[,] firstPlayerMeanScore;
         public double[,] secondPlayerMeanScore;
@@ -48,12 +50,15 @@ namespace ProductionsGameLauncher
             results.Add(new FileGameResult(filename));
         }
 
-        public void fillGameResults()
+        public void fillGameResults(bool n = true)
         {
             List<FileGameResult> results = new List<FileGameResult>();
-            playersToInt = new Dictionary<string, int>();
-            playersNames = new List<string>();
-            shortPlayersNames = new List<string>();
+            if (n)
+            {
+                playersToInt = new Dictionary<string, int>();
+                playersNames = new List<string>();
+                shortPlayersNames = new List<string>();
+            }
             //находим всех игроков
             foreach (var s in this.results)
             {
@@ -75,6 +80,7 @@ namespace ProductionsGameLauncher
             secondPlayerScore = new int[playersCount, playersCount];
             firstPlayerWin = new int[playersCount, playersCount];
             secondPlayerWin = new int[playersCount, playersCount];
+            draw = new int[playersCount, playersCount];
             gamesCount = new int[playersCount, playersCount];
             foreach (var rez in results)
             {
@@ -87,6 +93,8 @@ namespace ProductionsGameLauncher
                     firstPlayerWin[f, s]++;
                 else if (rez.winner == Game.Winner.Second)
                     secondPlayerWin[f, s]++;
+                else
+                    draw[f, s]++;
 
             }
             firstPlayerMeanScore = new double[playersCount, playersCount];
@@ -121,7 +129,7 @@ namespace ProductionsGameLauncher
                         sw.Write(shortPlayersNames[i]);
                         for (int j = 0; j < sz; j++)
                         {
-                            sw.Write(" & ");
+                            sw.Write("&");
                             sw.Write((int)firstPlayerMeanScore[i, j]);
                             sw.Write("/");
                             sw.Write((int)secondPlayerMeanScore[i, j]);
@@ -140,7 +148,7 @@ namespace ProductionsGameLauncher
                     sw.WriteLine("|}");
                     sw.WriteLine(@"\hline");
                     for (int i = 0; i < sz; i++)
-                        sw.Write(string.Format("& {0}", shortPlayersNames[i]));
+                        sw.Write(string.Format("&{0}", shortPlayersNames[i]));
                     sw.WriteLine(@"\\");
                     sw.WriteLine(@"\hline");
                     for (int i = 0; i < sz; i++)
@@ -148,10 +156,12 @@ namespace ProductionsGameLauncher
                         sw.Write(shortPlayersNames[i]);
                         for (int j = 0; j < sz; j++)
                         {
-                            sw.Write(" & ");
+                            sw.Write("&");
                             sw.Write(firstPlayerWin[i, j]);
                             sw.Write("/");
                             sw.Write(secondPlayerWin[i, j]);
+                            sw.Write("/");
+                            sw.Write(draw[i, j]);
                         }
                         sw.WriteLine(@"\\");
                         sw.WriteLine(@"\hline");

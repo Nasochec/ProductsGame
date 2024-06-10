@@ -102,13 +102,13 @@ namespace Strategies
             List<SimplifiedWord> allowedWords;
 
 
-            var prod = productions[productionGroupNumber];
+            var prod = simplifiedProductions[productionGroupNumber];
             allowedWordsIndexes = StrategyUtilitiesClass.findMatches(words, prod.Left);
             allowedWords = allowedWordsIndexes.Select((index) => words[index]).ToList();
-            if (prod.Left == 'S')
+            if (simplifier.GetChar(prod.Left) == 'S')
             {//if can create new word
                 allowedWordsIndexes.Add(-1);
-                allowedWords.Add(new SimplifiedWord("S"));
+                allowedWords.Add(simplifier.ConvertWord("S"));
             }
 
             if (allowedWordsIndexes.Count == 0)
@@ -127,14 +127,14 @@ namespace Strategies
             List<List<SimplifiedWord>> allowedWords = new List<List<SimplifiedWord>>();
 
             int productionGroupNumber;
-            foreach (var pr in productions)//find words allowed for productions
+            foreach (var pr in simplifiedProductions)//find words allowed for productions
             {
                 allowedWordsIndexes.Add(StrategyUtilitiesClass.findMatches(words, pr.Left));
                 allowedWords.Add(allowedWordsIndexes.Last().Select((index) => words[index]).ToList());
-                if (pr.Left == 'S')
+                if (simplifier.GetChar(pr.Left) == 'S')
                 {//if can create new word
                     allowedWordsIndexes.Last().Add(-1);
-                    allowedWords.Last().Add(new SimplifiedWord("S"));
+                    allowedWords.Last().Add(simplifier.ConvertWord("S"));
                 }
             }
 

@@ -10,20 +10,26 @@ namespace Strategies
 {
     public class AdaptiveRandomStrategy: Strategy
     {
-        public int changeMoves = 20;
+        //public int changeMoves = 20;
+        private double changeStrategyCoef = 10d;
         Strategy startingStrategy;
         Strategy finishingStrategy;
 
-        public AdaptiveRandomStrategy() : base()
+        public AdaptiveRandomStrategy(Parameters parameters) : base()
         {
-            Name = "Adaptive Random";
-            ShortName = "AR";
             startingStrategy = new InversedSmartRandomStrategy();
-            //finishingStrategy = new ShortWordsStrategy();
-            var parameters = SearchStrategy.getParameters();
+            //startingStrategy = new ImprovedRandomStrategy();
             finishingStrategy = new SearchStrategy(parameters);
-
+            //finishingStrategy = new ShortWordsStrategy();
+            if (parameters != null)
+            {
+                var param = parameters.getParameter("finish_coef");
+                if (param != null && param is DoubleParameter && (param as DoubleParameter).Value >= 0)
+                    changeStrategyCoef = (param as DoubleParameter).Value;
+            }
             this.GameSettingsChanged += beforeStart;
+            Name = "Adaptive Random "+changeStrategyCoef.ToString();
+            ShortName = "AR" + changeStrategyCoef.ToString();
         }
 
         
@@ -32,13 +38,18 @@ namespace Strategies
             finishingStrategy.setGameSettings(this.GameSettings);
         }
 
+        public static new Parameters getParameters()
+        {
+            Parameters searchParameters = new Parameters();
+            searchParameters.addParameter(new DoubleParameter("finish_coef", "Коэффициент смены стратегии", 10d));
+            return searchParameters;
+        }
+
         protected int countNonterminals(List<SimplifiedWord> words) {
             int count = 0;
             foreach (SimplifiedWord word in words)
-            {
-                foreach (var nonterminal in word.nonterminals)
-                    count += nonterminal.Value;
-            }
+                for(int nonterminal=0;nonterminal<word.NonterminalsCount;++nonterminal)
+                    count += word[nonterminal];
             return count;
         }
         
@@ -46,16 +57,12 @@ namespace Strategies
         {
             //TODO make smarter strategy shange 
             int nonterminals = countNonterminals(simplifiedWords[playerNumber]);
-            //if(MoveNumber < GameSettings.NumberOfMoves - changeMoves)
-            if (nonterminals * 2 + changeMoves < GameSettings.NumberOfMoves - moveNumber )//|| nonterminals >= 10
+            //if(MoveNumber < GameSettings.NumberOfMoves - changeMoves)+ changeMoves + 20 
+            if (nonterminals * changeStrategyCoef < GameSettings.NumberOfMoves - moveNumber )//|| nonterminals >= 10
                 return startingStrategy.makeMove(playerNumber, moveNumber, productionNumber, words, simplifiedWords, bank);
             else
                 return finishingStrategy.makeMove(playerNumber, moveNumber, productionNumber, words, simplifiedWords, bank);
 
         }
-        //new public static Parameters getParameters()
-        //{
-        //    return new Parameters();
-        //}
     }
 }

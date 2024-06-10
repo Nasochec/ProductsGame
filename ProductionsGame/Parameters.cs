@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Converters;
 using System.Windows.Media.Media3D;
 
 namespace ProductionsGame
@@ -11,14 +12,29 @@ namespace ProductionsGame
     {
         public String Id { get; private set; }
         public string Name { get; private set; }
-        public int Value { get; set; }
-        public Parameter(string id, string name, int value)
+        public Parameter(string id, string name)
         {
             Id = id;
             Name = name;
+        }
+    }
+
+    public class IntParameter:Parameter
+    {
+        public int Value { get; set; }
+        public IntParameter(string id, string name, int value):base(id,name)
+        {
             Value = value;
         }
+    }
 
+    public class DoubleParameter : Parameter
+    {
+        public double Value { get; set; }
+        public DoubleParameter(string id, string name, double value) : base(id, name)
+        {
+            Value = value;
+        }
     }
 
     public class Parameters
@@ -26,20 +42,9 @@ namespace ProductionsGame
         List<Parameter> parameters = new List<Parameter>();
         public Parameters() { }
 
-        //public Parameters(List<Parameter>  parameters) {
-        //    this.parameters.AddRange(parameters);
-        //}
-
-        public void addParameter(string id, string name, int defaultValue)
+        public void addParameter(Parameter parameter)
         {
-            parameters.Add(new Parameter(id, name, defaultValue));
-        }
-
-        public void setParameter(string id, int value)
-        {
-            foreach (var parameter in parameters)
-                if (parameter.Id == id)
-                    parameter.Value = value;
+            parameters.Add(parameter);
         }
 
         public Parameter getParameter(string id)
@@ -50,13 +55,13 @@ namespace ProductionsGame
             return null;
         }
 
-        public int getParameterValue(string id)
-        {
-            foreach (var parameter in parameters)
-                if (parameter.Id == id)
-                    return parameter.Value;
-            return 0;
-        }
+        //public int getParameterValue(string id)
+        //{
+        //    foreach (var parameter in parameters)
+        //        if (parameter.Id == id)
+        //            return parameter.Value;
+        //    return 0;
+        //}
 
         public IEnumerable<Parameter> getParameters()
         {

@@ -14,7 +14,9 @@ namespace ProductionsGameCore
 {
     public class GameSettings
     {
-        public List<ProductionGroup> productions = new List<ProductionGroup>();
+        private List<ProductionGroup> productions = new List<ProductionGroup>();
+        private List<SimplifiedProductionGroup> simplifiedProductions;
+        public Simplifier Simplifier { get; private set; }
         public RandomSettings RandomSettings { get; private set; }
         public int NumberOfMoves { get; private set; }
         public int ProductionsCount { get { return productions.Count; } }
@@ -28,17 +30,16 @@ namespace ProductionsGameCore
             NumberOfMoves = numberOfMoves;
             this.productions = productions.ToList();
             RandomSettings = randomSettings;
+            Simplifier = new Simplifier(this.productions);
+            simplifiedProductions = Simplifier.ConvertProductions(this.productions);
+
         }
 
         public GameSettings(int numberOfMoves,
             Grammatic grammatic,
             RandomSettings randomSettings)
+            :this(numberOfMoves,grammatic.getProductions(),randomSettings)
         {
-            if (numberOfMoves <= 0)
-                throw new ArgumentException("Number of moves must be non-nagative number.");
-            NumberOfMoves = numberOfMoves;
-            this.productions = grammatic.getProductions().ToList();
-            RandomSettings = randomSettings;
         }
 
         public ProductionGroup getProductionGroup(int index)
@@ -50,9 +51,23 @@ namespace ProductionsGameCore
                 );
         }
 
+        public SimplifiedProductionGroup getSimplifiedProductionGroup(int index)
+        {
+            if (index >= 0 && index < ProductionsCount)
+                return simplifiedProductions[index];
+            throw new IndexOutOfRangeException(
+                String.Format("Index {0} was outside of [0,{1}).", index, ProductionsCount)
+                );
+        }
+
         public IEnumerable<ProductionGroup> GetProductions()
         {
             return productions.AsEnumerable();
+        }
+
+        public IEnumerable<SimplifiedProductionGroup> GetSimplifiedProductions()
+        {
+            return simplifiedProductions.AsEnumerable();
         }
 
         public static GameSettings ReadFromFile(string filename)

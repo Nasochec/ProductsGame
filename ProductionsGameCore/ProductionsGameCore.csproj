@@ -52,6 +52,7 @@
     <Compile Include="RandomSettings.cs" />
     <Compile Include="SimplifiedProductionGroup.cs" />
     <Compile Include="SimplifiedWord.cs" />
+    <Compile Include="Simplifier.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

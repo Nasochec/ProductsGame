@@ -2,6 +2,7 @@
 using ProductionsGameCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing;
 using System.Linq;
 using System.Runtime;
 using System.Text;
@@ -14,6 +15,7 @@ namespace ProductionsGame
         public string Name { get; protected set; }
         public string ShortName { get; protected set; }
         //public int PlayerNumber { get; private set; }
+        protected Simplifier simplifier{ get; private set; }
         protected GameSettings GameSettings { get; private set; }
         protected List<ProductionGroup> productions;
         protected List<SimplifiedProductionGroup> simplifiedProductions;
@@ -26,7 +28,6 @@ namespace ProductionsGame
 
         protected Strategy()
         {
-            simplifiedProductions = new List<SimplifiedProductionGroup>();
         }
 
         public static Parameters getParameters()
@@ -38,10 +39,9 @@ namespace ProductionsGame
         {
             GameSettings = gameSettings;
             productions = this.GameSettings.GetProductions().ToList();
-            simplifiedProductions.Clear();
-            for (int i = 0; i < GameSettings.ProductionsCount; ++i)
-                simplifiedProductions.Add(new SimplifiedProductionGroup(GameSettings.getProductionGroup(i)));
+            simplifiedProductions = this.GameSettings.GetSimplifiedProductions().ToList();
             this.rs = this.GameSettings.RandomSettings;
+            simplifier = gameSettings.Simplifier;
             GameSettingsChanged.Invoke(this, null);
         }
 

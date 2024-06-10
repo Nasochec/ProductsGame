@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace ProductionsGameCore
 {
     public class SimplifiedProductionGroup
     {
-        public char Left { get; private set; }
-        public int RightSize { get { return rights.Count; } }
-        public List<SimplifiedWord> rights;
+        public int Left { get; private set; }
+        public int RightSize { get { return rights.Length; } }
+        public SimplifiedWord this[int i] { get => rights[i]; internal set => rights[i] = value; }
+        private SimplifiedWord[] rights;
 
-        public SimplifiedProductionGroup(ProductionGroup group)
+        internal SimplifiedProductionGroup(int left,int rightSize)
         {
-            this.Left = group.Left;
-            rights = new List<SimplifiedWord>();
-            for (int i = 0; i < group.RightSize; ++i)
-                rights.Add(new SimplifiedWord(group.getRightAt(i)));
+            this.Left = left;
+            rights = new SimplifiedWord[rightSize];
         }
 
         public int getRightTerminalsAt(int index)
