@@ -44,11 +44,15 @@
   <ItemGroup>
     <Compile Include="Bank.cs" />
     <Compile Include="GameSettings.cs" />
+    <Compile Include="Grammatic.cs" />
     <Compile Include="Move.cs" />
     <Compile Include="PrimaryMove.cs" />
     <Compile Include="ProductionGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomSettings.cs" />
+    <Compile Include="SimplifiedProductionGroup.cs" />
+    <Compile Include="SimplifiedWord.cs" />
+    <Compile Include="Simplifier.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

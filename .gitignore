@@ -3,6 +3,22 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Tex build files
+texCode/diplom/code
+texCode/*/*.out
+texCode/*/*.aux 
+texCode/*/*.toc
+texCode/*/*.vrb
+texCode/*/*.bbl
+texCode/*/*.blg
+texCode/*/*.log
+texCode/*/*.synctex(busy)
+texCode/*/*.xml
+texCode/*/*.nav
+texCode/*/*.snm
+texCode/*/*.gz
+texCode/*/*.bcf
+
 # User-specific files
 *.rsuser
 *.suo

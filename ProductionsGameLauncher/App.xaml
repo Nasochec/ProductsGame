@@ -4,6 +4,8 @@
              xmlns:local="clr-namespace:ProductionsGameLauncher"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style x:Key="WinAll" TargetType="{x:Type Window}">
+            <Setter Property="FontSize" Value="20" />
+        </Style>
     </Application.Resources>
 </Application>

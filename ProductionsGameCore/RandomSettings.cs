@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 namespace ProductionsGameCore
 {
-    [Serializable]
-    public class RandomSettings : ISerializable
+    public class RandomSettings
     {
         private int totalPossibility;
         private List<int> possibilityList;
@@ -29,13 +28,6 @@ namespace ProductionsGameCore
                 throw new ArgumentException("Sum of probabilities must be equal to totalPossibility.");
         }
 
-
-        public RandomSettings(SerializationInfo info, StreamingContext context)
-        {
-            totalPossibility = (int)info.GetValue("totalPossibility", typeof(int));
-            possibilityList = (List<int>)info.GetValue("possibilityList", typeof(List<int>));
-        }
-
         public int getProductionPossibility(int index)
         {
             return possibilityList[index];
@@ -49,12 +41,6 @@ namespace ProductionsGameCore
         public int getTotalPossibility()
         {
             return totalPossibility;
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("totalPossibility", totalPossibility, typeof(int));
-            info.AddValue("possibilityList", possibilityList, typeof(List<int>));
         }
     }
 }

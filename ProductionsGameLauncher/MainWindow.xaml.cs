@@ -19,6 +19,9 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using System.ComponentModel;
+using Strategies;
+using GUIStrategy;
+using System.Security.Cryptography;
 
 namespace ProductionsGameLauncher
 {
@@ -33,8 +36,6 @@ namespace ProductionsGameLauncher
         //Предложенные грамматики 
         List<Grammatic> grammatics;
         //Написанные стратегии игроков.
-        //TODO Дописать сюда если хотите добавить свою стратегию
-        Player searchPlayer;
         List<Player> players;
 
         Player guiPlayer;
@@ -57,7 +58,7 @@ namespace ProductionsGameLauncher
                         "S->AB|AC",
                         "B->b",
                         "B->BBB",
-                        "C->AA|c",
+                        "C->CC|c",
                         "C->A|B|c",
                         "C->T|A",
                         "B->abacabade"
@@ -74,27 +75,50 @@ namespace ProductionsGameLauncher
                         "K->Lorka",
                         "L->Horse",
                         "H->hallo"
+                    }),
+                new Grammatic("low frequency of S",new string[] {
+                        "S->ABC",
+                        "A->aA|B",
+                        "A->bc|CA",
+                        "A->a",
+                        "B->AB|AC",
+                        "B->b",
+                        "B->BBB",
+                        "C->CC|c",
+                        "C->A|B|c",
+                        "C->B|A",
+                        "B->abacabade"
                     })
                 });
-            searchPlayer = new Player("Переборная стратегия.", @"./SearchStrategy.exe");
-            players = new List<Player>(new Player[] {
-                    new Player("Случайная стратегия.",@"./RandomStrategy.exe"),
-                    new Player("Стратегия коротких слов.",@"./ShortWordsStrategy.exe"),
-                    new Player("Глупая стратегия коротких слов.",@"./StupidShortWordsStrategy.exe"),
-                    searchPlayer
-                });
-            guiPlayer = new Player("Графический интерфейс", @"./GUIStrategy.exe");
-            for (int i = 1; i <= 7; i++)
-                depthSelectComboBox.Items.Add(i);
-            depthSelectComboBox.SelectedValue = 4;
-            depthSelectComboBox.SelectionChanged += (sender, e) => { searchPlayer.setParameter(depthSelectComboBox.SelectedValue.ToString()); };
 
-            for (int i = 1; i <= 4; i++)
-                parallelComboBox.Items.Add((i * 5));
-            parallelComboBox.SelectedValue = 10;
-            parallelComboBox.SelectionChanged += (sender, e) => { maxActiveThreads = (int)parallelComboBox.SelectedItem; };
+            //TODO Дописать сюда если хотите добавить свою стратегию
+            players = new List<Player>
+            {
+                new Player("Случайная стратегия", (param) => new RandomStrategy()),
+                new Player("Умная случайная стратегия", (param) => new SmartRandomStrategy()),
+                new Player("Улучшенная умная случайная стратегия", (param) => new BetterSmartRandomStrategy()),
+                new Player("Глупая стратегия коротких слов", (param) => new StupidShortWordsStrategy()),
+                new Player("Стратегия коротких слов", (param) => new ShortWordsStrategy()),
+                new Player("Адаптивная случайная стратегия",
+                    (param) => new AdaptiveRandomStrategy(param),
+                    AdaptiveRandomStrategy.getParameters()),
+                new Player("Переборная стратегия",
+                    (param) => new SearchStrategy(param),
+                    SearchStrategy.getParameters()),
+                new Player("Смешанная стратегия",
+                    (param) => new MixedStrategy(param),
+                    MixedStrategy.getParameters())
+            };
+
+            guiPlayer = new Player("Графический интерфейс", (param) => new GUIStrategyClass());
+
+            //for (int i = 1; i <= 7; i++)
+            //    depthSelectComboBox.Items.Add(i);
+            //depthSelectComboBox.SelectedValue = 4;
+            //depthSelectComboBox.SelectionChanged += (sender, e) => { searchPlayer.setParameter(depthSelectComboBox.SelectedValue.ToString()); };
+
             addTwoPlayers();
-            showDepthSelect();
+            //showDepthSelect();
         }
 
         private List<Player> findAvaliablePlayers(int row)
@@ -157,20 +181,20 @@ namespace ProductionsGameLauncher
             Grid.SetRow(label, row);
             TournamentPlayersGrid.Children.Add(label);
 
-            ComboBox playerFilenameChoseButton = new ComboBox();
-            playerFilenameChoseButton.Height = 40;
+            ComboBox playerComboBox = new ComboBox();
+            playerComboBox.Height = 40;
             foreach (var player in avaliablePlayers)
-                playerFilenameChoseButton.Items.Add(player);
-            playerFilenameChoseButton.SelectedIndex = 0;
-            playerFilenameChoseButton.SelectionChanged += (sender, e) =>
+                playerComboBox.Items.Add(player);
+            playerComboBox.SelectedIndex = 0;
+            playerComboBox.SelectionChanged += (sender, e) =>
             {
                 int rowNum = Grid.GetRow((UIElement)sender);
                 recalculatePlayers(rowNum);
-                showDepthSelect();
+                //showDepthSelect();
             };
-            Grid.SetRow(playerFilenameChoseButton, row);
-            Grid.SetColumn(playerFilenameChoseButton, 1);
-            TournamentPlayersGrid.Children.Add(playerFilenameChoseButton);
+            Grid.SetRow(playerComboBox, row);
+            Grid.SetColumn(playerComboBox, 1);
+            TournamentPlayersGrid.Children.Add(playerComboBox);
 
             Button playerDeleteButton = new Button();
             playerDeleteButton.Content = "Удалить";
@@ -196,54 +220,32 @@ namespace ProductionsGameLauncher
                     TournamentPlayersGrid.Children.Remove(item);
                 TournamentPlayersGrid.RowDefinitions.RemoveAt(rowNum);
                 recalculatePlayers(rowNum - 1);
-                showDepthSelect();
+                //showDepthSelect();
             };
             Grid.SetRow(playerDeleteButton, row);
             Grid.SetColumn(playerDeleteButton, 2);
             TournamentPlayersGrid.Children.Add(playerDeleteButton);
-            showDepthSelect();
-
-        }
-
-        //Отображает на экране возможность выбора глубины перебора переборной стратегии.
-        private void showDepthSelect()
-        {
-            //если турнир
-            bool found = false;
-            if (tournamentCheckBox.IsChecked.Value)
+            Button button = new Button();
+            button.Content = "Настроить";
+            button.Click += (sender, e) =>
             {
+                Player p = null;
+                int roww = Grid.GetRow(sender as Button);
                 foreach (UIElement item in TournamentPlayersGrid.Children)
-                {
-                    if (Grid.GetColumn(item) == 1)
-                    {
-                        ComboBox cb = item as ComboBox;
-                        if ((cb.SelectedItem as Player) == searchPlayer)
-                            found = true;
-                    }
-                }
-            }
-            else
-            {
-                foreach (UIElement item in twoPlayersGrid.Children)
-                {
-                    if (Grid.GetColumn(item) == 1)
-                    {
-                        ComboBox cb = item as ComboBox;
-                        if ((cb.SelectedItem as Player) == searchPlayer)
-                            found = true;
-                    }
-                }
-            }
-            if (found)
-            {
-                depthSelectDockPanel.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                depthSelectDockPanel.Visibility = Visibility.Hidden;
-            }
-        }
+                    if (Grid.GetRow(item) == row && Grid.GetColumn(item) == 1)
+                        p = (item as ComboBox).SelectedItem as Player;
+                if (p == null) return;
+                if (p.Parameters == null) return;
+                ParametersWindow win = new ParametersWindow(p.Parameters);
+                win.ShowDialog();
+            };
+            Grid.SetRow(button, row);
+            Grid.SetColumn(button, 3);
+            TournamentPlayersGrid.Children.Add(button);
+            //showDepthSelect();
 
+        }
+ 
         private void addTwoPlayers()
         {
             for (int i = 0; i < 2; i++)
@@ -254,26 +256,48 @@ namespace ProductionsGameLauncher
                 TextBlock label = new TextBlock();
                 label.Text = "Игрок " + (i + 1);
                 label.TextWrapping = TextWrapping.Wrap;
+                label.TextAlignment = TextAlignment.Center;
                 Grid.SetRow(label, i);
                 twoPlayersGrid.Children.Add(label);
                 ComboBox playerComboBox = new ComboBox();
                 playerComboBox.VerticalAlignment = VerticalAlignment.Center;
-                playerComboBox.Height = 20;
+                playerComboBox.Height = 50;
+                playerComboBox.VerticalContentAlignment = VerticalAlignment.Center;
                 foreach (var item in players)
                     playerComboBox.Items.Add(item);
                 playerComboBox.Items.Add(guiPlayer);
                 playerComboBox.SelectedIndex = 0;
-                playerComboBox.SelectionChanged += (sender, e) => showDepthSelect();
+                //playerComboBox.SelectionChanged += (sender, e) => showDepthSelect();
                 Grid.SetRow(playerComboBox, i);
                 Grid.SetColumn(playerComboBox, 1);
                 twoPlayersGrid.Children.Add(playerComboBox);
+                //var button = getParametersButton()
+
+                Button button = new Button();
+                button.Content = "Настроить";
+                button.Click += (sender, e) =>
+                {
+                    Player p = null;
+                    int row = Grid.GetRow(sender as Button);
+                    foreach (UIElement item in twoPlayersGrid.Children)
+                        if (Grid.GetRow(item) == row  && Grid.GetColumn(item) == 1)
+                            p = (item as ComboBox).SelectedItem as Player;
+                    if (p == null) return;
+                    if (p.Parameters == null)return;
+                    ParametersWindow win = new ParametersWindow(p.Parameters);
+                    win.ShowDialog();
+                };
+                Grid.SetRow(button, i);
+                Grid.SetColumn(button, 2);
+                twoPlayersGrid.Children.Add(button);
+                //return button;
             }
         }
 
-        //TODO 
-        //добавить просмотр раундов из окна результатов раунда
-        //скрыть от пользователя exe, подменитиь выбором из списка+
-        //
+        //private Button getParametersButton(Parameters parameters) { 
+            
+        //}
+
         private void GrammaticChoseButton_Click(object sender, RoutedEventArgs e)
         {
             SettingsSelect s = new SettingsSelect(grammatics);
@@ -293,20 +317,16 @@ namespace ProductionsGameLauncher
                 MessageBox.Show("Указано неверное количество ходов.");
                 return;
             }
-            gameSettings = new GameSettings(true, 2, movesNumber, grammatic.getProductionGroups(), rs);
+            if (grammatic == null) {
+                MessageBox.Show("Выберите грамматику перед старотом игры.");
+                return;
+            }
+            gameSettings = new GameSettings(movesNumber, grammatic.getProductions(), rs);
 
 
             if (tournamentCheckBox.IsChecked.Value)
             {
-                List<string> filenames = getTournamentPlayersFilenames();
-                foreach (string filename in filenames)
-                {
-                    if (!File.Exists(filename))
-                    {
-                        MessageBox.Show("Игрок не выбран или указанного файла не существует.");
-                        return;
-                    }
-                }
+                List<Player> filenames = getTournamentPlayers();
                 int numberOfRounds = 1;
                 if (!int.TryParse(roundsNumberTextBox.Text, out numberOfRounds))
                 {
@@ -318,19 +338,27 @@ namespace ProductionsGameLauncher
                     MessageBox.Show("Указано недостаточное количество игроков, необходим 1 игрок для запуска турнира.");
                     return;
                 }
-                playTournament(numberOfRounds, getTournamentPlayersFilenames(), getTournamentPlayersParameters());
-                //playTournamentLinear(numberOfRounds, getTournamentPlayersFilenames());
+                //playTournament(numberOfRounds, getTournamentPlayers());
+                playTournamentLinear(numberOfRounds, getTournamentPlayers());
 
             }
             else
             {
-                List<string> filenames = getTwoPlayersFilenames();
-                List<string> parameters = getTwoPlayersParameters();
-                GameCompiler gc = new ExeSerializationGameCompiler(gameSettings, filenames, parameters);
-                LookGame look = new LookGame(gc);
-                this.Hide();
-                look.ShowDialog();
-                this.Close();
+                List<Player> players = getTwoPlayers();
+                //List<string> parameters = getTwoPlayersParameters();
+                //GameCompiler gc = new ExeSerializationGameCompiler(gameSettings, filenames, parameters);
+                List<Strategy> strategies = new List<Strategy>();
+                foreach (var player in players)
+                    strategies.Add(player.get());
+                foreach(var strat in strategies)
+                    strat.setGameSettings(gameSettings);
+                using (Game gc = new Game(gameSettings, strategies))
+                {
+                    LookGame look = new LookGame(gc);
+                    this.Hide();
+                    look.ShowDialog();
+                    this.Close();
+                }
             }
         }
 
@@ -343,21 +371,28 @@ namespace ProductionsGameLauncher
             helpButton.IsEnabled = false;
             startGameButton.IsEnabled = false;
             resultButton.IsEnabled = false;
-            depthSelectComboBox.IsEnabled = false;
         }
 
         //Вариант проигрываения партий турнира по-очереди
-        public void playTournamentLinear(int numberOfRounds, List<string> playersFilenames)
+        public List<string> playTournamentLinear(int numberOfRounds, List<Player> players)
         {
             int finishedRounds = 0;
             List<string> resultFilenames = new List<string>();
             makeInactiveButtons();
             tournamentProgressBar.Visibility = Visibility.Visible;
 
-            int playersNumber = playersFilenames.Count;
+            int playersNumber = players.Count;
             int allRounds = playersNumber * playersNumber * numberOfRounds;
 
-            if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
+            List<Strategy> strats = new List<Strategy>();
+            foreach (var player in players)
+            {
+                strats.Add(player.get());
+                strats.Last().setGameSettings(gameSettings);
+            }
+            
+
+            if (!Directory.Exists(@"./logs/"))//Создаём директорию для записи туда результатов
                 Directory.CreateDirectory(@"./logs/");
             string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
             if (!Directory.Exists(filename))
@@ -372,15 +407,14 @@ namespace ProductionsGameLauncher
                     for (int firstIndex = 0; firstIndex < playersNumber; ++firstIndex)
                         for (int secondIndex = 0; secondIndex < playersNumber; ++secondIndex)
                         {
-                            ExeSerializationGameCompiler gc =
-                                new ExeSerializationGameCompiler(
-                                    gameSettings,
-                                    new string[] { playersFilenames[firstIndex], playersFilenames[secondIndex] },
-                                    null,//TODO implemetd paremeters
-                                    filename + round + "-" + firstIndex + "-" + secondIndex + ".txt"
-                                );
-                            resultFilenames.Add(gc.LogFilename);
-                            gc.play();
+                            string f = string.Format("{0}{1}-{2}-{3}.txt",filename,round,firstIndex,secondIndex);
+                            using (Game game = new Game(gameSettings,
+                                new Strategy[] { strats[firstIndex], strats[secondIndex] },f))
+                            {
+                                game.play();
+                            }
+                            resultFilenames.Add(f);
+
                             ++finishedRounds;
                             worker.ReportProgress(finishedRounds * 100 / allRounds);
                         }
@@ -398,146 +432,193 @@ namespace ProductionsGameLauncher
                 this.Close();
             };
             worker.RunWorkerAsync();
-            //return resultFilenames;
+            return resultFilenames;
         }
 
         List<Thread> activeThreads;
         int maxActiveThreads = 10;
         //Вариант проигрывания игр турнира параллельно, работает в несколько раз быстрее чем линейный вариант, но больше затраты времени
-        public void playTournament(int numberOfRounds, List<string> playersFilenames, List<string> parameters)
-        {
-            //TODO change it if CPU usage is too big.
+        //public void playTournament(int numberOfRounds, List<Player> players)
+        //{
+        //    //TODO change it if CPU usage is too big.
 
-            activeThreads = new List<Thread>();
-            int finishedThreads = 0;
-            List<string> resultFilenames = new List<string>();
-            makeInactiveButtons();
-            tournamentProgressBar.Visibility = Visibility.Visible;
+        //    activeThreads = new List<Thread>();
+        //    int finishedThreads = 0;
+        //    List<string> resultFilenames = new List<string>();
+        //    makeInactiveButtons();
+        //    tournamentProgressBar.Visibility = Visibility.Visible;
 
-            int round = 0;
-            int firstIndex = 0, secondIndex = 0;
-            int playersNumber = playersFilenames.Count;
-            int allRounds = playersNumber * playersNumber * numberOfRounds;
+        //    int round = 0;
+        //    int firstIndex = 0, secondIndex = 0;
+        //    int playersNumber = players.Count;
+        //    int allRounds = playersNumber * playersNumber * numberOfRounds;
 
-            if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
-                Directory.CreateDirectory(@"./logs/");
-            string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
-            if (!Directory.Exists(filename))
-                Directory.CreateDirectory(filename);
-            worker = new BackgroundWorker();
-            worker.WorkerReportsProgress = true;
-            worker.WorkerSupportsCancellation = true;
-            worker.DoWork += (sender, e) =>
+        //    if (!Directory.Exists(@"./logs/"))//Создайм директорию для записи туда результатов
+        //        Directory.CreateDirectory(@"./logs/");
+        //    string filename = @"./logs/" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "/";
+        //    if (!Directory.Exists(filename))
+        //        Directory.CreateDirectory(filename);
+        //    worker = new BackgroundWorker();
+        //    worker.WorkerReportsProgress = true;
+        //    worker.WorkerSupportsCancellation = true;
+        //    worker.DoWork += (sender, e) =>
+        //    {
+        //        while (round < numberOfRounds || activeThreads.Count != 0)
+        //        {
+        //            //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
+        //            while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
+        //            {
+        //                string currFilename = filename + round + "-" + firstIndex + "-" + secondIndex + ".txt";
+        //                GameStart gameStart = new GameStart(gameSettings, currFilename, players[firstIndex].get(), players[secondIndex].get());
+        //                resultFilenames.Add(currFilename);
+        //                Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
+        //                newGCThread.Start();
+        //                activeThreads.Add(newGCThread);
+        //                secondIndex++;
+        //                if (secondIndex >= playersNumber)
+        //                {
+        //                    firstIndex++;
+        //                    secondIndex = 0;
+        //                    if (firstIndex >= playersNumber)
+        //                    {
+        //                        round++;
+        //                        firstIndex = 0;
+        //                        secondIndex = 0;
+        //                    }
+        //                    continue;
+        //                }
+        //            }
+        //            //освобождаем потоки/дожидаемся окончания работы всех потоков.
+        //            for (int i = 0; i < activeThreads.Count;)
+        //            {
+        //                Thread thread = activeThreads[i];
+        //                if (!thread.IsAlive)
+        //                {
+        //                    activeThreads.RemoveAt(i);
+        //                    ++finishedThreads;
+        //                    worker.ReportProgress(finishedThreads * 100 / allRounds);
+        //                    continue;
+        //                }
+        //                ++i;
+        //            }
+        //            Thread.Sleep(500);
+        //        }
+        //    };
+        //    worker.ProgressChanged += (sender, e) =>
+        //    {
+        //        tournamentProgressBar.Value = e.ProgressPercentage;
+        //    };
+        //    worker.RunWorkerCompleted += (sender, e) =>
+        //    {
+        //        GameResultsWindow gameResultsWidow = new GameResultsWindow(resultFilenames);
+        //        this.Hide();
+        //        this.Close();
+        //        gameResultsWidow.ShowDialog();
+        //    };
+        //    worker.RunWorkerAsync();
+        //}
+
+        //private void addPlayer(Grid grid, bool forTournament) {
+
+        //    int row = grid.RowDefinitions.Count;
+        //    List<Player> avaliablePlayers = findAvaliablePlayers(row);
+        //    if (avaliablePlayers.Count <= 1)
+        //        addPlayerButton.IsEnabled = false;
+
+        //    RowDefinition rowDefinition = new RowDefinition();
+        //    rowDefinition.Height = new GridLength(40);
+        //    grid.RowDefinitions.Add(rowDefinition);
+        //    TextBlock label = new TextBlock();
+        //    label.Text = "Игрок " + (row + 1);
+        //    label.TextWrapping = TextWrapping.Wrap;
+        //    Grid.SetRow(label, row);
+        //    grid.Children.Add(label);
+
+        //    ComboBox playerComboBox = new ComboBox();
+        //    playerComboBox.Height = 40;
+        //    foreach (var player in avaliablePlayers)
+        //        playerComboBox.Items.Add(player);
+        //    playerComboBox.SelectedIndex = 0;
+        //    playerComboBox.SelectionChanged += (sender, e) =>
+        //    {
+        //        int rowNum = Grid.GetRow((UIElement)sender);
+        //        recalculatePlayers(rowNum);
+        //        //showDepthSelect();
+        //    };
+        //    Grid.SetRow(playerComboBox, row);
+        //    Grid.SetColumn(playerComboBox, 1);
+        //    grid.Children.Add(playerComboBox);
+
+        //    Button playerDeleteButton = new Button();
+        //    playerDeleteButton.Content = "Удалить";
+        //    playerDeleteButton.Height = 40;
+        //    playerDeleteButton.Click += (sender, e) =>
+        //    {
+        //        addPlayerButton.IsEnabled = true;
+        //        List<UIElement> forDelete = new List<UIElement>();
+        //        int rowNum = Grid.GetRow((UIElement)sender);
+        //        foreach (UIElement item in grid.Children)
+        //        {
+        //            int t = Grid.GetRow(item);
+        //            if (t == rowNum)
+        //                forDelete.Add(item);
+        //            else if (t > rowNum)
+        //            {
+        //                Grid.SetRow(item, t - 1);
+        //                if (Grid.GetColumn(item) == 0)
+        //                    (item as TextBlock).Text = "Игрок " + t;
+        //            }
+        //        }
+        //        foreach (UIElement item in forDelete)
+        //            grid.Children.Remove(item);
+        //        grid.RowDefinitions.RemoveAt(rowNum);
+        //        recalculatePlayers(rowNum - 1);
+        //        //showDepthSelect();
+        //    };
+        //    Grid.SetRow(playerDeleteButton, row);
+        //    Grid.SetColumn(playerDeleteButton, 2);
+        //    grid.Children.Add(playerDeleteButton);
+        //}
+
+        private List<Player> getPlayers(Grid grid) {
+            List<Player> players = new List<Player>();
+            foreach (UIElement item in grid.Children)
             {
-                while (round < numberOfRounds || activeThreads.Count != 0)
+                if (Grid.GetColumn(item) == 1)
                 {
-                    //запускаем новые раунды, пока не достигнем макс. доступное количество потоков, или не запуустим все раунды
-                    while (activeThreads.Count < maxActiveThreads && round < numberOfRounds)
-                    {
-                        string currFilename = filename + round + "-" + firstIndex + "-" + secondIndex + ".txt";
-                        GameStart gameStart = new GameStart(gameSettings, currFilename, playersFilenames[firstIndex], playersFilenames[secondIndex], parameters[firstIndex], parameters[secondIndex]);
-                        resultFilenames.Add(currFilename);
-                        Thread newGCThread = new Thread(new ThreadStart(gameStart.start));
-                        newGCThread.Start();
-                        activeThreads.Add(newGCThread);
-                        secondIndex++;
-                        if (secondIndex >= playersNumber)
-                        {
-                            firstIndex++;
-                            secondIndex = 0;
-                            if (firstIndex >= playersNumber)
-                            {
-                                round++;
-                                firstIndex = 0;
-                                secondIndex = 0;
-                            }
-                            continue;
-                        }
-                    }
-                    //освобождаем потоки/дожидаемся окончания работы всех потоков.
-                    for (int i = 0; i < activeThreads.Count;)
-                    {
-                        Thread thread = activeThreads[i];
-                        if (!thread.IsAlive)
-                        {
-                            activeThreads.RemoveAt(i);
-                            ++finishedThreads;
-                            worker.ReportProgress(finishedThreads * 100 / allRounds);
-                            continue;
-                        }
-                        ++i;
-                    }
-                    Thread.Sleep(500);
+                    ComboBox cb = item as ComboBox;
+                    players.Add(cb.SelectedItem as Player);
                 }
-            };
-            worker.ProgressChanged += (sender, e) =>
-            {
-                tournamentProgressBar.Value = e.ProgressPercentage;
-            };
-            worker.RunWorkerCompleted += (sender, e) =>
-            {
-                GameResultsWindow gameResultsWidow = new GameResultsWindow(resultFilenames);
-                this.Hide();
-                this.Close();
-                gameResultsWidow.ShowDialog();
-            };
-            worker.RunWorkerAsync();
+            }
+            return players;
         }
 
-        private List<string> getTournamentPlayersFilenames()
+        private List<Player> getTournamentPlayers()
         {
-            List<string> filenames = new List<string>();
+            List<Player> players = new List<Player>();
             foreach (UIElement item in TournamentPlayersGrid.Children)
             {
                 if (Grid.GetColumn(item) == 1)
                 {
                     ComboBox cb = item as ComboBox;
-                    filenames.Add((cb.SelectedItem as Player).Filename);
+                    players.Add(cb.SelectedItem as Player);
                 }
             }
-            return filenames;
+            return players;
         }
 
-        private List<string> getTournamentPlayersParameters()
+        private List<Player> getTwoPlayers()
         {
-            List<string> parameters = new List<string>();
-            foreach (UIElement item in TournamentPlayersGrid.Children)
-            {
-                if (Grid.GetColumn(item) == 1)
-                {
-                    ComboBox cb = item as ComboBox;
-                    parameters.Add((cb.SelectedItem as Player).Parameter);
-                }
-            }
-            return parameters;
-        }
-
-        private List<string> getTwoPlayersFilenames()
-        {
-            List<string> filenames = new List<string>();
+            List<Player> players = new List<Player>();
             foreach (UIElement item in twoPlayersGrid.Children)
             {
                 if (Grid.GetColumn(item) == 1)
                 {
                     ComboBox cb = item as ComboBox;
-                    filenames.Add((cb.SelectedItem as Player).Filename);
+                    players.Add(cb.SelectedItem as Player);
                 }
             }
-            return filenames;
-        }
-
-        private List<string> getTwoPlayersParameters()
-        {
-            List<string> parameters = new List<string>();
-            foreach (UIElement item in twoPlayersGrid.Children)
-            {
-                if (Grid.GetColumn(item) == 1)
-                {
-                    ComboBox cb = item as ComboBox;
-                    parameters.Add((cb.SelectedItem as Player).Parameter);
-                }
-            }
-            return parameters;
+            return players;
         }
 
         private void roundsNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -602,31 +683,22 @@ namespace ProductionsGameLauncher
     {
         GameSettings gameSettings;
         string logFilename;
-        string player1Filename;
-        string player2Filename;
-        string player1Parameter;
-        string player2Parameter;
+        Strategy player1;
+        Strategy player2;
 
-        public GameStart(GameSettings gameSettings, string logFilename, string player1Filename, string player2Filename, string player1Parameter, string player2Parameter)
+        public GameStart(GameSettings gameSettings, string logFilename, Strategy player1, Strategy player2)
         {
             this.gameSettings = gameSettings;
             this.logFilename = logFilename;
-            this.player1Filename = player1Filename;
-            this.player2Filename = player2Filename;
-            this.player1Parameter = player1Parameter;
-            this.player2Parameter = player2Parameter;
+            this.player1 = player1;
+            this.player2 = player2;
+
         }
 
 
         public void start()
         {
-            ExeSerializationGameCompiler gc =
-                new ExeSerializationGameCompiler(
-                    gameSettings,
-                    new string[] { player1Filename, player2Filename },
-                    new string[] { player1Parameter, player2Parameter },
-                    logFilename
-                );
+            Game gc = new Game(gameSettings, new Strategy[] { player1, player2 });
             gc.play();
         }
     }

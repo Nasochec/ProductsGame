@@ -61,9 +61,12 @@
     </Compile>
     <Compile Include="GameHistory.cs" />
     <Compile Include="GameResult.cs" />
-    <Compile Include="Grammatic.cs" />
+    <Compile Include="GameResults.cs" />
     <Compile Include="GrammaticSelect.xaml.cs">
       <DependentUpon>GrammaticSelect.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ParametersWindow.xaml.cs">
+      <DependentUpon>ParametersWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="StrategicPrimaryMove.cs" />
     <Page Include="CreateGrammatic.xaml">
@@ -100,6 +103,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ParametersWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Player.cs" />
@@ -133,10 +140,6 @@
       <Project>{4152b41b-295a-4891-8267-1c365fcba2bf}</Project>
       <Name>GUIStrrategy</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OneMoveStrategy\SearchStrategy.csproj">
-      <Project>{5737c059-c757-4aa2-85f7-02de77f6c5ee}</Project>
-      <Name>SearchStrategy</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ProductionsGameCore\ProductionsGameCore.csproj">
       <Project>{19963d8c-0f2c-469f-b8a7-514d28c574d8}</Project>
       <Name>ProductionsGameCore</Name>
@@ -145,21 +148,13 @@
       <Project>{d6278432-0d8e-4eb8-bb0f-c0329f7490fe}</Project>
       <Name>ProductionsGame</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RandomStrategy\RandomStrategy.csproj">
-      <Project>{efcb29b7-4f33-42f7-ab51-cd9aa7903baf}</Project>
-      <Name>RandomStrategy</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ShortWordsStrategy\ShortWordsStrategy.csproj">
-      <Project>{a65fc203-81ba-4796-968f-ff10db0c26f5}</Project>
-      <Name>ShortWordsStrategy</Name>
+    <ProjectReference Include="..\Strategies\Strategies.csproj">
+      <Project>{9e7640a9-e733-4ed5-9ae7-54196c81254d}</Project>
+      <Name>Strategies</Name>
     </ProjectReference>
     <ProjectReference Include="..\StrategyUtilities\StrategyUtilities.csproj">
       <Project>{5abf5ed6-4613-4d1c-8e70-b2269100b6b7}</Project>
       <Name>StrategyUtilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\StupidShortWordsStrategy\StupidShortWordsStrategy.csproj">
-      <Project>{7fcb58f8-bb5f-43ea-80aa-98dd7247fa59}</Project>
-      <Name>StupidShortWordsStrategy</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

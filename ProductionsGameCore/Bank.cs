@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ProductionsGameCore
 {
-    [Serializable]
-    public class Bank : ISerializable
+    public class Bank
     {
         List<int> productionsBank;
 
@@ -19,9 +16,9 @@ namespace ProductionsGameCore
                 productionsBank.Add(0);
         }
 
-        public Bank(SerializationInfo info, StreamingContext context)
+        public Bank(IEnumerable<int> productions)
         {
-            productionsBank = (List<int>)info.GetValue("productionsBank", typeof(List<int>));
+            productionsBank = productions.ToList();
         }
 
         public void addProduction(int productionIndex)
@@ -54,11 +51,6 @@ namespace ProductionsGameCore
         public int getProductionCount(int productionIndex)
         {
             return productionsBank[productionIndex];
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("productionsBank", productionsBank, typeof(List<int>));
         }
 
         public override string ToString()

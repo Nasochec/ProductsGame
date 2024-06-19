@@ -5,38 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProductionsGameLauncher"
         mc:Ignorable="d"
-        Title="Просмотр партии" Height="450" Width="800">
+        Title="Просмотр партии" Height="450" Width="800"
+        Style="{StaticResource WinAll}">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="288*"/>
-            <ColumnDefinition Width="239*"/>
-            <ColumnDefinition Width="273*"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="114*"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="133*"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="125*"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="106*"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,10" TextWrapping="Wrap" Text="Содержимое банка:" RenderTransformOrigin="0.52,1.017" Width="134"/>
-        <TextBlock x:Name="productionsTextBlock" TextWrapping="Wrap" Text="TextBlock" Grid.Row="1" Margin="10,10,10,9" Grid.RowSpan="6"/>
-        <TextBlock x:Name="totalMovesTextBlock" Margin="144,10,0,10" TextWrapping="Wrap" Text="TextBlock" HorizontalAlignment="Left" Width="134"/>
+        <TextBlock Margin="10,10,16,10" TextWrapping="Wrap" Text="Банк:" RenderTransformOrigin="0.52,1.017" Grid.Row="1"/>
+        <TextBlock x:Name="productionsTextBlock" TextWrapping="Wrap" Text="TextBlock" Grid.Row="2" Margin="10,10,10,10" Grid.RowSpan="5"/>
+        <TextBlock x:Name="totalMovesTextBlock" Margin="10,10,10,10" TextWrapping="Wrap" Text="TextBlock" Grid.Row="0"/>
         <TextBlock x:Name="currentMoveTextBlock" Grid.Column="1" Margin="10,10,10,10" TextWrapping="Wrap" Text="TextBlock"/>
         <TextBlock x:Name="currentPlayerTextBlock" Grid.Column="2" Margin="10,10,10,10" TextWrapping="Wrap" Text="TextBlock"/>
-        <ListBox x:Name="firstPlayerWordsListBox" Grid.Column="1" Grid.Row="2" Margin="0,0,0,40" Grid.RowSpan="2"/>
-        <ListBox x:Name="secondplayerWordsListBox" Grid.Column="2" Grid.Row="2" Margin="0,0,0,40" Grid.RowSpan="2"/>
-        <ListBox x:Name="currentMoveListBox" Grid.Column="1" Grid.Row="4"  Margin="0,40,0,0" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
-        <Button x:Name="forwardMoveButton" Grid.Column="2" Content="Вперёд" Margin="0,10,10,10" Grid.Row="6" Click="forwardMoveButton_Click" HorizontalAlignment="Right" Width="44"/>
-        <Button x:Name="backMoveButton" Grid.Column="1" Content="Назад" Margin="0,10,10,10" Grid.Row="6" Click="backMoveButton_Click" RenderTransformOrigin="-0.035,0.606" HorizontalAlignment="Right" Width="36"/>
-        <TextBlock Grid.Column="1" Margin="10,10,10,10" Grid.Row="4" TextWrapping="Wrap" Text="Выполнен ход:"/>
-        <TextBlock x:Name="productionTextBlock" Grid.Column="2" Margin="10,10,10,10" Grid.Row="4" TextWrapping="Wrap" Text="TextBlock"/>
-        <TextBlock x:Name="firstPlayerScoreTextBlock" Grid.Column="1" Margin="10,10,10,10" Grid.Row="3" TextWrapping="Wrap" Text="TextBlock"/>
-        <TextBlock x:Name="secondPlayerScoreTextBlock" Grid.Column="2" HorizontalAlignment="Center" Margin="0,10,0,10" Grid.Row="3" TextWrapping="Wrap" Text="TextBlock" Width="253"/>
-        <TextBlock Grid.Column="1" Margin="10,10,10,10" Grid.Row="1" TextWrapping="Wrap" Text="Выводы первого игрока" />
-        <TextBlock Grid.Column="2" Margin="10,10,10,10" Grid.Row="1" TextWrapping="Wrap" Text="Выводы второго игорка"/>
+        <ListBox x:Name="firstPlayerWordsListBox" Grid.Column="1" Grid.Row="3"/>
+        <ListBox x:Name="secondplayerWordsListBox" Grid.Column="2" Grid.Row="3"/>
+        <ListBox x:Name="currentMoveListBox" Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2" Margin="0,5,0,0"/>
+        <Button x:Name="forwardMoveButton" Grid.Column="2" Content="Вперёд" Margin="110,10,0,10" Grid.Row="7" Click="forwardMoveButton_Click" HorizontalAlignment="Left" Width="80"/>
+        <Button x:Name="backMoveButton" Grid.Column="1" Content="Назад" Margin="220,10,0,10" Grid.Row="7" Click="backMoveButton_Click" HorizontalAlignment="Left" Width="60"/>
+        <Button x:Name="fullForwardButton" Grid.Column="2" Content="До конца" Margin="200,10,0,10" Grid.Row="7" Click="fullForwardButton_Click" HorizontalAlignment="Left" Width="90"/>
+        <Button x:Name="fullBackwardButton" Grid.Column="1" Content="В начало" Margin="120,10,0,10" Grid.Row="7" Click="fullBackwardButton_Click" HorizontalAlignment="Left" Width="90"/>
+
+
+        <TextBlock Grid.Column="1" Margin="10,10,10,10" Grid.Row="5" TextWrapping="Wrap" Text="Выполнен ход:"/>
+        <TextBlock x:Name="productionTextBlock" Grid.Column="2" Margin="10,10,10,10" Grid.Row="5" TextWrapping="Wrap" Text="TextBlock"/>
+        <TextBlock x:Name="firstPlayerScoreTextBlock" Grid.Column="1" Margin="10,10,10,10" Grid.Row="4" TextWrapping="Wrap" Text="TextBlock"/>
+        <TextBlock x:Name="secondPlayerScoreTextBlock" Grid.Column="2"  Margin="10,10,10,10" Grid.Row="4" Text="TextBlock"/>
+        <TextBlock x:Name="firstPlayerNameTextBlock" Grid.Column="1" Margin="10,10,10,10" Grid.Row="1" Grid.RowSpan="2" TextWrapping="Wrap" Text="Выводы первого игрока" />
+        <TextBlock x:Name="secondPlayerNameTextBlock" Grid.Column="2" Margin="10,10,10,10" Grid.Row="1" Grid.RowSpan="2" TextWrapping="Wrap" Text="Выводы второго игорка"/>
+        <TextBlock x:Name="messageTextBlock" TextWrapping="Wrap" Text="" Grid.Row="7" Margin="10,10,10,10" Grid.RowSpan="2"/>
 
     </Grid>
 </Window>

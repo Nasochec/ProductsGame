@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 
 namespace ProductionsGameCore
 {
-    [Serializable]
-    public class ProductionGroup : ISerializable
+    public class ProductionGroup
     {
         public char Left
         {
@@ -36,14 +35,6 @@ namespace ProductionsGameCore
                 this.right.Add(tmp);
         }
 
-        public ProductionGroup(SerializationInfo info, StreamingContext context)
-        {
-            Left = (char)info.GetValue("left", typeof(char));
-            int size = (int)info.GetValue("rightSize", typeof(int));
-            for (int i = 0; i < size; ++i)
-                right.Add((string)info.GetValue("right" + i, typeof(string)));
-        }
-
         public int RightSize
         {
             get => right.Count;
@@ -61,14 +52,6 @@ namespace ProductionsGameCore
         public IEnumerable<string> getRights()
         {
             return right.AsEnumerable();
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("left", Left, typeof(char));
-            info.AddValue("rightSize", RightSize, typeof(int));
-            for (int i = 0; i < RightSize; ++i)
-                info.AddValue("right" + i, right[i], typeof(string));
         }
 
         public override string ToString()
